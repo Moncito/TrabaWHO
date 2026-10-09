@@ -1,4 +1,4 @@
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { useState } from "react";
 import { ActivityIndicator, Pressable, Text, TextInput } from "react-native";
 
@@ -38,6 +38,9 @@ export default function NewProblem() {
         {busy ? <ActivityIndicator color="#1F2937" /> : <Text className="text-center font-body-bold text-charcoal">Suriin</Text>}
       </Pressable>
       <Note>AI runs on this phone. Works without internet.</Note>
+      <Link href="/ai-stats" className="text-center font-body-medium text-sm text-muted underline">
+        AI stats
+      </Link>
     </Screen>
   );
 }

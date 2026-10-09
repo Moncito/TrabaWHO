@@ -8,6 +8,8 @@ import {
   type TaskCode,
 } from "@trabawho/shared";
 
+import { aiStats } from "./stats";
+
 /** Edge mode: same model in Ollama on a laptop over a local hotspot (no internet). Disclose it. */
 export class OllamaService implements AIService {
   constructor(
@@ -15,7 +17,9 @@ export class OllamaService implements AIService {
     private readonly baseUrl: string,
   ) {}
 
-  async init() {}
+  async init() {
+    aiStats.loadFinished(0); // model lives on the laptop; nothing to load on the phone
+  }
 
   private llm: LlmCall = async ({ messages, jsonSchema, maxTokens }) => {
     const res = await fetch(`${this.baseUrl}/api/chat`, {
@@ -35,10 +39,14 @@ export class OllamaService implements AIService {
   };
 
   async intake(text: string): Promise<BookingCardData | null> {
-    return (await runIntake(text, this.llm)).card;
+    const out = await runIntake(text, this.llm);
+    aiStats.record({ kind: "intake", at: Date.now(), latencyMs: out.latencyMs, source: out.source, attempts: out.attempts });
+    return out.card;
   }
 
   async extractReport(text: string, bookingTask: TaskCode): Promise<ReportDraft> {
-    return (await runReportExtraction(text, bookingTask, this.llm)).draft;
+    const out = await runReportExtraction(text, bookingTask, this.llm);
+    aiStats.record({ kind: "report", at: Date.now(), latencyMs: out.latencyMs, source: out.source, attempts: out.attempts });
+    return out.draft;
   }
 }
