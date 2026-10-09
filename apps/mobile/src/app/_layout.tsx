@@ -33,7 +33,10 @@ export default function RootLayout() {
   return (
     <View className="flex-1 bg-navy">
       <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false }} />
+      <Stack screenOptions={{ headerShown: false }}>
+        {/* Above the tabs, in the app's own window (an RN Modal drew offset on Android 16 edge-to-edge). */}
+        <Stack.Screen name="cancel-booking" options={{ presentation: "transparentModal", animation: "none" }} />
+      </Stack>
       <ToastHost />
     </View>
   );
