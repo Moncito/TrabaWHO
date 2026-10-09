@@ -1,7 +1,40 @@
 import type { BookingCreate, BookingStatus, ReportCreate } from "@trabawho/shared";
 
 import { api, type ServerBooking } from "./api";
-import { db, notify, useDbQuery } from "./db";
+import { db, kvGet, kvSet, notify, useDbQuery } from "./db";
+
+// ---------- cancel ----------
+
+export const CANCEL_REASONS = [
+  { id: "fixed", label: "Problem is already fixed" },
+  { id: "other-worker", label: "I found another worker" },
+  { id: "time", label: "Wrong date or time" },
+  { id: "details", label: "Wrong address or details" },
+  { id: "price", label: "Estimate is too high" },
+  { id: "other", label: "Other reason" },
+] as const;
+
+export interface CancelInfo {
+  reason: string;
+  at: number;
+  /** Snapshot for bookings that never left the phone (their outbox row is deleted). */
+  booking?: Pick<BookingCreate, "serviceCode" | "taskCode" | "urgency" | "address" | "barangay">;
+}
+
+/** Why and when this phone cancelled a booking (shown on the cancelled screen; kept on the phone). */
+export const cancelInfo = (ref: string) => kvGet<CancelInfo>(`cancel:${ref}`);
+
+/**
+ * Cancel before a worker accepts. A booking still in the outbox is simply removed (it never left
+ * the phone); a sent one is cancelled on the server, which refuses if a worker already accepted.
+ */
+export async function cancelBooking(ref: string, reason: string, server?: ServerBooking | null, local?: BookingCreate | null) {
+  if (server) cacheBookings([await api<ServerBooking>(`/bookings/${server.id}/cancel`, { method: "POST" })]);
+  else db.runSync("DELETE FROM outbox WHERE id = ? AND status != 'sent'", ref);
+  const info: CancelInfo = { reason, at: Date.now(), ...(local && !server ? { booking: { serviceCode: local.serviceCode, taskCode: local.taskCode, urgency: local.urgency, address: local.address, barangay: local.barangay } } : {}) };
+  kvSet(`cancel:${ref}`, info);
+  notify();
+}
 
 // ---------- bookings_cache ----------
 

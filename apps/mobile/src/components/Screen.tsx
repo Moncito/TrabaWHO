@@ -67,7 +67,7 @@ export function Screen({
 }
 
 /** Amber strip when offline (DESIGN S01 #1, A5). Visible on the projector during the airplane-mode demo. */
-function OfflineBanner() {
+export function OfflineBanner() {
   const { online } = useNetwork();
   const pending = useOutbox().filter((r) => r.status !== "sent").length;
   if (online) return null;
