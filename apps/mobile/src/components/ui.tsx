@@ -97,6 +97,7 @@ export function Button({
   loading,
   disabled,
   disabledReason,
+  center,
 }: {
   label: string;
   onPress: () => void;
@@ -106,6 +107,8 @@ export function Button({
   loading?: boolean;
   disabled?: boolean;
   disabledReason?: string;
+  /** Pill buttons with the round icon: center the label across the button instead of left-aligning it. */
+  center?: boolean;
 }) {
   const v = BTN[variant];
   const off = disabled || loading;
@@ -118,10 +121,11 @@ export function Button({
         accessibilityState={{ disabled: !!off }}
         disabled={off}
         onPress={onPress}
-        className={`flex-row items-center gap-2 rounded-full active:opacity-80 ${v.box} ${orb ? "h-14 justify-between pl-6 pr-[6px]" : size === "md" ? "h-14 justify-center px-6" : "h-11 justify-center px-4"} ${off ? "opacity-50" : ""}`}
+        className={`flex-row items-center gap-2 rounded-full active:opacity-80 ${v.box} ${orb ? (center ? "h-14 justify-between px-[6px]" : "h-14 justify-between pl-6 pr-[6px]") : size === "md" ? "h-14 justify-center px-6" : "h-11 justify-center px-4"} ${off ? "opacity-50" : ""}`}
       >
-        {orb ? null : loading ? <ActivityIndicator color={v.icon} /> : I ? <I size={size === "md" ? 20 : 16} color={v.icon} weight="bold" /> : null}
-        <Text className={`font-body-bold ${v.text} ${size === "md" ? "text-base" : "text-sm"}`}>{label}</Text>
+        {/* centered pill: an invisible spacer the size of the round icon balances the label */}
+        {orb ? (center ? <View className="h-11 w-11" /> : null) : loading ? <ActivityIndicator color={v.icon} /> : I ? <I size={size === "md" ? 20 : 16} color={v.icon} weight="bold" /> : null}
+        <Text className={`font-body-bold ${v.text} ${size === "md" ? "text-base" : "text-sm"} ${orb && center ? "flex-1 text-center" : ""}`}>{label}</Text>
         {orb ? (
           <View className={`h-11 w-11 items-center justify-center rounded-full ${orb.box}`}>
             {loading ? <ActivityIndicator color={orb.icon} /> : I ? <I size={20} color={orb.icon} weight="bold" /> : <ArrowRight size={20} color={orb.icon} weight="bold" />}
