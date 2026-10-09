@@ -1,7 +1,7 @@
 import { CheckCircle, X } from "phosphor-react-native";
 import { useState } from "react";
 import { Modal, Pressable, Text, TextInput, View } from "react-native";
-import Animated, { FadeIn, SlideInDown } from "react-native-reanimated";
+import Animated, { Easing, FadeIn, ReduceMotion, SlideInDown } from "react-native-reanimated";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { CANCEL_REASONS } from "@/data/bookings";
@@ -18,10 +18,11 @@ export function CancelSheet({ visible, busy, error, onClose, onConfirm }: { visi
 
   return (
     <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
-      <Animated.View entering={FadeIn.duration(150)} className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,26,77,0.55)" }}>
+      <Animated.View entering={FadeIn.duration(120)} className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,26,77,0.55)" }}>
         <Pressable accessibilityLabel="Close" className="flex-1" onPress={onClose} />
         <Animated.View
-          entering={SlideInDown.springify().damping(20)}
+          // One short, calm slide (no spring overshoot); skipped entirely when the phone asks for reduced motion.
+          entering={SlideInDown.duration(220).easing(Easing.out(Easing.cubic)).reduceMotion(ReduceMotion.System)}
           accessibilityViewIsModal
           className="gap-3 rounded-t-[28px] bg-surface px-5 pt-3"
           style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
