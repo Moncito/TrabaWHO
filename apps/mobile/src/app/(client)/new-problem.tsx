@@ -15,6 +15,8 @@ export default function NewProblem() {
   const { text } = useDraft();
   const [busy, setBusy] = useState(false);
   const stats = useAiStats();
+  // Re-cache the intake prompt while the client types (a worker report may have replaced it).
+  useEffect(() => void ai.prewarm?.("intake"), []);
 
   async function analyze() {
     setBusy(true);

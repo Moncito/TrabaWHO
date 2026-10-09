@@ -169,6 +169,19 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Still to do on the phone: re-measure after the fix, **in airplane mode** (the first run was online).
 - Further speed ideas if needed (not done): shorter summary / fewer output tokens, tune `n_threads`, try Qwen3 0.6B (would need a new eval). Note: the report prompt has a different prefix, so the first report after an intake will re-process its prompt.
 
+### 2.18 On-phone results after the warm-up fix (airplane mode)
+- Run by the SWE on the Infinix X6873, **airplane mode on**, 22:08: model load 3.25 s · prompt warm-up 23.5 s (background, at launch) · answers 9.57 s, 7.49 s, 7.56 s (**avg 8.21 s**) · 8.9–9.2 tok/s · 3/3 from the model.
+- First answer 34.7 s → 9.57 s: the warm-up fix works.
+- Answers: sparking outlet → ELECTRICAL / ELEC_OUTLET_REPAIR / EMERGENCY ✅; overflowing clogged toilet → PLUMBING / PLUMB_CLOG / EMERGENCY + flooding note ✅; "hindi na lumalamig yung aircon" → AIRCON / AIRCON_INSPECT, low confidence ⚠️ (service right, task should be AC_NOT_COLD).
+- Screenshot saved as `docs/images/ai-stats-phone-offline.png` and embedded in the README.
+- Note: after the run the phone dropped off USB (`adb: device offline`) with airplane mode still on; turn it off by hand.
+
+### 2.19 Code review of the SWE's screens + report prewarm
+- Reviewed `swe/core-flow` (now in `main`): SQLite outbox written first, one flush at a time oldest-first, network error → stays pending and retries, server rejection → FAILED with retry, 409 on a report = already done; polling only while focused and online; login list cached for offline; worker "open jobs" online-only, "my jobs" from cache; report totals via shared `computeReportTotals`. No blocking bugs found.
+- **Gap found (AI side): first worker report would be slow (~25–30 s).** llama.cpp caches only the last prompt prefix; in the demo the report comes right after an intake, so the report prompt would be processed from scratch.
+- Fix: optional `AIService.prewarm(kind, bookingTask?)`. `LlamaService` serializes completions in a queue (prewarm vs. real call can't overlap), and pre-processes the intake prompt when "Ano ang problema?" opens and the report prompt (for that booking's service) when "I-report ang trabaho" opens, while the user types. Prewarm token counts are excluded from AI stats.
+- Verified: typecheck, 40 tests, Android bundle. To verify on the phone: time the first report after an intake.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

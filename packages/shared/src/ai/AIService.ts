@@ -14,4 +14,9 @@ export interface AIService {
   /** null = could not classify at all; show the service picker. */
   intake(text: string): Promise<BookingCardData | null>;
   extractReport(text: string, bookingTask: TaskCode): Promise<ReportDraft>;
+  /**
+   * Optional: pre-process a prompt while the user is still typing, so the answer is fast.
+   * On-device llama.cpp keeps only the last prompt prefix cached, so screens call this on open.
+   */
+  prewarm?(kind: "intake" | "report", bookingTask?: TaskCode): Promise<void>;
 }
