@@ -2,7 +2,7 @@ import { computeReportTotals, ReportCreate, type ReportDraft } from "@trabawho/s
 import { randomUUID } from "expo-crypto";
 import { router, useLocalSearchParams } from "expo-router";
 import { CheckCircle, CloudArrowUp, FloppyDisk, Plus, Sparkle, Trash } from "phosphor-react-native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
 
@@ -34,6 +34,10 @@ export default function Report() {
   const [busy, setBusy] = useState(false);
   const [savedRef, setSavedRef] = useState<string | null>(null);
   const saved = useOutbox().find((r) => r.id === savedRef);
+  // Pre-process the report prompt while the worker types (the cache usually holds the intake prompt).
+  useEffect(() => {
+    if (b) void ai.prewarm?.("report", b.taskCode);
+  }, [b?.taskCode]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!b || !user) {
     return (

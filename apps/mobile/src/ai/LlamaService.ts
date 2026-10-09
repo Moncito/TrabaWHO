@@ -1,7 +1,11 @@
 import {
+  getTask,
   intakeJsonSchema,
   intakeMessages,
+  reportJsonSchema,
+  reportMessages,
   runIntake,
+  tasksForService,
   runReportExtraction,
   type AIService,
   type BookingCardData,
@@ -49,8 +53,7 @@ export class LlamaService implements AIService {
         // catalog + few-shot) in its KV cache, so later intakes only process the client's text.
         // On the demo phone the first answer was ~35 s without this and ~8 s once the prefix was cached.
         const warmStarted = Date.now();
-        await this.llm({ messages: intakeMessages("tumutulo ang gripo"), jsonSchema: intakeJsonSchema, maxTokens: 1 });
-        this.usage = { promptTokens: 0, generatedTokens: 0, genMs: 0 }; // don't count warm-up in call stats
+        await this.complete({ messages: intakeMessages("tumutulo ang gripo"), jsonSchema: intakeJsonSchema, maxTokens: 1 }, false);
         aiStats.warmupFinished(Date.now() - warmStarted);
       } catch (e) {
         aiStats.loadFailed(e);
@@ -70,21 +73,51 @@ export class LlamaService implements AIService {
     return this.init();
   }
 
-  private llm: LlmCall = async ({ messages, jsonSchema, maxTokens }) => {
-    if (!this.ctx) throw new Error("model not loaded");
-    const res = await this.ctx.completion({
-      messages,
-      jinja: true,
-      enable_thinking: false,
-      response_format: { type: "json_schema", json_schema: { schema: jsonSchema } },
-      n_predict: maxTokens,
-      temperature: 0,
+  // llama.rn runs one completion per context at a time: serialize (prewarm vs. a real call).
+  private queue: Promise<unknown> = Promise.resolve();
+
+  private complete(req: Parameters<LlmCall>[0], countUsage: boolean): Promise<string> {
+    const run = this.queue.then(async () => {
+      if (!this.ctx) throw new Error("model not loaded");
+      const res = await this.ctx.completion({
+        messages: req.messages,
+        jinja: true,
+        enable_thinking: false,
+        response_format: { type: "json_schema", json_schema: { schema: req.jsonSchema } },
+        n_predict: req.maxTokens,
+        temperature: 0,
+      });
+      if (countUsage) {
+        this.usage.promptTokens += res.timings.prompt_n;
+        this.usage.generatedTokens += res.timings.predicted_n;
+        this.usage.genMs += res.timings.predicted_ms;
+      }
+      return res.text;
     });
-    this.usage.promptTokens += res.timings.prompt_n;
-    this.usage.generatedTokens += res.timings.predicted_n;
-    this.usage.genMs += res.timings.predicted_ms;
-    return res.text;
-  };
+    this.queue = run.catch(() => undefined);
+    return run;
+  }
+
+  private llm: LlmCall = (req) => this.complete(req, true);
+
+  /**
+   * llama.cpp keeps only the LAST prompt prefix in its KV cache. Intake and report prompts differ,
+   * so each screen pre-processes its own prompt on open (while the user types). Cheap if already cached.
+   */
+  async prewarm(kind: "intake" | "report", bookingTask?: TaskCode): Promise<void> {
+    try {
+      await this.init();
+      if (kind === "intake") {
+        await this.complete({ messages: intakeMessages("x"), jsonSchema: intakeJsonSchema, maxTokens: 1 }, false);
+      } else if (bookingTask) {
+        const service = getTask(bookingTask).service;
+        const allowed = tasksForService(service).map((t) => t.code);
+        await this.complete({ messages: reportMessages("x", service), jsonSchema: reportJsonSchema(allowed), maxTokens: 1 }, false);
+      }
+    } catch {
+      // best effort: the real call still works, just slower
+    }
+  }
 
   private takeUsage() {
     const u = this.usage;
