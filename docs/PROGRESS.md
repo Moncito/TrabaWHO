@@ -110,6 +110,13 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Verified: mobile typecheck, Android bundle, and in the browser (web, stub mode): login → type "may naaamoy akong gas sa kusina" → Booking Card shows Tubero / Inspeksyon ng tubero / EMERGENCY / ₱300–₱600 / gas safety note with 911 → AI stats shows the call. On-phone numbers pending the dev build.
 - Purpose: demo step 6 ("Proof") and the measured phone latency for the README/pitch.
 
+### 2.14 In-app model file picker (branch `ai/model-picker`)
+- Backup for phones that block `adb push` into `Android/data`.
+- `apps/mobile/src/ai/modelFile.ts`: `pickAndImportModel()` opens the system file picker (`File.pickFileAsync` from expo-file-system 57; no extra dependency), checks the name ends in `.gguf`, copies it to the app's documents folder as `model.gguf`, and rejects copies under 100 MB. `resolveModelPath()` prefers the imported copy, then the adb-pushed path.
+- `LlamaService`: resolves the path at load time (clear error if none found), records the path in AI stats, and `reload()` releases the old context and loads again.
+- AI stats screen: "Pumili ng model file (.gguf)" button (llama backend only), progress text "Kinokopya ang model (~1 minuto)...", and the file path in use.
+- Verified: mobile typecheck and Android bundle. Not testable in the browser (button only shows with the on-device backend); needs the phone.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

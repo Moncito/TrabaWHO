@@ -9,6 +9,7 @@ import {
 } from "@trabawho/shared";
 import { initLlama, type LlamaContext } from "llama.rn";
 
+import { resolveModelPath } from "./modelFile";
 import { aiStats } from "./stats";
 
 interface Usage {
@@ -28,7 +29,7 @@ export class LlamaService implements AIService {
 
   constructor(
     readonly modelId: string,
-    private readonly modelPath: string,
+    private readonly adbModelPath: string,
   ) {}
 
   init(): Promise<void> {
@@ -36,7 +37,10 @@ export class LlamaService implements AIService {
       aiStats.loadStarted();
       const started = Date.now();
       try {
-        this.ctx = await initLlama({ model: this.modelPath, n_ctx: 2048, n_gpu_layers: 99, use_mlock: true });
+        const path = resolveModelPath(this.adbModelPath);
+        if (!path) throw new Error("Model file not found. Push it with adb, or use AI stats → Pumili ng model file.");
+        aiStats.setModelPath(path);
+        this.ctx = await initLlama({ model: path, n_ctx: 2048, n_gpu_layers: 99, use_mlock: true });
         // warm-up so the first real answer isn't slow
         await this.llm({ messages: [{ role: "user", content: "hi" }], jsonSchema: { type: "object" }, maxTokens: 1 });
         aiStats.loadFinished(Date.now() - started);
@@ -47,6 +51,15 @@ export class LlamaService implements AIService {
       }
     })();
     return this.loading;
+  }
+
+  /** Drop the loaded model and load again (after importing a model file in-app). */
+  async reload(): Promise<void> {
+    await this.loading?.catch(() => undefined);
+    await this.ctx?.release().catch(() => undefined);
+    this.ctx = null;
+    this.loading = null;
+    return this.init();
   }
 
   private llm: LlmCall = async ({ messages, jsonSchema, maxTokens }) => {

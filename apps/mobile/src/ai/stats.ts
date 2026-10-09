@@ -21,6 +21,7 @@ export interface AiStats {
   loadState: "idle" | "loading" | "ready" | "failed";
   loadMs?: number;
   loadError?: string;
+  modelPath?: string;
   calls: AiCallStat[];
 }
 
@@ -35,6 +36,9 @@ function set(patch: Partial<AiStats>) {
 export const aiStats = {
   setBackend(backend: string, modelId: string) {
     set({ backend, modelId });
+  },
+  setModelPath(modelPath: string) {
+    set({ modelPath });
   },
   loadStarted() {
     set({ loadState: "loading", loadError: undefined });
