@@ -1,0 +1,134 @@
+{
+  "backend": "ollama",
+  "model": "qwen3:1.7b",
+  "twoStep": "off",
+  "ranAt": "2026-10-09T16:21:01.213Z",
+  "machine": "laptop",
+  "intake": {
+    "summary": {
+      "file": "demo-spark.json",
+      "cases": 4,
+      "service": "4/4 (100%)",
+      "task": "4/4 (100%)",
+      "hazards": "4/4 (100%)",
+      "fallbackUsed": 0,
+      "avgLatencyMs": 1011,
+      "maxLatencyMs": 1271,
+      "twoStep": "off",
+      "step1AvgPromptTokensEvaluated": 1385,
+      "step1AvgGenTokens": 53,
+      "step2AvgPromptTokensEvaluated": 0,
+      "step2AvgGenTokens": 0,
+      "step2AvgMs": 0,
+      "keywordsService": "4/4 (100%)",
+      "keywordsTask": "4/4 (100%)",
+      "modelRightKeywordsWrong": [],
+      "keywordsRightModelWrong": []
+    },
+    "rows": [
+      {
+        "id": "p01",
+        "source": "model",
+        "latencyMs": 1271,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1387,
+            "genTokens": 58,
+            "promptMs": 327,
+            "genMs": 726
+          }
+        ]
+      },
+      {
+        "id": "p02",
+        "source": "model",
+        "latencyMs": 850,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING",
+          "BURNING_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1382,
+            "genTokens": 47,
+            "promptMs": 68,
+            "genMs": 605
+          }
+        ]
+      },
+      {
+        "id": "p03",
+        "source": "model",
+        "latencyMs": 891,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1388,
+            "genTokens": 55,
+            "promptMs": 71,
+            "genMs": 686
+          }
+        ]
+      },
+      {
+        "id": "p04",
+        "source": "model",
+        "latencyMs": 1030,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1386,
+            "genTokens": 56,
+            "promptMs": 69,
+            "genMs": 702
+          }
+        ]
+      }
+    ]
+  },
+  "report": null,
+  "scam": null
+}

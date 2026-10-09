@@ -198,6 +198,40 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Re-run after fixes: tuned unchanged (19/20, 16/20); held-out post-change service 10/12 (h06 typo flipped), task 4/12, hazards 12/12. Both runs reported; blind run stays the headline.
 - Demo phrase checks (laptop, `eval/demo.json`, `eval/demo-spark.json`): "May tulo sa ilalim ng lababo namin" → leak, no hazard ✅; "Nag-spark yung saksakan nung sinaksak ko yung charger" (and 3 other spark variants) → outlet + SPARKING ✅; "Umaapaw na yung tubig sa CR, barado yung inidoro" → clog + flooding ✅; "Amoy gas dito sa kusina, ano gagawin ko?" → gas ✅; "Sira yung pinto ng CR, ayaw na sumara" → door ✅. Not reliable: "nag-spark… namatay yung electric fan" → breaker; "breaker… aircon at plantsa" → inspect.
 
+### 2.22 Two-step intake experiment (Oct 10, branch `ai/two-step`, based on `ai/demo-fixes` e511df5)
+- Problem: the model picks the service well but the exact task poorly (held-out task 4/12).
+- Built behind a flag, **default unchanged (single-step)**: `runIntake(text, llm, catalog, { twoStep })`.
+  - Step 1 = the existing intake call, prompt and schema byte-identical (on-phone warm-up still applies).
+  - Step 2 (`chooseTask`): one extra call, JSON schema = only the chosen service's 4 codes, `maxTokens` 20, no retry. A valid code overrides the step-1 task; invalid/throwing output keeps the step-1 task (then `normalizeIntake` turns a wrong-service task into `<SERVICE>_INSPECT`). Keyword fallback, hazard rules and `normalizeIntake` untouched; step 2 only runs when step 1 succeeded.
+  - Two variants: `"compact"` (or `true`): short separate prompt with just the 4 tasks + plain Taglish/English descriptions (`taskChoiceHints` in `prompts.ts`); `"followup"`: continues the step-1 conversation (intake messages + step-1 answer + a follow-up question), so the intake prefix stays in the phone's KV cache.
+- Eval: `npm run eval -- ... --two-step [compact|followup]`; results saved as `eval/results/qwen3_1.7b.ab-<set>[.twostep-<mode>].json`. Rows now include per-call Ollama token counts.
+- Tuning: one round on the tuned set + demo files only (compact first run: tuned 18/20, demo 5/6 with d03 "barado yung inidoro" → toilet repair; then clarified the PLUMB_LEAK_SINK / PLUMB_CLOG / PLUMB_TOILET_REPAIR descriptions). Held-out was run only after that, once per mode, no changes after. Caveat: held-out failures were already described in 2.16, so the held-out numbers below are **"already seen"**, not blind.
+- Results (laptop, Ollama, qwen3:1.7b, temperature 0):
+
+| Set | Mode | Service | Task | Hazards | Avg latency |
+| --- | --- | --- | --- | --- | --- |
+| Tuned (20) | single | 19/20 | 16/20 | 19/20 | 0.98 s |
+| Tuned (20) | two-step compact | 19/20 | **19/20** | 19/20 | 1.76 s |
+| Tuned (20) | two-step followup | 19/20 | 15/20 | 19/20 | 2.82 s |
+| Held-out (12, already seen) | single | 10/12 | 4/12 | 12/12 | 0.98 s |
+| Held-out (12, already seen) | two-step compact | 10/12 | 5/12 | 12/12 | 3.47 s* |
+| Held-out (12, already seen) | two-step followup | 10/12 | 5/12 | 12/12 | 1.48 s |
+| demo.json (6) | single | 6/6 | 4/6 | 6/6 | 0.99 s |
+| demo.json (6) | two-step compact | 6/6 | **6/6** | 6/6 | 1.70 s |
+| demo.json (6) | two-step followup | 6/6 | 6/6 | 6/6 | 1.42 s |
+| demo-spark.json (4) | single | 4/4 | 4/4 | 4/4 | 1.01 s |
+| demo-spark.json (4) | two-step compact | 4/4 | 4/4 | 4/4 | 1.47 s |
+| demo-spark.json (4) | two-step followup | 4/4 | 4/4 | 4/4 | 1.37 s |
+
+  \* averages include the first call (model load/cache), so laptop averages are noisy; the step-2 call itself measured ~0.19–0.25 s (compact) and ~0.45–0.50 s (followup) on the laptop.
+- Per case: compact fixes tuned i03 (toilet tank), i09 (no power → inspect), i15 (warm air → not cold) and demo d02 (spark + fan died → outlet), d06 (breaker + aircon/plantsa → breaker); remaining tuned miss i19 is a service error (tank stand → plumbing), which step 2 cannot fix. Held-out: compact fixes h08 but changes h02 from one wrong task to another; followup fixes h08, breaks nothing new on held-out but **regresses tuned** (i05, i07, i20 newly wrong: it anchors on its own step-1 answer and the long context). Followup is not worth it.
+- **Phone latency estimate** (Infinix: ~9 tok/s generation; prompt processing ≈ 1,390-token intake prompt in 23.5 s warm-up ≈ 60 tok/s):
+  - Compact step 2: ~265–285 prompt tokens, **not cached** (prompt differs from the intake prefix) ≈ 4.5–5 s + ~12 output tokens ≈ 1.3 s → **+~6 s per intake (~8 s → ~14 s)**. Worse: it replaces the cached intake prefix, so the **next** intake re-processes the full ~1,390-token prompt (+~23 s) unless the intake prewarm runs again first (it does when "Ano ang problema?" opens, but not between first-aid chat turns).
+  - Followup step 2: new tokens ≈ step-1 answer (~55) + question (~220) ≈ 275 → also **+~6 s**, but the intake prefix stays cached. (Ollama's `prompt_eval_count` reports the full prompt even when cached, so phone numbers are estimates from token counts, not measurements.)
+  - Prewarming step 2 is not useful: the compact prompt depends on the service chosen in step 1, and llama.cpp keeps one prefix, so prewarming it would evict the intake prefix. Not added to `LlamaService`.
+- Recommendation: **keep single-step as the default on the phone** (+~6 s ≈ +75% latency for +1/12 on the already-seen held-out set). Compact two-step is a clear win on the tuned/demo sets and nearly free on a laptop (~0.2 s), so it is a candidate for Edge/Ollama mode. Decide after the fresh held-out set (`eval/heldout2.json`, not written yet at the time of this run).
+- Tests: `packages/shared/test/twostep.test.ts` (10 tests: off by default; step 2 gets only the service's 4 codes; compact prompt has no other service's codes; followup keeps the step-1 messages as an exact prefix; invalid / other-service / throwing step 2 falls back; keyword fallback path unchanged; hazard rules still apply). 59 tests pass, typecheck clean.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

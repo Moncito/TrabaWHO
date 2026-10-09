@@ -1,5 +1,5 @@
 import { catalog as defaultCatalog, tasksForService, type Catalog } from "../catalog";
-import type { ServiceCode } from "../schemas";
+import type { ServiceCode, TaskCode } from "../schemas";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant";
@@ -64,6 +64,80 @@ export function intakeMessages(text: string, c: Catalog = defaultCatalog): ChatM
     { role: "assistant", content: JSON.stringify(e.answer) },
   ]);
   return [{ role: "system", content: intakeSystemPrompt(c) }, ...shots, { role: "user", content: text }];
+}
+
+// ---------- Intake step 2: task within the chosen service (two-step mode) ----------
+
+/**
+ * Plain descriptions for the step-2 task choice. Written from the catalog meaning of each task
+ * (not from eval cases). Falls back to the catalog promptHint for any task missing here.
+ */
+export const taskChoiceHints: Partial<Record<TaskCode, string>> = {
+  PLUMB_LEAK_SINK: "water leaking or dripping (tulo, tagas, patak) from a faucet/gripo, sink/lababo or water pipe/tubo, including a burst pipe. Not for toilet problems",
+  PLUMB_CLOG: "something is blocked (barado, bara): sink, floor drain, kanal, or a clogged toilet (barado ang inidoro, even if it overflows); water does not go down",
+  PLUMB_TOILET_REPAIR: "toilet/inidoro or its tank (tangke) when it is NOT blocked: will not flush, water keeps flowing into the tank (tuloy-tuloy ang agos), leaking at the base, broken flush",
+  PLUMBING_INSPECT: "the client does not say what is broken, or it fits none of the tasks above (e.g. no water or weak water in the house, gas smell, pump, unknown cause)",
+  ELEC_OUTLET_REPAIR: "saksakan/outlet/socket/plug: dead, loose, burnt marks, sparks or smoke when something is plugged in",
+  ELEC_BREAKER_TRIP: "breaker or fuse keeps tripping or falling (nagti-trip, bumabagsak), often when appliances run together",
+  ELEC_LIGHT_FIXTURE: "ilaw/bumbilya/bulb/fluorescent/LED or a light switch: dead, flickering (kumikisap), or install a new light",
+  ELECTRICAL_INSPECT: "the client does not say what is broken, or it fits none of the tasks above (e.g. no power with no breaker tripping, wiring, unknown cause)",
+  CARP_DOOR_REPAIR: "pinto/pintuan/door of a room, CR or house: will not close, scrapes the floor, hinge (bisagra), doorknob or lock",
+  CARP_CABINET_REPAIR: "furniture: kabinet/cabinet (including its small door), drawer, aparador, shelf/estante, table/mesa or chair/upuan",
+  CARP_CEILING_REPAIR: "kisame/ceiling or wooden wall: sagging (nakalaylay), wet, hole, or eaten by termites (anay)",
+  CARPENTRY_INSPECT: "the client does not say what is broken, or it fits none of the tasks above",
+  AC_CLEANING: "aircon cleaning or maintenance (linis, general cleaning): dusty, smelly air",
+  AC_NOT_COLD: "aircon runs but is not cold: hindi malamig, hindi lumalamig, mahina ang lamig, warm air",
+  AC_WATER_LEAK: "water dripping or leaking out of the aircon unit",
+  AIRCON_INSPECT: "the client does not say what is wrong, or it fits none of the tasks above (e.g. will not turn on, strange noise, error code)",
+  WELD_GATE_REPAIR: "steel gate (swing, sliding or rolling): broken, hinge came off, off its track, will not close",
+  WELD_GRILL_INSTALL: "window or door grills/rehas: install new ones or fix old ones",
+  WELD_METAL_REPAIR: "other broken metal that is not a gate or grills: railing, frame, stand, metal stairs, cracked or cut steel",
+  WELDING_INSPECT: "the client does not say what is broken, or it fits none of the tasks above",
+};
+
+function taskChoiceList(service: ServiceCode, c: Catalog): string {
+  return tasksForService(service, c)
+    .map((t) => `- ${t.code}: ${taskChoiceHints[t.code] ?? t.promptHint}`)
+    .join("\n");
+}
+
+const TASK_CHOICE_RULE =
+  "Pick the specific task when the client names the broken thing or describes its symptom. Pick the _INSPECT task only when no specific task fits.";
+
+/** Compact, separate step-2 prompt: only the chosen service's tasks. */
+export function taskChoiceMessages(text: string, service: ServiceCode, c: Catalog = defaultCatalog): ChatMessage[] {
+  const name = c.services.find((s) => s.code === service)?.nameEn ?? service;
+  const system = `A client in the Philippines wrote a home-repair request (Taglish, Filipino or English). It needs a ${name}. Choose the ONE task that matches it.
+Reply with JSON only: {"task": "<CODE>"}
+
+Tasks:
+${taskChoiceList(service, c)}
+
+${TASK_CHOICE_RULE}`;
+  return [
+    { role: "system", content: system },
+    { role: "user", content: text },
+  ];
+}
+
+/**
+ * Follow-up variant: continues the step-1 conversation (same prefix, so the on-phone KV cache
+ * keeps the intake prompt and only this short question is new).
+ */
+export function taskFollowupMessages(
+  text: string,
+  step1Raw: string,
+  service: ServiceCode,
+  c: Catalog = defaultCatalog,
+): ChatMessage[] {
+  return [
+    ...intakeMessages(text, c),
+    { role: "assistant", content: step1Raw },
+    {
+      role: "user",
+      content: `Now check only the task. Choose the ONE ${service} task that best matches my message:\n${taskChoiceList(service, c)}\n${TASK_CHOICE_RULE}\nReply with JSON only: {"task": "<CODE>"}`,
+    },
+  ];
 }
 
 // ---------- Job report ----------

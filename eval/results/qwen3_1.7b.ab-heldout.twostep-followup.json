@@ -1,0 +1,403 @@
+{
+  "backend": "ollama",
+  "model": "qwen3:1.7b",
+  "twoStep": "followup",
+  "ranAt": "2026-10-09T16:29:23.752Z",
+  "machine": "laptop",
+  "intake": {
+    "summary": {
+      "file": "heldout.json",
+      "cases": 12,
+      "service": "10/12 (83%)",
+      "task": "5/12 (42%)",
+      "hazards": "12/12 (100%)",
+      "fallbackUsed": 0,
+      "avgLatencyMs": 1476,
+      "maxLatencyMs": 2418,
+      "twoStep": "followup",
+      "step1AvgPromptTokensEvaluated": 1380,
+      "step1AvgGenTokens": 49,
+      "step2AvgPromptTokensEvaluated": 1643,
+      "step2AvgGenTokens": 11,
+      "step2AvgMs": 453,
+      "keywordsService": "8/12 (67%)",
+      "keywordsTask": "5/12 (42%)",
+      "modelRightKeywordsWrong": [
+        "h12"
+      ],
+      "keywordsRightModelWrong": [
+        "h07"
+      ]
+    },
+    "rows": [
+      {
+        "id": "h01",
+        "source": "model",
+        "latencyMs": 1970,
+        "service": "PLUMBING",
+        "task": "PLUMB_TOILET_REPAIR",
+        "hazards": [
+          "STRUCTURAL_DAMAGE"
+        ],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_TOILET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1380,
+            "genTokens": 46,
+            "promptMs": 363,
+            "genMs": 586
+          },
+          {
+            "step": 2,
+            "promptTokens": 1692,
+            "genTokens": 12,
+            "promptMs": 398,
+            "genMs": 189
+          }
+        ]
+      },
+      {
+        "id": "h02",
+        "source": "model",
+        "latencyMs": 1615,
+        "service": "PLUMBING",
+        "task": "PLUMB_LEAK_SINK",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_LEAK_SINK",
+        "kwServiceOk": true,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1379,
+            "genTokens": 46,
+            "promptMs": 68,
+            "genMs": 548
+          },
+          {
+            "step": 2,
+            "promptTokens": 1691,
+            "genTokens": 11,
+            "promptMs": 378,
+            "genMs": 125
+          }
+        ]
+      },
+      {
+        "id": "h03",
+        "source": "model",
+        "latencyMs": 1454,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1379,
+            "genTokens": 47,
+            "promptMs": 67,
+            "genMs": 611
+          },
+          {
+            "step": 2,
+            "promptTokens": 1647,
+            "genTokens": 11,
+            "promptMs": 359,
+            "genMs": 125
+          }
+        ]
+      },
+      {
+        "id": "h04",
+        "source": "model",
+        "latencyMs": 1478,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1382,
+            "genTokens": 54,
+            "promptMs": 68,
+            "genMs": 652
+          },
+          {
+            "step": 2,
+            "promptTokens": 1657,
+            "genTokens": 11,
+            "promptMs": 362,
+            "genMs": 133
+          }
+        ]
+      },
+      {
+        "id": "h05",
+        "source": "model",
+        "latencyMs": 1396,
+        "service": "CARPENTRY",
+        "task": "CARP_CABINET_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1380,
+            "genTokens": 48,
+            "promptMs": 77,
+            "genMs": 587
+          },
+          {
+            "step": 2,
+            "promptTokens": 1643,
+            "genTokens": 12,
+            "promptMs": 358,
+            "genMs": 139
+          }
+        ]
+      },
+      {
+        "id": "h06",
+        "source": "model",
+        "latencyMs": 1155,
+        "service": "WELDING",
+        "task": "WELD_METAL_REPAIR",
+        "hazards": [],
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1379,
+            "genTokens": 46,
+            "promptMs": 70,
+            "genMs": 558
+          },
+          {
+            "step": 2,
+            "promptTokens": 1611,
+            "genTokens": 12,
+            "promptMs": 263,
+            "genMs": 133
+          }
+        ]
+      },
+      {
+        "id": "h07",
+        "source": "model",
+        "latencyMs": 1011,
+        "service": "AIRCON",
+        "task": "AIRCON_INSPECT",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "AC_WATER_LEAK",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1377,
+            "genTokens": 40,
+            "promptMs": 70,
+            "genMs": 474
+          },
+          {
+            "step": 2,
+            "promptTokens": 1596,
+            "genTokens": 9,
+            "promptMs": 257,
+            "genMs": 96
+          }
+        ]
+      },
+      {
+        "id": "h08",
+        "source": "model",
+        "latencyMs": 1182,
+        "service": "AIRCON",
+        "task": "AC_NOT_COLD",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "AC_NOT_COLD",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1375,
+            "genTokens": 50,
+            "promptMs": 70,
+            "genMs": 594
+          },
+          {
+            "step": 2,
+            "promptTokens": 1604,
+            "genTokens": 9,
+            "promptMs": 263,
+            "genMs": 97
+          }
+        ]
+      },
+      {
+        "id": "h09",
+        "source": "model",
+        "latencyMs": 1156,
+        "service": "WELDING",
+        "task": "WELD_GATE_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "WELD_GATE_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1382,
+            "genTokens": 47,
+            "promptMs": 69,
+            "genMs": 567
+          },
+          {
+            "step": 2,
+            "promptTokens": 1615,
+            "genTokens": 11,
+            "promptMs": 264,
+            "genMs": 124
+          }
+        ]
+      },
+      {
+        "id": "h10",
+        "source": "model",
+        "latencyMs": 1206,
+        "service": "CARPENTRY",
+        "task": "CARP_CABINET_REPAIR",
+        "hazards": [],
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1378,
+            "genTokens": 46,
+            "promptMs": 71,
+            "genMs": 543
+          },
+          {
+            "step": 2,
+            "promptTokens": 1639,
+            "genTokens": 12,
+            "promptMs": 355,
+            "genMs": 131
+          }
+        ]
+      },
+      {
+        "id": "h11",
+        "source": "model",
+        "latencyMs": 1676,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1381,
+            "genTokens": 53,
+            "promptMs": 69,
+            "genMs": 654
+          },
+          {
+            "step": 2,
+            "promptTokens": 1655,
+            "genTokens": 11,
+            "promptMs": 363,
+            "genMs": 124
+          }
+        ]
+      },
+      {
+        "id": "h12",
+        "source": "model",
+        "latencyMs": 2418,
+        "service": "PLUMBING",
+        "task": "PLUMB_LEAK_SINK",
+        "hazards": [
+          "GAS_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "PLUMBING_INSPECT",
+        "kwServiceOk": true,
+        "kwTaskOk": false,
+        "calls": [
+          {
+            "step": 1,
+            "promptTokens": 1388,
+            "genTokens": 59,
+            "promptMs": 71,
+            "genMs": 710
+          },
+          {
+            "step": 2,
+            "promptTokens": 1713,
+            "genTokens": 11,
+            "promptMs": 389,
+            "genMs": 144
+          }
+        ]
+      }
+    ]
+  },
+  "report": null,
+  "scam": null
+}

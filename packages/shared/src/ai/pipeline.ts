@@ -2,10 +2,10 @@ import { catalog as defaultCatalog, getTask, tasksForService, type Catalog } fro
 import { buildBookingCard, normalizeIntake } from "../rules/bookingCard";
 import { parseDurationMinutes } from "../rules/duration";
 import { keywordIntake } from "../rules/fallback";
-import { IntakeResult, ReportDraft, type BookingCardData, type TaskCode } from "../schemas";
+import { IntakeResult, ReportDraft, type BookingCardData, type ServiceCode, type TaskCode } from "../schemas";
 import type { z } from "zod";
-import { intakeJsonSchema, reportJsonSchema } from "./jsonSchemas";
-import { intakeMessages, reportMessages, type ChatMessage } from "./prompts";
+import { intakeJsonSchema, reportJsonSchema, taskChoiceJsonSchema } from "./jsonSchemas";
+import { intakeMessages, reportMessages, taskChoiceMessages, taskFollowupMessages, type ChatMessage } from "./prompts";
 
 /**
  * One LLM call. Backends: llama.rn on the phone, Ollama / llama.cpp server on a laptop
@@ -74,8 +74,50 @@ export async function callWithRetry<T>(
   return { value: null, attempts: maxAttempts, rawOutputs };
 }
 
+/**
+ * Two-step intake (experimental, off by default):
+ * - "compact" (or true): step 2 is a short separate prompt listing only the chosen service's tasks.
+ * - "followup": step 2 continues the step-1 conversation, so the intake prefix stays in the
+ *   on-phone KV cache and only the follow-up question is new prompt work.
+ */
+export type TwoStepMode = "compact" | "followup";
+export interface IntakeOptions {
+  twoStep?: boolean | TwoStepMode;
+}
+
+const STEP2_MAX_TOKENS = 20;
+
+/**
+ * Step 2: choose the task among the service's tasks only. Never throws; returns null when the
+ * output is unusable so the caller keeps the step-1 task.
+ */
+export async function chooseTask(
+  text: string,
+  service: ServiceCode,
+  llm: LlmCall,
+  mode: TwoStepMode,
+  step1Raw: string,
+  c: Catalog = defaultCatalog,
+): Promise<{ task: TaskCode | null; raw: string }> {
+  const allowed = tasksForService(service, c).map((t) => t.code);
+  const messages = mode === "followup" ? taskFollowupMessages(text, step1Raw, service, c) : taskChoiceMessages(text, service, c);
+  let raw = "";
+  try {
+    raw = await llm({ messages, jsonSchema: taskChoiceJsonSchema(allowed), maxTokens: STEP2_MAX_TOKENS });
+    const task = (extractJson(raw) as { task?: unknown }).task;
+    return { task: allowed.includes(task as TaskCode) ? (task as TaskCode) : null, raw };
+  } catch {
+    return { task: null, raw };
+  }
+}
+
 /** ARCHITECTURE 3.3: prompt -> LLM -> Zod -> retry once -> keyword fallback -> rules engine. */
-export async function runIntake(text: string, llm: LlmCall, c: Catalog = defaultCatalog): Promise<IntakeOutcome> {
+export async function runIntake(
+  text: string,
+  llm: LlmCall,
+  c: Catalog = defaultCatalog,
+  opts: IntakeOptions = {},
+): Promise<IntakeOutcome> {
   const started = Date.now();
   const { value, attempts, rawOutputs } = await callWithRetry(
     llm,
@@ -92,7 +134,18 @@ export async function runIntake(text: string, llm: LlmCall, c: Catalog = default
     rawOutputs,
   });
 
-  if (value) return done(buildBookingCard(normalizeIntake(value, text, c), "model", c), "model");
+  if (value) {
+    let result = value;
+    const mode: TwoStepMode | null = opts.twoStep === true ? "compact" : opts.twoStep || null;
+    if (mode) {
+      // Step 2 overrides the task only when it returns one of this service's codes; otherwise the
+      // step-1 task stays (normalizeIntake turns a wrong-service task into <SERVICE>_INSPECT).
+      const step2 = await chooseTask(text, value.service, llm, mode, rawOutputs[rawOutputs.length - 1] ?? "", c);
+      rawOutputs.push(step2.raw);
+      if (step2.task) result = { ...value, task: step2.task };
+    }
+    return done(buildBookingCard(normalizeIntake(result, text, c), "model", c), "model");
+  }
 
   const fallback = keywordIntake(text, c);
   if (fallback) return done(buildBookingCard(normalizeIntake(fallback, text, c), "fallback", c), "fallback");

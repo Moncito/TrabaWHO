@@ -14,7 +14,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { detectScamFlags, runIntake, runReportExtraction, runScamCheck, scamRisk, type LlmCall, type TaskCode } from "@trabawho/shared";
+import { catalog, detectScamFlags, runIntake, runReportExtraction, runScamCheck, scamRisk, type LlmCall, type TaskCode, type TwoStepMode } from "@trabawho/shared";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -26,6 +26,18 @@ function arg(name: string, fallback?: string): string | undefined {
 const backend = arg("backend", "ollama")!;
 const model = arg("model", backend === "keywords" ? "keywords-only" : "qwen3:1.7b")!;
 const only = arg("only"); // "intake" | "report" | "scam"
+// --two-step [compact|followup]: experimental intake step 2 (task chosen among the service's tasks).
+const twoStepIdx = process.argv.indexOf("--two-step");
+const twoStep: TwoStepMode | null =
+  twoStepIdx === -1 ? null : process.argv[twoStepIdx + 1] === "followup" ? "followup" : "compact";
+
+/** Per-call token counts (Ollama only), used to estimate phone latency. */
+interface CallStat { step: 1 | 2; promptTokens: number; genTokens: number; promptMs: number; genMs: number }
+let callStats: CallStat[] = [];
+const isTaskChoice = (schema: object) => {
+  const props = (schema as { properties?: object }).properties;
+  return !!props && Object.keys(props).length === 1 && "task" in props;
+};
 
 function ollamaBackend(url: string): LlmCall {
   return async ({ messages, jsonSchema, maxTokens }) => {
@@ -42,7 +54,20 @@ function ollamaBackend(url: string): LlmCall {
       }),
     });
     if (!res.ok) throw new Error(`ollama ${res.status}: ${await res.text()}`);
-    const body = (await res.json()) as { message?: { content?: string } };
+    const body = (await res.json()) as {
+      message?: { content?: string };
+      prompt_eval_count?: number;
+      eval_count?: number;
+      prompt_eval_duration?: number;
+      eval_duration?: number;
+    };
+    callStats.push({
+      step: isTaskChoice(jsonSchema) ? 2 : 1,
+      promptTokens: body.prompt_eval_count ?? 0,
+      genTokens: body.eval_count ?? 0,
+      promptMs: Math.round((body.prompt_eval_duration ?? 0) / 1e6),
+      genMs: Math.round((body.eval_duration ?? 0) / 1e6),
+    });
     return body.message?.content ?? "";
   };
 }
@@ -140,7 +165,9 @@ async function evalIntake() {
   if (!cases.length) throw new Error(`${intakeFile} has no cases`);
   const rows = [];
   for (const c of cases) {
-    const out = await runIntake(c.text, llm);
+    callStats = [];
+    const out = await runIntake(c.text, llm, catalog, { twoStep: twoStep ?? false });
+    const calls = callStats;
     const card = out.card;
     const hazards = card?.hazards ?? [];
     const kw = compare ? (await runIntake(c.text, noModel)).card : card;
@@ -157,6 +184,7 @@ async function evalIntake() {
       kwTask: kw?.task ?? null,
       kwServiceOk: kw?.service === c.expectedService,
       kwTaskOk: kw?.task === c.expectedTask,
+      calls,
     };
     rows.push(row);
     const mark = (ok: boolean) => (ok ? "ok " : "XX ");
@@ -175,6 +203,8 @@ async function evalIntake() {
     fallbackUsed: count(rows, (r) => r.source !== "model"),
     avgLatencyMs: avg(rows.map((r) => r.latencyMs)),
     maxLatencyMs: Math.max(...rows.map((r) => r.latencyMs)),
+    twoStep: twoStep ?? "off",
+    ...tokenSummary(rows.map((r) => r.calls)),
     ...(compare && {
       keywordsService: pct(count(rows, (r) => r.kwServiceOk), n),
       keywordsTask: pct(count(rows, (r) => r.kwTaskOk), n),
@@ -184,6 +214,20 @@ async function evalIntake() {
   };
   console.log("\nINTAKE", summary, "\n");
   return { summary, rows };
+}
+
+/** Average tokens per intake for step 1 and step 2 (first call excluded: model load). */
+function tokenSummary(perCase: CallStat[][]) {
+  const all = perCase.slice(1).flat();
+  if (!all.length) return {};
+  const of = (step: 1 | 2, k: keyof Omit<CallStat, "step">) => avg(all.filter((s) => s.step === step).map((s) => s[k]));
+  return {
+    step1AvgPromptTokensEvaluated: of(1, "promptTokens"),
+    step1AvgGenTokens: of(1, "genTokens"),
+    step2AvgPromptTokensEvaluated: of(2, "promptTokens"),
+    step2AvgGenTokens: of(2, "genTokens"),
+    step2AvgMs: avg(all.filter((s) => s.step === 2).map((s) => s.promptMs + s.genMs)),
+  };
 }
 
 const sameMaterial = (a: string, b: string) => {
@@ -286,7 +330,7 @@ function printComparison(
   }
 }
 
-console.log(`backend=${backend} model=${model}\n`);
+console.log(`backend=${backend} model=${model} twoStep=${twoStep ?? "off"}\n`);
 await preflight();
 const intake = only === "report" || only === "scam" ? null : await evalIntake();
 const report = only === "intake" || only === "scam" ? null : await evalReport();
@@ -306,9 +350,10 @@ printComparison(intake, report);
 const outDir = join(here, "results");
 mkdirSync(outDir, { recursive: true });
 const tag = arg("tag");
-const file = join(outDir, `${model.replace(/[^a-z0-9.-]/gi, "_")}${tag ? `.${tag}` : ""}.json`);
+const stepTag = twoStep ? `.twostep-${twoStep}` : "";
+const file = join(outDir, `${model.replace(/[^a-z0-9.-]/gi, "_")}${tag ? `.${tag}` : ""}${stepTag}.json`);
 writeFileSync(
   file,
-  JSON.stringify({ backend, model, ranAt: new Date().toISOString(), machine: arg("machine", "laptop"), intake, report, scam }, null, 2),
+  JSON.stringify({ backend, model, twoStep: twoStep ?? "off", ranAt: new Date().toISOString(), machine: arg("machine", "laptop"), intake, report, scam }, null, 2),
 );
 console.log(`saved ${file}`);

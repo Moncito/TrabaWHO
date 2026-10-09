@@ -18,6 +18,16 @@ export const intakeJsonSchema = {
   additionalProperties: false,
 } as const;
 
+/** Step-2 schema: one task code, limited to the chosen service's tasks. */
+export function taskChoiceJsonSchema(allowedTasks: readonly TaskCode[]) {
+  return {
+    type: "object",
+    properties: { task: { type: "string", enum: [...allowedTasks] } },
+    required: ["task"],
+    additionalProperties: false,
+  } as const;
+}
+
 export function reportJsonSchema(allowedTasks: readonly TaskCode[] = TASK_CODES) {
   return {
     type: "object",
