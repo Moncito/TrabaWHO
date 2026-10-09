@@ -376,7 +376,7 @@
       "urgencyFloor": "EMERGENCY",
       "showHotline": false,
       "safetyNoteTl": "Huwag hawakan ang saksakan, kawad o appliance na nag-spark. Kung ligtas, patayin ang main breaker. Huwag gumamit ng tubig kung may apoy.",
-      "keywords": ["spark", "sparks", "nagspark", "nag spark", "nagsparks", "kislap", "kumislap", "short circuit", "nagshort"]
+      "keywords": ["spark", "sparks", "nagspark", "nag spark", "nagsparks", "kislap", "kumislap", "diklap", "dikilap", "short circuit", "nagshort"]
     },
     {
       "code": "BURNING_SMELL",

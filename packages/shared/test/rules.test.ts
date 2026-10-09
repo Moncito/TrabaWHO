@@ -61,6 +61,10 @@ describe("keyword fallback", () => {
     expect(r).toMatchObject({ service: "ELECTRICAL", task: "ELEC_OUTLET_REPAIR", confidence: "low" });
     expect(r?.hazards).toContain("SPARKING");
   });
+  it("regional sparking words are hazards (added after held-out h11)", () => {
+    expect(detectHazards("dumidiklap yung saksakan namin")).toContain("SPARKING");
+    expect(detectHazards("dumidikilap ang outlet")).toContain("SPARKING");
+  });
   it("short keywords only match whole words", () => {
     expect(keywordIntake("sira ang ac namin")?.service).toBe("AIRCON");
     expect(detectHazards("nagbabasa ng libro")).toEqual([]);

@@ -156,6 +156,8 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Per case: model right / keywords wrong on task: h12. Keywords right / model wrong: h07, h08 (model chose `AIRCON_INSPECT` for short vague aircon messages). Model chose a specific task where the label was `_INSPECT` on h02, h04, h05, h06 (e.g. "paggawa ng kubo" → cabinet). h10 (tricycle sidecar) went to carpentry. h11 "dumidiklap yung saksakan": SPARKING missed by model and rules.
 - Reading: the model generalizes far better on **service** (which worker to send); **task** on unseen phrasing is weak and the client confirms it on the Booking Card. Reported as is in README and SPEC 8.
 - **Do not tune prompts on `heldout.json`.** Any future prompt/keyword change needs a fresh held-out set to be reported fairly.
+- **Disclosed post-held-out safety fix:** added `diklap` and `dikilap` to the SPARKING hazard keywords (catalog) after h11 was missed, with a test. Reported numbers stay the pre-fix ones; README says so. No prompt changes.
+- Health check of `main` after the `swe/core-flow` merge: 40 tests pass, catalog valid, typecheck clean (after regenerating local typed routes in `.expo/types`, which is git-ignored), Android bundle builds. AI stats links, launch warm-up and the model picker all survived the merge.
 - **Database decision: local PostgreSQL on the laptop** (no Supabase). Disclosures in README, SPEC 10, TASKS 6 and ARCHITECTURE now say: APIs / cloud services = none; no cloud AI API.
 - **Team 404:** Marc Ace Flores, Adrian Imbang, Clarence Emlano (README Team section).
 

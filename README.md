@@ -69,7 +69,7 @@ Model: **Qwen3 1.7B, Q4_K_M GGUF**. Laptop numbers via Ollama 0.40.1; phone numb
 What the held-out set shows:
 - **The model generalizes much better at the decision that matters most: which kind of worker to send** (92% vs 67%). Messages like "wla aq 2big sa gripo" or "nagground ako pag binubuksan ko ref ko" have no keyword the rules know.
 - **Fine-grained task choice is weak on unseen phrasing** (33%). The Booking Card lets the client change the task before booking, and the worker confirms on site, so a wrong task costs one tap, not a wrong worker.
-- One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). We report it as is.
+- One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). The numbers above are from **before** any fix. **After** seeing this result we added "diklap"/"dikilap" to the code-side sparking keywords, so the safety note now shows for it. This is the only change made after the held-out run, and it touches safety keywords only, not prompts.
 
 **On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 
