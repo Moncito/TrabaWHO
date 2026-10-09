@@ -32,8 +32,9 @@ export default function Login() {
 
   return (
     <Screen
-      title="TrabaWHO"
-      subtitle="Mag-log in · Log in"
+      title="Welcome back"
+      subtitle="Log in to TrabaWHO · Mag-log in"
+      back={router.canGoBack()}
       right={
         <HeaderLink href="/ai-stats" label="AI stats">
           <Cpu size={24} color={C.lime} weight="bold" />
@@ -42,19 +43,19 @@ export default function Login() {
       footer={
         <>
           <Button
-            label="Mag-log in"
+            label="Log in"
             icon={SignIn}
             loading={busy}
             disabled={!ready || !online}
-            disabledReason={!online ? "Kailangan ng internet para mag-log in." : undefined}
+            disabledReason={!online ? "Needs internet to log in." : undefined}
             onPress={submit}
           />
-          <Button label="Gumawa ng account" icon={UserPlus} variant="ghost" onPress={() => router.push("/signup")} />
+          <Button label="Create an account" icon={UserPlus} variant="ghost" onPress={() => router.push("/signup")} />
         </>
       }
     >
-      {!online ? <Note>Offline ka. Kailangan ng internet para mag-log in o gumawa ng account. Pagkatapos mag-log in, gumagana ang app kahit offline.</Note> : null}
-      <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" placeholder="ikaw@email.com" />
+      {!online ? <Note>You're offline. Logging in needs internet once; after that the app works offline.</Note> : null}
+      <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" placeholder="you@email.com" />
       <Field
         label="Password"
         value={password}

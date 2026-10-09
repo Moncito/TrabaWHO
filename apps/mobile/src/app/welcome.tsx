@@ -1,4 +1,4 @@
-import { router, type Href } from "expo-router";
+import { router } from "expo-router";
 import { AirplaneTilt, CheckCircle, CloudArrowUp, Cpu, HandCoins, SealCheck, ShieldCheck, Sparkle } from "phosphor-react-native";
 import { useEffect, type ReactNode } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
@@ -90,7 +90,7 @@ export default function Welcome() {
       </View>
 
       <Animated.View entering={FadeInDown.delay(250).duration(400)} className="gap-3 px-6 pb-4">
-        <Button label="Sign up · Mag-sign up" onPress={() => router.push("/signup" as Href)} />
+        <Button label="Sign up · Mag-sign up" onPress={() => router.push("/signup")} />
         <Button label="Log in · Mag-log in" variant="onDark" onPress={() => router.push("/login")} />
       </Animated.View>
     </SafeAreaView>
