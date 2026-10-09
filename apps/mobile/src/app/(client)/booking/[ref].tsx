@@ -24,7 +24,7 @@ export default function BookingDetail() {
   if (!b) {
     return (
       <Screen title="Booking" back>
-        <Note>Hindi makita ang booking na ito.</Note>
+        <Note>We couldn't find this booking. Hindi makita ang booking.</Note>
       </Screen>
     );
   }
@@ -53,7 +53,7 @@ export default function BookingDetail() {
       ) : null}
       <HazardAlert notes={safety.safetyNotes} compact />
       <Card>
-        <Label>Buod ng AI</Label>
+        <Label>AI summary</Label>
         <Text className="font-body text-[15px] text-ink">{b.aiSummary}</Text>
         <Label>Address</Label>
         <Text className="font-body text-[15px] text-ink">
@@ -61,7 +61,7 @@ export default function BookingDetail() {
         </Text>
         {server ? (
           <>
-            <Label>Tantiyang presyo</Label>
+            <Label>Estimated price</Label>
             <Text className="font-body-bold text-[15px] text-ink">
               {peso(server.priceMin)}–{peso(server.priceMax).slice(1)}
             </Text>

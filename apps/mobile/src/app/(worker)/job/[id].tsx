@@ -25,7 +25,7 @@ export default function JobDetail() {
   if (!b) {
     return (
       <Screen title="Job" back>
-        <Note>Hindi makita ang trabahong ito.</Note>
+        <Note>We couldn't find this job. Hindi makita ang trabaho.</Note>
       </Screen>
     );
   }
@@ -51,7 +51,7 @@ export default function JobDetail() {
     footer = (
       <View className="flex-row items-center justify-center gap-2 py-2">
         <CloudArrowUp size={18} color={C.ink} />
-        <Text className="font-body-semibold text-sm text-ink">Report: Pending — ipapadala pag may internet</Text>
+        <Text className="font-body-semibold text-sm text-ink">Report saved. Sends when you're back online.</Text>
       </View>
     );
   } else if (b.status === "ACCEPTED") {
@@ -82,7 +82,7 @@ export default function JobDetail() {
       <HazardAlert notes={safetyFor(b.hazards).safetyNotes} compact />
       <PersonCard name={b.client.name} role="client" phone={b.client.phone} />
       <Card>
-        <Label>Buod ng problema (AI)</Label>
+        <Label>Problem summary (AI)</Label>
         <Text className="font-body text-[15px] text-ink">{b.aiSummary}</Text>
         <Label>Address</Label>
         <Text className="font-body text-[15px] text-ink">
