@@ -1,5 +1,5 @@
 import { openDatabaseSync } from "expo-sqlite";
-import { useSyncExternalStore } from "react";
+import { useMemo, useSyncExternalStore } from "react";
 
 /** Local SQLite (ARCHITECTURE 4.1): outbox, bookings_cache, plus a small key-value table. */
 export const db = openDatabaseSync("trabawho.db");
@@ -41,6 +41,12 @@ export function useDbVersion() {
     },
     () => version,
   );
+}
+
+/** Re-run a SQLite read whenever the db changes. The read is keyed on version so React Compiler can't cache it. */
+export function useDbQuery<T>(read: () => T): T {
+  const v = useDbVersion();
+  return useMemo(() => read(), [v]); // eslint-disable-line react-hooks/exhaustive-deps
 }
 
 export function kvGet<T>(k: string): T | null {

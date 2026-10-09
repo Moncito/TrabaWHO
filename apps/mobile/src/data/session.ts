@@ -1,5 +1,5 @@
 import type { DemoUser } from "./api";
-import { kvGet, kvSet, useDbVersion } from "./db";
+import { kvGet, kvSet, useDbQuery } from "./db";
 
 /** Demo-only session: the picked seeded user, sent as x-user-id. */
 export function getUser(): DemoUser | null {
@@ -11,6 +11,5 @@ export function setUser(u: DemoUser | null) {
 }
 
 export function useSession(): DemoUser | null {
-  useDbVersion();
-  return getUser();
+  return useDbQuery(getUser);
 }

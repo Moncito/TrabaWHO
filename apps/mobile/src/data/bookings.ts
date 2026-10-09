@@ -1,7 +1,7 @@
 import type { BookingCreate, BookingStatus, ReportCreate } from "@trabawho/shared";
 
 import { api, type ServerBooking } from "./api";
-import { db, notify, useDbVersion } from "./db";
+import { db, notify, useDbQuery } from "./db";
 
 // ---------- bookings_cache ----------
 
@@ -28,8 +28,7 @@ export function cachedBookings(): ServerBooking[] {
 }
 
 export function useCachedBookings(): ServerBooking[] {
-  useDbVersion();
-  return cachedBookings();
+  return useDbQuery(cachedBookings);
 }
 
 export async function refreshMine(userId: string): Promise<ServerBooking[]> {
@@ -83,8 +82,7 @@ export function outboxRows(): OutboxRow[] {
 }
 
 export function useOutbox(): OutboxRow[] {
-  useDbVersion();
-  return outboxRows();
+  return useDbQuery(outboxRows);
 }
 
 export function setOutboxStatus(id: string, status: OutboxStatus, error: string | null = null) {

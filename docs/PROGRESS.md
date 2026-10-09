@@ -133,6 +133,14 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - **Held-out cases:** the SWE declined to write them and asked the AI engineer to. Plan: the AI engineer writes them without opening `eval/intake.json` or `prompts.ts` (both were drafted with Claude Code, so whoever writes the held-out set should not read them first).
 - **Branch cleanup:** merged branches deleted; from now on one working branch per stream (`ai/updates`).
 
+### 2.16 Demo flow verified on the phone (branch `swe/core-flow`)
+- **Offline data** (`apps/mobile/src/data/`): expo-sqlite `outbox`, `bookings_cache`, `kv` (session, cached users). Every create writes to the outbox first, then flushes. Flush on reconnect, app foreground, start and after each enqueue; one flush at a time; a network error keeps the row pending and stops; 4xx/5xx marks it failed; report 409 counts as sent. "Online" = NetInfo `isConnected` only, so a demo hotspot without internet still reaches the laptop API.
+- **Bug found on device:** React Compiler memoized the SQLite reads inside the hooks, so Pending never flipped on screen even though the server had the booking. Fix: `useDbQuery()` keys each read on the store version.
+- **Verified on the Infinix (keyword fallback; model not loaded yet), API on local Postgres over `adb reverse`:**
+  - Client, airplane ON: "Ayaw gumana ng saksakan sa kusina, nag-spark kanina" → Elektrisyan / outlet repair / EMERGENCY / ₱400–900 / spark safety note → I-book → Pending. Airplane OFF → row flips to Hinahanapan; server row has `createdOffline=true`.
+  - Worker (Ben, Tubero): accept online → airplane ON → Start disabled with reason, I-report works → add material ₱250 → save → Pending. Airplane OFF → COMPLETED; server total ₱1,100 (labor ₱850 + ₱250) matches the phone.
+- Without the model, the report extracts no materials (keyword rules can't). That is the model-vs-keywords point for the pitch.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.
@@ -146,13 +154,13 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 | Shared types, catalog, rules, AI pipeline | ✅ done, 39 tests pass |
 | Model chosen + prompts tuned | ✅ Qwen3 1.7B Q4_K_M |
 | Eval + model-vs-keywords comparison | ✅ done |
-| Mobile scaffold (Expo + NativeWind + llama.rn) | ✅ bundles; stub screens |
+| Mobile app (Expo + NativeWind + llama.rn) | ✅ real client + worker screens (`swe/core-flow`) |
 | API (Express + Prisma) | ✅ code done; ⏳ not run against Supabase |
 | CI | ✅ |
 | Design artboard + DESIGN/FLOWS docs | ✅ |
 | Dev build on phone (Infinix X6873, Android 16, ~8 GB RAM) | ✅ installs and opens |
 | Model on phone + measured latency | ⏳ waiting on dev build |
-| Real screens, outbox/sync | ⏳ SWE |
+| Real screens, outbox/sync | ✅ offline book → sync and offline report → sync verified on the phone |
 | Held-out eval set | ⏳ SWE writes, AI runs once |
 | README for judges, videos, X/LinkedIn post, submission | ⏳ |
 
@@ -186,3 +194,4 @@ adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/file
 
 - **Oct 9:** docs v0.2 rescope; TASKS.md; shared package; eval; monorepo + mobile + API scaffold; CI; design docs; model selection; model-vs-keywords comparison; briefing alignment; model file from Ollama blob.
 - **Oct 9:** git workflow: feature branches, commits as Moncito, Moncito merges. Branches: `docs/progress-log` (this file), `ai/stats-panel` (AI stats screen + launch warm-up).
+- **Oct 9:** `swe/core-flow`: real screens, SQLite outbox + sync engine, initial Prisma migration, end-to-end offline demo flow verified on the phone.
