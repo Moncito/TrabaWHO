@@ -110,6 +110,11 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Verified: mobile typecheck, Android bundle, and in the browser (web, stub mode): login → type "may naaamoy akong gas sa kusina" → Booking Card shows Tubero / Inspeksyon ng tubero / EMERGENCY / ₱300–₱600 / gas safety note with 911 → AI stats shows the call. On-phone numbers pending the dev build.
 - Purpose: demo step 6 ("Proof") and the measured phone latency for the README/pitch.
 
+### 2.13 README for judges (branch `docs/readme`)
+- Rewrote `README.md`: one-liner, why local, local-vs-internet table, AI pipeline and design rules, results tables (tuned set, held-out set and on-phone rows marked _pending_), stack, layout, recreate steps (eval on laptop, web stub, API, on-device), demo accounts + demo-auth warning, disclosures, team.
+- Re-verified the keyword baseline before publishing: with the code duration parser, keywords-only also scores report duration 5/5 (not 3/5 as in the earlier baseline), so the README says so.
+- Clarified: no custom model training is needed. The briefing allows existing open-source models; our work is the system around Qwen3 (prompts, constrained output, rules, fallback, offline pipeline, eval).
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.
