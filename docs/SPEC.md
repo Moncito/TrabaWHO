@@ -1,7 +1,11 @@
 # TrabaWho — SPEC.md (Hackathon MVP, 2-person scope)
 
-**Version:** 0.2 · **Event:** AppBuildersPH Hackathon 2026, Local AI theme · **Date:** Oct 9, 2026
+**Version:** 0.3 · **Event:** AppBuildersPH Hackathon 2026, Local AI theme · **Date:** Oct 9, 2026
 **Team:** 2 people — **AI Engineer** and **Software Engineer**.
+**Deadlines:** submission 10:00 AM Oct 10 (once, no edits, code freeze) · Demo Day Oct 10, 1–7 PM, Cyberzone SM Makati (in person). See TASKS.md section 6.
+
+> **Official challenge:** "Build an AI product that remains genuinely useful when the cloud disappears." Meaningful AI inference must run on the user's device; cloud may only be secondary.
+> **Judging:** Problem & usefulness 25% · Local AI implementation 25% · Technical execution 20% · Innovation 15% · Product & demo quality 15%.
 **Status:** Scope cut for a 2-person team. Items marked **(TBD)** need a decision; items marked **(verify)** need a test in the first hours.
 
 ---
@@ -156,19 +160,34 @@ Example rows (**prices are illustrative** and labeled so in the demo unless sour
 
 - `eval/intake.json`: 20 Taglish problem descriptions, each with expected service and task. Include vague, mixed and hazard cases.
 - `eval/report.json`: 5 worker report texts with expected materials and duration.
-- `eval/run-eval` script runs the model over both sets and prints accuracy and average latency. Put the **actual** numbers, model name and phone model in the README and pitch.
+- `eval/heldout.json`: 10 extra intake cases written by the SWE **without seeing** `intake.json` or the prompts. Run once, never tuned on.
+- `eval/run-eval.ts` runs the model over the sets and prints accuracy and average latency, **plus the same cases with the model switched off (keyword rules only)** and a side-by-side table. Put the **actual** numbers, model name and phone model in the README and pitch.
+- The briefing says results can be disputed for **fake benchmarks**. Say plainly that prompts were tuned on `intake.json`; lead with the held-out numbers.
 
-## 9. Demo script (5 minutes)
+**Current results (Qwen3 1.7B Q4, laptop via Ollama; tuned set):**
+
+| Metric | Qwen3 1.7B (local) | Keyword rules only |
+| --- | --- | --- |
+| Intake: service | 19/20 | 19/20 |
+| Intake: task | 16/20 | 16/20 |
+| Report: materials extracted | 4/7 | 0/7 |
+| Intake latency (laptop) | ~0.7–1 s | ~0 ms |
+
+On the tuned set the two tie on task but fail on **different** cases. The model is the only thing that extracts materials, writes the summary, and handles phrasing nobody wrote a keyword for. That is the answer to "why not just keywords?". The held-out set has to show it.
+
+## 9. Demo script (5 minutes + 3 min Q&A)
+
+Phone screen mirrored to the laptop with `scrcpy` over USB (venue gives HDMI/USB-C to the laptop only). Online parts use our own hotspot, not venue Wi-Fi. The briefing says: prioritize a working product over slides.
 
 1. **(0:00) Hook.** "May sparking outlet ka, brownout, walang data. Sino tatawagan mo?"
 2. **(0:30) Online booking.** Wi-Fi on. Client books a plumber. Switch to a worker account, accept, show status change.
 3. **(1:30) Airplane mode ON**, visible on screen. Client types the sparking-outlet description. Booking Card shows Electrician, Emergency, safety note, price range. Book → **Pending**.
 4. **(2:45) Worker, still offline.** Worker types the job report, gets itemized materials, enters prices, sees the total. Save → Pending.
 5. **(3:45) Airplane mode OFF.** Pending booking and report sync; status changes.
-6. **(4:15) Proof.** Model file, eval accuracy and latency, "what runs locally" slide.
+6. **(4:15) Proof.** In-app AI stats (on-phone latency, model name), the model-vs-keywords table on the held-out set, "what runs locally" slide.
 7. **(4:45) Close** with the "why local" line.
 
-Backup: record a clean run of the whole demo by hour 20.
+Videos: record a clean run of the whole demo by hour 20 (backup for Demo Day), and cut a **~1-minute** version for the submission and the required X/LinkedIn post (tag Devin / Cognition, #AppBuildersPH).
 
 ## 10. Hackathon disclosure (fill in before submission)
 
@@ -176,11 +195,12 @@ Backup: record a clean run of the whole demo by hour 20.
 | ---------------------- | ------------------------------------------------------------------------------------------------------- |
 | Runs locally           | Job intake (classification + extraction), job report extraction, price/duration estimates, safety notes, offline booking queue |
 | Requires internet      | Posting/syncing bookings and reports, worker matching, booking status                                   |
-| Models                 | (verify) e.g., Qwen3 1.7B or Gemma small instruct (GGUF, Q4) via llama.cpp                              |
-| Frameworks / tools     | React Native (Expo dev build), llama.rn, expo-sqlite, Zod, Node.js, Express, Prisma, Supabase Postgres, Phosphor Icons |
-| Cloud AI APIs          | **None**                                                                                                |
-| Existing code / assets | Capstone topic proposal (planning document only, no code). Team-written catalog                         |
+| Models                 | Qwen3 1.7B, Q4_K_M GGUF (unsloth/Qwen3-1.7B-GGUF) via llama.rn on the phone; same model via Ollama on a laptop for eval / Edge-mode fallback. Gemma 3 1B evaluated and rejected |
+| Frameworks / tools     | React Native 0.86 + Expo SDK 57 (dev build), Expo Router, NativeWind, Reanimated, llama.rn, expo-sqlite, NetInfo, Zod, Node.js, Express 5, Prisma 6, Supabase Postgres, Phosphor Icons, Vitest, Ollama |
+| APIs / cloud services  | Supabase Postgres (bookings sync only). **No cloud AI API**                                             |
+| Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; capstone topic proposal (planning document only, no code). Catalog, prompts, safety text and eval sets are team-written during the hackathon |
 | AI dev tools           | Claude Code (list any others used)                                                                      |
+| Why local (required)   | SPEC 4                                                                                                  |
 
 ## 11. Open questions (TBD)
 

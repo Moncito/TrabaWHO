@@ -37,6 +37,8 @@ Read this first, then `TASKS.md` for your checklist.
 | Intake (20) | service 19/20 · task 16/20 · hazards 19/20 | ~0.7 s (first call ~13 s: model load) |
 | Report (5) | tasks 5/5 · materials 4/7 · duration 5/5 | ~1.1 s |
 
+**Model decision: Qwen3 1.7B.** Gemma 3 1B (same prompt) scored service 17/20, task 9/20, materials 3/7, ~1.2 s avg: worse and not faster.
+
 History: first prompt scored task 10/20. Grouping tasks by service with Taglish hints → 16/20. Report durations are now parsed by code (`parseDurationMinutes`), not the model.
 
 **Honesty caveat:** prompts were tuned while looking at these same 20 cases. Before the pitch, write **10 new held-out cases** (ideally by the SWE, who hasn't seen the prompt), run them once, and report those numbers too. Phone latency will be slower than laptop; measure it on the demo phone.
@@ -140,20 +142,32 @@ npm run typecheck
 
 ### 5.2 Phone model (GGUF from Hugging Face)
 
-The phone runs the same model as a GGUF file through llama.rn. Get a Q4 quant (~1.1 GB) of the model you picked:
+The phone runs the same model as a GGUF file through llama.rn.
+
+**Fastest: reuse Ollama's copy** (already downloaded by `ollama pull`, and it's the exact file the eval numbers came from). Ollama stores it as a plain GGUF blob (Q4_K_M, 1.27 GB):
+
+```powershell
+$m = "$env:USERPROFILE\.ollama\models"
+$man = Get-Content "$m\manifests\registry.ollama.ai\library\qwen3\1.7b" -Raw | ConvertFrom-Json
+$digest = ($man.layers | Where-Object mediaType -eq "application/vnd.ollama.image.model").digest
+New-Item -ItemType Directory -Force models | Out-Null
+Copy-Item "$m\blobs\$($digest.Replace(':','-'))" models\qwen3-1.7b-q4_k_m.gguf
+```
+
+**Or download from Hugging Face** (~1.1 GB; slow without a token):
 
 ```bash
 pip install -U huggingface_hub
-hf download unsloth/Qwen3-1.7B-GGUF Qwen3-1.7B-Q4_K_M.gguf --local-dir models
+python -m huggingface_hub.cli.hf download unsloth/Qwen3-1.7B-GGUF Qwen3-1.7B-Q4_K_M.gguf --local-dir models
 ```
 
-(verify the repo/file name on huggingface.co; `models/` and `*.gguf` are git-ignored.)
+(Repo and file verified on Oct 9. Use `python -m ...` because pip often puts `hf.exe` in a folder that isn't on PATH. Or download in the browser: huggingface.co/unsloth/Qwen3-1.7B-GGUF → Files. `models/` and `*.gguf` are git-ignored.)
 
 Push it to the phone **after** the app has been installed once (so its folder exists):
 
 ```bash
 adb shell mkdir -p /sdcard/Android/data/ph.trabawho.app/files
-adb push models/Qwen3-1.7B-Q4_K_M.gguf /sdcard/Android/data/ph.trabawho.app/files/model.gguf
+adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/files/model.gguf
 ```
 
 Then set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env` and rebuild.
@@ -231,7 +245,8 @@ Workflow: short branches (`ai/...`, `swe/...`), PR, merge yourself when green, p
 | `npm run typecheck` | Typecheck all workspaces |
 | `npm run validate:catalog` | Check catalog.json |
 | `npm run eval -- --backend keywords` | Baseline, no model |
-| `npm run eval -- --backend ollama --model <name>` | Real model eval |
+| `npm run eval -- --backend ollama --model <name>` | Real model eval + model-vs-keywords comparison table |
+| `npm run eval -- --backend ollama --model qwen3:1.7b --intake-file heldout.json --only intake --tag heldout` | Held-out set (run once, don't tune on it) |
 | `npm run dev -w @trabawho/api` | Start API |
 | `npx expo start` (in apps/mobile) | Start Metro |
 

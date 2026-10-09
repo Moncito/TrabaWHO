@@ -1,6 +1,6 @@
 # TrabaWho — TASKS.md (full task list, 2-person team)
 
-**Deadline:** submission **10:00 AM** (no extensions). Companion to `SPEC.md` and `ARCHITECTURE.md`.
+**Deadline:** submission **10:00 AM, Oct 10** (no extensions, code freeze). **Pitch:** Demo Day, Oct 10, 1–7 PM, Cyberzone SM Makati (in person). Companion to `SPEC.md` and `ARCHITECTURE.md`.
 **People:** **AI** = AI Engineer · **SWE** = Software Engineer · **BOTH** = do together.
 **Rule:** if a task is late by more than 1 hour, check the cut list (section 7) before continuing.
 
@@ -143,9 +143,12 @@ Time is in hours from start (H0). Put the real clock time next to each checkpoin
 | H18     | **Feature freeze.** Only bug fixes and polish                                            | BOTH |
 | H18–H20 | README: setup, recreate steps, disclosures, eval results                                 | AI writes, SWE reviews |
 | H18–H20 | Pitch slides (hook, problem, demo, proof, why local)                                     | BOTH |
-| H20     | Record full demo video as backup                                                         | SWE  |
+| H20     | Record full demo video as backup + cut a **~1-min** submission video                     | SWE  |
+| H20–H21 | Post the 1-min video on X or LinkedIn (tag Devin / Cognition, #AppBuildersPH)            | BOTH |
+| H21     | Held-out eval run, results table in README, GitHub Release with APK                      | AI   |
 | H20–H22 | Rehearse the 5-minute demo twice; time it                                                | BOTH |
-| ≤ 09:30 | Submit (repo link, video, disclosures). Do not wait until 09:59                          | BOTH |
+| ≤ 09:30 | Submit ONCE on Cerebral Valley (section 6). Do not wait until 09:59                      | BOTH |
+| 12:00 PM| Demo Day arrival, AV check with phone mirroring (section 6.2)                            | BOTH |
 
 ---
 
@@ -245,15 +248,73 @@ jobs:
 
 ---
 
-## 6. Submission checklist
+## 6. Submission checklist (from the official Participant Briefing)
 
-- [ ] Public GitHub repo, `main` builds, CI green.
-- [ ] README: what it is, how to run (API, mobile dev build, model push via adb), demo accounts, eval results, disclosures, "demo-only auth" note.
-- [ ] Disclosure table filled in (SPEC 10), including AI dev tools used (Claude Code).
-- [ ] Eval numbers are real, with model name, quant and phone model.
-- [ ] Demo video recorded (backup for flaky Wi-Fi).
-- [ ] APK installed on both demo phones; model preloaded; phones charged; airplane mode toggle easy to show.
-- [ ] Slides ready; demo rehearsed under 5 minutes.
+**Where:** cerebralvalley.ai/e/appbuildersph-hackathon-2026 · **Deadline:** 10:00 AM, Oct 10, no extensions.
+**Submit ONCE.** No edits or resubmits. Fill a draft in a shared doc first, both review, then submit.
+**Code freezes at 10:00 AM.** Judges review the repo as of the deadline. Anything not pushed by then doesn't exist.
+
+The project
+- [ ] Project name: TrabaWho
+- [ ] Short description (2–3 sentences, from SPEC 1)
+- [ ] Team members: **exact names as listed on appbuildersph.com/hackathon** (anyone not on the list is disqualified)
+- [ ] **Public** GitHub repository (check it's public from a logged-out browser)
+
+The proof
+- [ ] Demo video, **about 1 minute** (separate from the 5-min backup recording of the full demo)
+- [ ] **X or LinkedIn post with the video: tag Devin / Cognition and include #AppBuildersPH** (required), paste its URL
+- [ ] What runs locally (SPEC 10)
+- [ ] What requires internet (SPEC 10)
+
+The disclosures
+- [ ] Models used (Qwen3 1.7B Q4_K_M GGUF via llama.rn; Ollama on laptop for eval / Edge mode)
+- [ ] Technologies and frameworks (SPEC 10)
+- [ ] APIs and cloud services (Supabase Postgres; **no cloud AI API**)
+- [ ] Existing code and assets (Expo template, Google Fonts Anton/Archivo, Phosphor icons, capstone proposal doc)
+- [ ] AI development tools (Claude Code)
+- [ ] **Answer: "Why does this product benefit from running AI locally?"** (SPEC 4)
+
+Repo contents before 10:00 AM
+- [ ] README: what it is, recreate steps for judges (API, mobile dev build, model download + adb push, or Edge mode with Ollama), demo accounts, "demo-only auth" note
+- [ ] Eval results table: **model vs keyword rules**, on `intake.json` AND on the held-out set, with model name, quant, machine/phone (section 6.1)
+- [ ] Release APK attached to a GitHub Release (no commits allowed after the deadline)
+- [ ] CI green on `main`
+
+### 6.1 Honest benchmark ("fake benchmarks" can get results disputed)
+
+- [ ] **SWE writes `eval/heldout.json`**: 10 new Taglish problem descriptions, same format as `intake.json`, written **without** looking at `intake.json` or the prompts.
+- [ ] AI runs it once, no prompt changes afterward:
+  `npm run eval -- --backend ollama --model qwen3:1.7b --intake-file heldout.json --only intake --tag heldout`
+- [ ] Put both tables (tuned set + held-out set) in README and the pitch. Say plainly that prompts were tuned on `intake.json`.
+- [ ] Measure latency on the demo phone (in-app AI stats) and report it next to the laptop numbers.
+
+### 6.2 Demo Day logistics (Oct 10, Cyberzone SM Makati)
+
+| Time | What |
+| --- | --- |
+| 12:00 PM | Registration and arrival |
+| 12:15 PM | Demo and AV technical checks: **test phone mirroring on their projector** |
+| 1:00 PM | Opening, finalists announced (10–15 teams) |
+| 1:40 PM / 3:40 PM | Finalist pitching (5 min pitch + live demo, 3 min judge Q&A) |
+| 5:45 PM | Awards (People's Choice is a QR-code audience vote) |
+
+- [ ] **At least one of us on site in person.** Remote pitching is not allowed.
+- [ ] Bring a laptop (they provide HDMI/USB-C to the laptop, not to the phone).
+- [ ] **Phone screen on the projector:** install `scrcpy` on the laptop, mirror over USB. Rehearse with it. Airplane mode must be visible on screen.
+- [ ] Chargers, USB data cable, power bank. Phones at 100%.
+- [ ] API running on the laptop and reachable from the phone over a **personal hotspot** (don't rely on venue Wi-Fi for the online part).
+- [ ] Backup: the full demo recording on the laptop, ready to play if anything fails.
+- [ ] Prep Q&A answers: "Why not just keywords?" (comparison table: model extracts materials, handles unseen phrasing), "What if the model is wrong?" (client edits; safety text never AI-written), "How big / how fast?" (1.1 GB, measured phone latency), "What's sent to the server?" (only the approved summary, never raw text).
+
+### 6.3 Scoring weights (where to spend the remaining time)
+
+| Criterion | Weight | What it means for us |
+| --- | --- | --- |
+| Problem & usefulness | 25% | Real users: clients who can't describe trade problems, workers with bad signal |
+| Local AI implementation | 25% | Show the model is necessary: the model-vs-keywords table, airplane mode, on-phone stats |
+| Technical execution | 20% | **The live demo must not break.** Reliability over features |
+| Innovation | 15% | Offline Taglish intake + worker report; voice (local Whisper) only if everything else is done |
+| Product & demo quality | 15% | Clean UI from the artboard, rehearsed 5-min demo, few slides |
 
 ## 7. Cut list (in order, if behind)
 

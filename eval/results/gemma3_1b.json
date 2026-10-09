@@ -1,50 +1,36 @@
 {
   "backend": "ollama",
-  "model": "qwen3:1.7b",
-  "ranAt": "2026-10-09T11:32:15.356Z",
+  "model": "gemma3:1b",
+  "ranAt": "2026-10-09T11:09:48.441Z",
   "machine": "laptop",
   "intake": {
     "summary": {
-      "file": "intake.json",
       "cases": 20,
-      "service": "19/20 (95%)",
-      "task": "16/20 (80%)",
+      "service": "17/20 (85%)",
+      "task": "9/20 (45%)",
       "hazards": "19/20 (95%)",
       "fallbackUsed": 0,
-      "avgLatencyMs": 1011,
-      "maxLatencyMs": 7103,
-      "keywordsService": "19/20 (95%)",
-      "keywordsTask": "16/20 (80%)",
-      "modelRightKeywordsWrong": [
-        "i04",
-        "i12",
-        "i16"
-      ],
-      "keywordsRightModelWrong": [
-        "i03",
-        "i09",
-        "i19"
-      ]
+      "avgLatencyMs": 1235,
+      "maxLatencyMs": 11688
     },
     "rows": [
       {
         "id": "i01",
         "source": "model",
-        "latencyMs": 7103,
+        "latencyMs": 11688,
         "service": "PLUMBING",
         "task": "PLUMB_LEAK_SINK",
-        "hazards": [],
+        "hazards": [
+          "ACTIVE_FLOODING"
+        ],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMB_LEAK_SINK",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i02",
         "source": "model",
-        "latencyMs": 644,
+        "latencyMs": 1983,
         "service": "PLUMBING",
         "task": "PLUMB_CLOG",
         "hazards": [
@@ -52,29 +38,23 @@
         ],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMB_CLOG",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i03",
         "source": "model",
-        "latencyMs": 706,
+        "latencyMs": 637,
         "service": "PLUMBING",
         "task": "PLUMB_CLOG",
         "hazards": [],
         "serviceOk": true,
         "taskOk": false,
-        "hazardsOk": true,
-        "kwTask": "PLUMB_TOILET_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i04",
         "source": "model",
-        "latencyMs": 778,
+        "latencyMs": 728,
         "service": "PLUMBING",
         "task": "PLUMB_LEAK_SINK",
         "hazards": [
@@ -82,92 +62,71 @@
         ],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMBING_INSPECT",
-        "kwServiceOk": true,
-        "kwTaskOk": false
+        "hazardsOk": true
       },
       {
         "id": "i05",
         "source": "model",
-        "latencyMs": 672,
+        "latencyMs": 550,
         "service": "PLUMBING",
-        "task": "PLUMBING_INSPECT",
-        "hazards": [
-          "ACTIVE_FLOODING"
-        ],
+        "task": "PLUMB_CLOG",
+        "hazards": [],
         "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMBING_INSPECT",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i06",
         "source": "model",
-        "latencyMs": 764,
+        "latencyMs": 686,
         "service": "ELECTRICAL",
         "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
-          "BURNING_SMELL",
-          "NO_POWER"
+          "BURNING_SMELL"
         ],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "ELEC_OUTLET_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i07",
         "source": "model",
-        "latencyMs": 684,
+        "latencyMs": 588,
         "service": "ELECTRICAL",
-        "task": "ELEC_BREAKER_TRIP",
+        "task": "ELEC_OUTLET_REPAIR",
         "hazards": [],
         "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "ELEC_BREAKER_TRIP",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i08",
         "source": "model",
-        "latencyMs": 584,
+        "latencyMs": 539,
         "service": "ELECTRICAL",
         "task": "ELEC_LIGHT_FIXTURE",
         "hazards": [],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "ELEC_LIGHT_FIXTURE",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i09",
         "source": "model",
-        "latencyMs": 772,
+        "latencyMs": 618,
         "service": "ELECTRICAL",
-        "task": "ELEC_BREAKER_TRIP",
+        "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
           "NO_POWER"
         ],
         "serviceOk": true,
         "taskOk": false,
-        "hazardsOk": true,
-        "kwTask": "ELECTRICAL_INSPECT",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i10",
         "source": "model",
-        "latencyMs": 771,
+        "latencyMs": 681,
         "service": "ELECTRICAL",
         "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
@@ -176,158 +135,121 @@
         ],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "ELEC_OUTLET_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i11",
         "source": "model",
-        "latencyMs": 697,
-        "service": "CARPENTRY",
-        "task": "CARP_DOOR_REPAIR",
+        "latencyMs": 613,
+        "service": "WELDING",
+        "task": "WELDING_INSPECT",
         "hazards": [],
-        "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "CARP_DOOR_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i12",
         "source": "model",
-        "latencyMs": 710,
-        "service": "CARPENTRY",
-        "task": "CARP_CABINET_REPAIR",
+        "latencyMs": 576,
+        "service": "WELDING",
+        "task": "WELD_GATE_REPAIR",
         "hazards": [],
-        "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "CARP_DOOR_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": false
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i13",
         "source": "model",
-        "latencyMs": 712,
+        "latencyMs": 563,
         "service": "CARPENTRY",
-        "task": "CARP_CEILING_REPAIR",
+        "task": "CARPENTRY_INSPECT",
         "hazards": [
-          "ACTIVE_FLOODING",
           "STRUCTURAL_DAMAGE"
         ],
         "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "CARP_CEILING_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i14",
         "source": "model",
-        "latencyMs": 649,
-        "service": "AIRCON",
-        "task": "AC_CLEANING",
-        "hazards": [],
-        "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "AC_CLEANING",
-        "kwServiceOk": true,
-        "kwTaskOk": true
-      },
-      {
-        "id": "i15",
-        "source": "model",
-        "latencyMs": 558,
+        "latencyMs": 805,
         "service": "AIRCON",
         "task": "AIRCON_INSPECT",
         "hazards": [],
         "serviceOk": true,
         "taskOk": false,
-        "hazardsOk": true,
-        "kwTask": "AIRCON_INSPECT",
-        "kwServiceOk": true,
-        "kwTaskOk": false
+        "hazardsOk": true
+      },
+      {
+        "id": "i15",
+        "source": "model",
+        "latencyMs": 571,
+        "service": "AIRCON",
+        "task": "AC_NOT_COLD",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true
       },
       {
         "id": "i16",
         "source": "model",
-        "latencyMs": 667,
+        "latencyMs": 547,
         "service": "AIRCON",
         "task": "AC_WATER_LEAK",
-        "hazards": [
-          "ACTIVE_FLOODING"
-        ],
+        "hazards": [],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMB_LEAK_SINK",
-        "kwServiceOk": false,
-        "kwTaskOk": false
+        "hazardsOk": true
       },
       {
         "id": "i17",
         "source": "model",
-        "latencyMs": 666,
+        "latencyMs": 566,
         "service": "WELDING",
         "task": "WELD_GATE_REPAIR",
         "hazards": [],
         "serviceOk": true,
         "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "WELD_GATE_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": true
       },
       {
         "id": "i18",
         "source": "model",
-        "latencyMs": 644,
+        "latencyMs": 568,
         "service": "WELDING",
-        "task": "WELD_GRILL_INSTALL",
+        "task": "WELD_METAL_REPAIR",
         "hazards": [],
         "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "WELD_GRILL_INSTALL",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "taskOk": false,
+        "hazardsOk": true
       },
       {
         "id": "i19",
         "source": "model",
-        "latencyMs": 698,
-        "service": "PLUMBING",
-        "task": "PLUMB_LEAK_SINK",
+        "latencyMs": 619,
+        "service": "WELDING",
+        "task": "WELD_GATE_REPAIR",
         "hazards": [],
-        "serviceOk": false,
+        "serviceOk": true,
         "taskOk": false,
-        "hazardsOk": false,
-        "kwTask": "WELD_METAL_REPAIR",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "hazardsOk": false
       },
       {
         "id": "i20",
         "source": "model",
-        "latencyMs": 742,
-        "service": "PLUMBING",
-        "task": "PLUMBING_INSPECT",
+        "latencyMs": 574,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
-          "GAS_SMELL",
-          "ACTIVE_FLOODING"
+          "GAS_SMELL"
         ],
-        "serviceOk": true,
-        "taskOk": true,
-        "hazardsOk": true,
-        "kwTask": "PLUMBING_INSPECT",
-        "kwServiceOk": true,
-        "kwTaskOk": true
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true
       }
     ]
   },
@@ -335,35 +257,33 @@
     "summary": {
       "cases": 5,
       "tasks": "5/5 (100%)",
-      "materials": "4/7 (57%)",
+      "materials": "3/7 (43%)",
       "duration": "5/5 (100%)",
-      "avgLatencyMs": 1093,
-      "keywordsMaterials": "0/7 (0%)"
+      "avgLatencyMs": 1166
     },
     "rows": [
       {
         "id": "r01",
         "source": "model",
-        "latencyMs": 1413,
+        "latencyMs": 1784,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 2,
         "durationOk": true,
-        "kwMaterialsMatched": 0,
         "draft": {
           "tasksDone": [
             "PLUMB_LEAK_SINK"
           ],
           "materials": [
             {
-              "name": "Teflon",
-              "qty": 1,
-              "unit": "roll"
-            },
-            {
               "name": "Gripo",
               "qty": 1,
               "unit": "pc"
+            },
+            {
+              "name": "Teflon",
+              "qty": 1,
+              "unit": "roll"
             }
           ],
           "durationMinutes": 40,
@@ -372,37 +292,29 @@
       },
       {
         "id": "r02",
-        "source": "model",
-        "latencyMs": 980,
+        "source": "fallback",
+        "latencyMs": 1277,
         "tasksOk": true,
-        "materialsMatched": 1,
+        "materialsMatched": 0,
         "materialsExpected": 2,
         "durationOk": true,
-        "kwMaterialsMatched": 0,
         "draft": {
           "tasksDone": [
             "ELEC_BREAKER_TRIP"
           ],
-          "materials": [
-            {
-              "name": "Wire",
-              "qty": 3,
-              "unit": "m"
-            }
-          ],
+          "materials": [],
           "durationMinutes": 90,
-          "notes": "Pinalitan ang breaker na 20 amps at inayos ang wiring."
+          "notes": "Pinalitan ko yung breaker na 20 amps tapos inayos ko yung wiring, gumamit ng tatlong metro ng wire. Isang oras at kalahati"
         }
       },
       {
         "id": "r03",
         "source": "model",
-        "latencyMs": 961,
+        "latencyMs": 792,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 1,
         "durationOk": true,
-        "kwMaterialsMatched": 0,
         "draft": {
           "tasksDone": [
             "AC_NOT_COLD",
@@ -416,37 +328,40 @@
             }
           ],
           "durationMinutes": 120,
-          "notes": "Nilinis ang aircon at nagdagdag ng freon na isang kilo."
+          "notes": "Nilinis ang aircon at nagdagdag ng freon."
         }
       },
       {
         "id": "r04",
         "source": "model",
-        "latencyMs": 903,
+        "latencyMs": 953,
         "tasksOk": true,
         "materialsMatched": 0,
         "materialsExpected": 1,
         "durationOk": true,
-        "kwMaterialsMatched": 0,
         "draft": {
           "tasksDone": [
-            "CARP_DOOR_REPAIR",
-            "CARP_CEILING_REPAIR"
+            "CARP_DOOR_REPAIR"
           ],
-          "materials": [],
+          "materials": [
+            {
+              "name": "Bisagra",
+              "qty": 2,
+              "unit": "set"
+            }
+          ],
           "durationMinutes": 60,
-          "notes": "Kinatam ang ilalim ng pinto at pinalitan ang dalawang bisagra."
+          "notes": "Kinatam ng ilalim ng pinto at pinalitan ang bisagra."
         }
       },
       {
         "id": "r05",
         "source": "model",
-        "latencyMs": 1206,
+        "latencyMs": 1022,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 1,
         "durationOk": true,
-        "kwMaterialsMatched": 0,
         "draft": {
           "tasksDone": [
             "WELD_GATE_REPAIR"
@@ -460,11 +375,11 @@
             {
               "name": "Paint",
               "qty": 1,
-              "unit": "roll"
+              "unit": "set"
             }
           ],
           "durationMinutes": 120,
-          "notes": "Hinang ko ulit yung bisagra ng gate at pininturahan."
+          "notes": "Hinang ko ulit ang bisagra ng gate."
         }
       }
     ]
