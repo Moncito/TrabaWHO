@@ -1,4 +1,5 @@
 import type { BookingCardData, ReportDraft, TaskCode } from "../schemas";
+import type { ScamResult } from "../scam";
 
 /**
  * The contract between the AI side and the app (ARCHITECTURE 3.2).
@@ -18,5 +19,7 @@ export interface AIService {
    * Optional: pre-process a prompt while the user is still typing, so the answer is fast.
    * On-device llama.cpp keeps only the last prompt prefix cached, so screens call this on open.
    */
-  prewarm?(kind: "intake" | "report", bookingTask?: TaskCode): Promise<void>;
+  prewarm?(kind: "intake" | "report" | "scam", bookingTask?: TaskCode): Promise<void>;
+  /** Anti-scam check of a pasted chat message, on device. Model flags ∪ keyword flags. */
+  checkScam(text: string): Promise<ScamResult>;
 }

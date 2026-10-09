@@ -20,6 +20,8 @@ Home-repair problems happen where signal fails: a sparking outlet during a brown
 | Job report: worker's text → tasks, materials, quantities, duration (LLM) | Worker matching and accepting jobs |
 | Price and duration estimates (bundled catalog) | Booking status updates |
 | Safety notes for hazards (pre-written, never AI-generated) | First-time install of the app and model |
+| **Anti-scam check** of pasted chat/SMS messages (LLM + rules); the message never leaves the phone | |
+| **First-aid chatbot** "habang hinihintay": AI understands the problem, shows team-written safe steps | |
 | Keyword fallback if the model fails | |
 | Offline booking / report queue | |
 
@@ -41,6 +43,12 @@ Design rules that keep a 1.7B model safe and useful:
 - **Safety can't depend on the model.** Hazard keywords in the original text are always checked by code. A gas smell always shows the evacuation note and 911, whatever the model returns.
 - **Code does the arithmetic.** Report durations ("isang oras at kalahati" = 90 min) and totals are computed by code; the worker types material prices, never the AI.
 - **The same pipeline everywhere.** Phone (llama.rn), laptop (Ollama) and the eval script share one code path in `packages/shared`.
+
+### Safety features built on the same on-device model
+
+**Suriin ang mensahe (anti-scam).** Paste a message from a worker or client (SMS, Messenger). The model flags warning signs: payment outside the app (GCash, Maya, bank), deposit before arriving, pressure to cancel the booking or leave the app, asking for an OTP or password, suspicious links, rushing, sudden price changes. Code also checks keywords, decides the risk (high / medium / low) and shows team-written warnings. Private messages are exactly the kind of data that should never be sent to a cloud AI, so this only makes sense on-device.
+
+**First-aid habang naghihintay (restricted chatbot).** The client describes what's happening ("may tumutulo sa ilalim ng lababo"). The model classifies it with the booking pipeline; the reply shows hazard notes first (gas → leave the house, call 911), then **team-written** "while you wait" steps (e.g. close the valve, switch off the breaker if safe), a disclaimer that AI can make mistakes and this is not DIY repair, and an **"I-book ang Tubero"** button. Off-topic questions get "Ang kaya ko lang ay first-aid habang hinihintay ang worker." The model never writes advice text itself.
 
 ## Results (real numbers, see `eval/`)
 
@@ -70,6 +78,16 @@ What the held-out set shows:
 - **The model generalizes much better at the decision that matters most: which kind of worker to send** (92% vs 67%). Messages like "wla aq 2big sa gripo" or "nagground ako pag binubuksan ko ref ko" have no keyword the rules know.
 - **Fine-grained task choice is weak on unseen phrasing** (33%). The Booking Card lets the client change the task before booking, and the worker confirms on site, so a wrong task costs one tap, not a wrong worker.
 - One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). The numbers above are from **before** any fix. **After** seeing this result we added "diklap"/"dikilap" to the code-side sparking keywords, so the safety note now shows for it. This is the only change made after the held-out run, and it touches safety keywords only, not prompts.
+
+**Anti-scam check** (`eval/scam.json`, 12 messages: 8 scam, 4 normal; written by the team alongside the prompt, so treat as a tuned set; laptop, Oct 9):
+
+| Metric | Qwen3 1.7B + rules | Rules only |
+| --- | --- | --- |
+| Correct risk level | 11/12 | 9/12 |
+| False alarms on normal messages | 0/4 | 0/4 |
+| Avg latency (laptop) | ~0.3 s | ~0 ms |
+
+Missed: "May code po kayong natanggap sa text? Basahin nyo po sa akin" (an OTP request without the word "OTP").
 
 **On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 

@@ -7,6 +7,10 @@ import {
   runIntake,
   tasksForService,
   runReportExtraction,
+  runScamCheck,
+  scamJsonSchema,
+  scamMessages,
+  type ScamResult,
   type AIService,
   type BookingCardData,
   type LlmCall,
@@ -104,10 +108,12 @@ export class LlamaService implements AIService {
    * llama.cpp keeps only the LAST prompt prefix in its KV cache. Intake and report prompts differ,
    * so each screen pre-processes its own prompt on open (while the user types). Cheap if already cached.
    */
-  async prewarm(kind: "intake" | "report", bookingTask?: TaskCode): Promise<void> {
+  async prewarm(kind: "intake" | "report" | "scam", bookingTask?: TaskCode): Promise<void> {
     try {
       await this.init();
-      if (kind === "intake") {
+      if (kind === "scam") {
+        await this.complete({ messages: scamMessages("x"), jsonSchema: scamJsonSchema, maxTokens: 1 }, false);
+      } else if (kind === "intake") {
         await this.complete({ messages: intakeMessages("x"), jsonSchema: intakeJsonSchema, maxTokens: 1 }, false);
       } else if (bookingTask) {
         const service = getTask(bookingTask).service;
@@ -134,6 +140,13 @@ export class LlamaService implements AIService {
     const out = await runIntake(text, this.llm);
     aiStats.record({ kind: "intake", at: Date.now(), latencyMs: out.latencyMs, source: out.source, attempts: out.attempts, ...this.takeUsage() });
     return out.card;
+  }
+
+  async checkScam(text: string): Promise<ScamResult> {
+    await this.init().catch(() => undefined);
+    const out = await runScamCheck(text, this.llm);
+    aiStats.record({ kind: "scam", at: Date.now(), latencyMs: out.latencyMs, source: out.source === "model" ? "model" : "fallback", attempts: 1, ...this.takeUsage() });
+    return out;
   }
 
   async extractReport(text: string, bookingTask: TaskCode): Promise<ReportDraft> {

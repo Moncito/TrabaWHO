@@ -1,5 +1,5 @@
 import { router } from "expo-router";
-import { Cpu, UserSwitch } from "phosphor-react-native";
+import { Cpu, FirstAidKit, ShieldCheck, UserSwitch } from "phosphor-react-native";
 import { Pressable, View } from "react-native";
 
 import { setUser } from "@/data/session";
@@ -7,10 +7,16 @@ import { setUser } from "@/data/session";
 import { HeaderLink } from "./Screen";
 import { C } from "./ui";
 
-/** Header actions on tab roots: AI stats (demo proof) + "Palitan ang account". */
+/** Header actions on tab roots: first-aid chat, anti-scam check, AI stats (demo proof), switch account. */
 export function AccountButtons() {
   return (
     <View className="flex-row">
+      <HeaderLink href="/first-aid" label="First-aid habang naghihintay">
+        <FirstAidKit size={24} color={C.white} weight="bold" />
+      </HeaderLink>
+      <HeaderLink href="/scam-check" label="Suriin ang mensahe (anti-scam)">
+        <ShieldCheck size={24} color={C.white} weight="bold" />
+      </HeaderLink>
       <HeaderLink href="/ai-stats" label="AI stats">
         <Cpu size={24} color={C.lime} weight="bold" />
       </HeaderLink>

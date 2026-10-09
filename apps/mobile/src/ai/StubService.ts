@@ -1,6 +1,8 @@
 import {
   runIntake,
   runReportExtraction,
+  runScamCheck,
+  type ScamResult,
   type AIService,
   type BookingCardData,
   type ReportDraft,
@@ -28,6 +30,12 @@ export class StubService implements AIService {
     const out = await runIntake(text, this.noModel);
     aiStats.record({ kind: "intake", at: Date.now(), latencyMs: out.latencyMs, source: out.source, attempts: 0 });
     return out.card;
+  }
+
+  async checkScam(text: string): Promise<ScamResult> {
+    const out = await runScamCheck(text, this.noModel);
+    aiStats.record({ kind: "scam", at: Date.now(), latencyMs: out.latencyMs, source: "fallback", attempts: 0 });
+    return out;
   }
 
   async extractReport(text: string, bookingTask: TaskCode): Promise<ReportDraft> {
