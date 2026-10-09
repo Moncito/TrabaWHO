@@ -1,29 +1,39 @@
 import { BOOKING_STATUSES, safetyFor, type BookingCreate, type BookingStatus, type Urgency } from "@trabawho/shared";
 import { router, useLocalSearchParams } from "expo-router";
-import { CaretRight, Check, CheckCircle, CloudArrowUp, Handshake, MagnifyingGlass, Phone, Quotes, Wrench, type Icon } from "phosphor-react-native";
-import { useEffect } from "react";
+import { ArrowRight, CaretRight, Check, CheckCircle, Handshake, MagnifyingGlass, Phone, Quotes, Wrench, X, type Icon } from "phosphor-react-native";
+import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
-import Animated, { FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withRepeat, withSequence, withTiming, ZoomIn } from "react-native-reanimated";
+import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
+import { CancelSheet } from "@/components/CancelSheet";
 import { Note, Screen } from "@/components/Screen";
-import { Avatar, Button, C, call, HazardAlert, InfoRows, Label, peso, ServiceTile, serviceNameEn, StatusBadge, taskNameEn, TotalsCard, VerifiedBadge } from "@/components/ui";
-import { refreshMine, uiStatus, useCachedBookings, useOutbox } from "@/data/bookings";
+import { Avatar, Button, C, call, HazardAlert, InfoRows, Label, peso, serviceNameEn, StatusBadge, taskNameEn, TotalsCard, VerifiedBadge } from "@/components/ui";
+import { ApiError } from "@/data/api";
+import { cancelBooking, cancelInfo, refreshMine, uiStatus, useCachedBookings, useOutbox, type UiStatus } from "@/data/bookings";
+import { useDbVersion } from "@/data/db";
 import { useSession } from "@/data/session";
 import { useNetwork, usePolling } from "@/data/sync";
 
-const URGENCY_EN: Record<Urgency, string> = { EMERGENCY: "Emergency", TODAY: "Today", SCHEDULED: "Scheduled" };
+const WHEN: Record<Urgency, string> = { EMERGENCY: "Emergency", TODAY: "Today", SCHEDULED: "Scheduled" };
+const time = (ms: number) => new Date(ms).toLocaleTimeString("en-PH", { hour: "2-digit", minute: "2-digit", hour12: false });
 
-/** C12 (artboard V20): detail by clientRef so Pending items open too. */
+/** Artboards B2 (progress + cancel) and B4 (cancelled). Looked up by clientRef so Pending items open too. */
 export default function BookingDetail() {
   const { ref } = useLocalSearchParams<{ ref: string }>();
   const user = useSession();
   const { online } = useNetwork();
+  useDbVersion(); // re-read the cancel note after a cancel
   const server = useCachedBookings().find((b) => b.clientRef === ref);
   const row = useOutbox().find((r) => r.id === ref);
   usePolling(() => (user ? refreshMine() : Promise.resolve()), online && !!user);
+  const [sheet, setSheet] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const p = row ? (JSON.parse(row.payload) as BookingCreate) : null;
-  const b = server ?? (p && { serviceCode: p.serviceCode, taskCode: p.taskCode, urgency: p.urgency, hazards: p.hazards, aiSummary: p.aiSummary, address: p.address, barangay: p.barangay, priceMin: 0, priceMax: 0 });
+  const cancelled = ref ? cancelInfo(ref) : null;
+  const local = p ?? cancelled?.booking;
+  const b = server ?? (local && { ...local, hazards: p?.hazards ?? [], aiSummary: p?.aiSummary ?? "" });
   if (!b) {
     return (
       <Screen title="Booking" back>
@@ -31,28 +41,77 @@ export default function BookingDetail() {
       </Screen>
     );
   }
-  const status = uiStatus(server, row);
-  const safety = safetyFor(b.hazards);
+  const status: UiStatus = server ? uiStatus(server, row) : row ? uiStatus(null, row) : "CANCELLED";
+  const title = taskNameEn(b.taskCode);
+  const subtitle = `${serviceNameEn(b.serviceCode)} · ${b.barangay}`;
+
+  if (status === "CANCELLED") {
+    return (
+      <Screen title={title} subtitle={subtitle} back footer={<Button label="Book again" onPress={() => router.navigate("/new-problem")} />}>
+        <View className="items-center gap-[10px] pt-4">
+          <Animated.View entering={ZoomIn.springify()} className="h-[88px] w-[88px] items-center justify-center rounded-full border-[10px] border-surface bg-danger-bg">
+            <X size={40} color={C.dangerInk} weight="bold" />
+          </Animated.View>
+          <StatusBadge status="CANCELLED" />
+          <Text className="font-headline text-[22px] leading-[28px] text-navy">Booking cancelled</Text>
+          <Text className="max-w-[300px] text-center font-body text-[15px] leading-[22px] text-muted">
+            {server ? "Nearby workers were told. No fee was charged." : "It never left your phone, so no worker saw it. No fee."}
+          </Text>
+        </View>
+        <InfoRows
+          rows={[
+            { label: "Reason", value: cancelled?.reason ?? "Cancelled" },
+            ...(cancelled ? [{ label: "Cancelled", value: `Today, ${time(cancelled.at)}` }] : []),
+            { label: "Fee", value: <Text className="font-body-bold text-[14px] text-ok">₱0</Text> },
+          ]}
+        />
+      </Screen>
+    );
+  }
+
+  const canCancel = status === "PENDING" || status === "FAILED" || (status === "REQUESTED" && !server?.workerId);
   const worker = server?.worker;
-  const openWorker = () => worker && router.push({ pathname: "/worker/[id]", params: { id: worker.id } });
+  const sentAt = server ? Date.parse(server.createdAt) : row?.createdAt;
+
+  async function confirm(reason: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await cancelBooking(ref!, reason, server, p);
+      setSheet(false);
+    } catch (e) {
+      setError(e instanceof ApiError && e.status === 409 ? "It can't be cancelled anymore: a worker may have just accepted. Check the booking." : "Couldn't cancel. Check your internet and try again.");
+      if (user) await refreshMine().catch(() => undefined);
+    } finally {
+      setBusy(false);
+    }
+  }
 
   return (
-    <Screen title={taskNameEn(b.taskCode)} subtitle={`${serviceNameEn(b.serviceCode)} · ${b.barangay}`} back>
-      <Animated.View entering={FadeInDown.duration(250)} className="gap-4 rounded-3xl border border-border bg-surface p-4">
-        <View className="flex-row items-center gap-3">
-          <ServiceTile service={b.serviceCode} />
-          <View className="flex-1">
-            <Label>Progress</Label>
-            <Text className="font-body-bold text-[17px] text-ink">{HEADLINE[status] ?? "Booking"}</Text>
-          </View>
+    <Screen
+      title={title}
+      subtitle={subtitle}
+      back
+      footer={
+        canCancel ? (
+          <>
+            <Button label="Cancel booking" icon={X} variant="dangerOutline" onPress={() => setSheet(true)} disabled={!!server && !online} disabledReason={server && !online ? "Cancelling a sent booking needs internet." : undefined} />
+            {server && !online ? null : <Text className="text-center font-body text-xs text-subtle">Free to cancel until a worker accepts.</Text>}
+          </>
+        ) : undefined
+      }
+    >
+      <Animated.View entering={FadeInDown.duration(250)} className="rounded-3xl border border-border bg-surface p-4">
+        <View className="flex-row items-center justify-between pb-3">
+          <Label>Progress</Label>
           <StatusBadge status={status} />
         </View>
-        <Timeline status={server?.status} pending={!server} />
+        <Timeline status={server?.status} sentAt={server ? sentAt : undefined} />
       </Animated.View>
 
       {worker ? (
         <Animated.View entering={FadeInDown.delay(80).duration(250)} className="gap-3 rounded-3xl bg-navy p-4">
-          <Pressable accessibilityRole="link" accessibilityLabel={`View ${worker.name}'s profile`} onPress={openWorker} className="flex-row items-center gap-3 active:opacity-80">
+          <Pressable accessibilityRole="link" accessibilityLabel={`View ${worker.name}'s profile`} onPress={() => router.push({ pathname: "/worker/[id]", params: { id: worker.id } })} className="flex-row items-center gap-3 active:opacity-80">
             <Avatar name={worker.name} size={52} tone="amber" />
             <View className="flex-1 gap-1">
               <Text className="font-body-bold text-[17px] text-white">{worker.name}</Text>
@@ -63,55 +122,55 @@ export default function BookingDetail() {
           {worker.isVerified === true ? <VerifiedBadge /> : null}
           <Button label={`Call ${worker.name.split(" ")[0]}`} icon={Phone} onPress={() => call(worker.phone)} />
         </Animated.View>
-      ) : status === "REQUESTED" ? (
-        <Searching />
       ) : null}
 
-      <HazardAlert notes={safety.safetyNotes} compact />
+      {!server ? (
+        <View className="flex-row items-center gap-3 rounded-3xl border-[1.5px] border-dashed border-amber bg-amber-bg p-4">
+          <ArrowRight size={18} color={C.amberInk} weight="bold" />
+          <Text className="flex-1 font-body-bold text-[13px] text-amber-ink">
+            {status === "FAILED" ? "Couldn't send yet. We'll retry automatically." : "Saved on your phone. It sends itself when you're back online."}
+          </Text>
+        </View>
+      ) : null}
+
+      <HazardAlert notes={safetyFor(b.hazards).safetyNotes} compact />
 
       <InfoRows
         rows={[
-          { label: "Job", value: taskNameEn(b.taskCode) },
           { label: "Address", value: `${b.address}, ${b.barangay}` },
-          { label: "When", value: URGENCY_EN[b.urgency] },
+          { label: "When", value: WHEN[b.urgency] },
           ...(server ? [{ label: "Estimate", value: `${peso(server.priceMin)}–${peso(server.priceMax).slice(1)}`, strong: true }] : []),
         ]}
       />
 
-      <View className="flex-row gap-3 rounded-3xl border border-border bg-surface p-4">
-        <Quotes size={20} color={C.lime} weight="fill" />
-        <View className="flex-1 gap-1">
-          <Label>AI summary</Label>
-          <Text className="font-body text-[15px] leading-[22px] text-ink">{b.aiSummary}</Text>
+      {b.aiSummary ? (
+        <View className="flex-row gap-3 rounded-3xl border border-border bg-surface p-4">
+          <Quotes size={20} color={C.lime} weight="fill" />
+          <View className="flex-1 gap-1">
+            <Label>AI summary</Label>
+            <Text className="font-body text-[15px] leading-[22px] text-ink">{b.aiSummary}</Text>
+          </View>
         </View>
-      </View>
+      ) : null}
 
       {server?.report ? <TotalsCard {...server.report} /> : null}
+
+      <CancelSheet visible={sheet} busy={busy} error={error} onClose={() => setSheet(false)} onConfirm={(r) => void confirm(r)} />
     </Screen>
   );
 }
 
-const HEADLINE: Partial<Record<string, string>> = {
-  PENDING: "Saved on your phone",
-  FAILED: "Not sent yet",
-  REQUESTED: "Finding you a worker",
-  ACCEPTED: "A worker accepted",
-  IN_PROGRESS: "Work in progress",
-  COMPLETED: "Job done",
-  CANCELLED: "Cancelled",
-};
-
 const STEPS: { label: string; hint: string; icon: Icon }[] = [
-  { label: "Request sent", hint: "Naipadala", icon: CloudArrowUp },
-  { label: "Finding a worker", hint: "Hinahanapan", icon: MagnifyingGlass },
-  { label: "Accepted", hint: "Tinanggap", icon: Handshake },
-  { label: "Job in progress", hint: "Ginagawa", icon: Wrench },
-  { label: "Done · pay cash", hint: "Tapos na", icon: CheckCircle },
+  { label: "Request sent", hint: "Saved on your phone. Sends when you're online.", icon: Check },
+  { label: "Finding a worker", hint: "Looking near you. You'll see their name here.", icon: MagnifyingGlass },
+  { label: "Accepted", hint: "Your worker is on the way.", icon: Handshake },
+  { label: "Job in progress", hint: "Your worker is fixing it now.", icon: Wrench },
+  { label: "Done · pay cash", hint: "Pay in cash after the job.", icon: CheckCircle },
 ];
 
-/** Vertical stepper with rails (artboard V20): done = navy check, current = amber icon. */
-function Timeline({ status, pending }: { status?: BookingStatus; pending: boolean }) {
-  const current = pending ? 0 : status ? BOOKING_STATUSES.indexOf(status as (typeof BOOKING_STATUSES)[number]) + 1 : 0;
+/** Vertical stepper with rails (artboard B2): done = navy check, current = amber icon + hint. */
+function Timeline({ status, sentAt }: { status?: BookingStatus; sentAt?: number }) {
+  const current = status ? BOOKING_STATUSES.indexOf(status as (typeof BOOKING_STATUSES)[number]) + 1 : 0;
   const allDone = status === "COMPLETED";
   return (
     <View>
@@ -128,40 +187,24 @@ function Timeline({ status, pending }: { status?: BookingStatus; pending: boolea
                   <Check size={14} color={C.white} weight="bold" />
                 </View>
               ) : now ? (
-                <Animated.View entering={ZoomIn.springify()} className="h-7 w-7 items-center justify-center rounded-full bg-lime">
-                  <I size={15} color={C.navy} weight="fill" />
+                <Animated.View entering={ZoomIn.springify()} className="h-7 w-7 items-center justify-center rounded-full border-4 border-amber-bg bg-lime">
+                  <I size={13} color={C.navy} weight="bold" />
                 </Animated.View>
               ) : (
                 <View className="h-7 w-7 rounded-full border-2 border-border-strong bg-surface" />
               )}
-              {last ? null : <View className={`w-[2px] flex-1 ${done ? "bg-navy" : "bg-border"}`} style={{ minHeight: 14 }} />}
+              {last ? null : <View className={`w-[2px] flex-1 ${done ? "bg-navy" : "bg-border"}`} style={{ minHeight: 12 }} />}
             </View>
-            <View className={`flex-1 flex-row items-start justify-between ${last ? "" : "pb-3"}`}>
-              <Text className={`pt-1 text-[15px] ${now ? "font-body-bold text-ink" : done ? "font-body text-ink" : "font-body text-subtle"}`}>{s.label}</Text>
-              <Text className="pt-1 font-body text-xs text-subtle">{s.hint}</Text>
+            <View className={`flex-1 ${last ? "" : "pb-3"}`}>
+              <View className="flex-row items-start justify-between gap-2 pt-1">
+                <Text className={`text-[15px] ${now || done ? "font-body-bold text-ink" : "font-body text-muted"}`}>{s.label}</Text>
+                {i === 0 && sentAt ? <Text className="font-body text-xs text-subtle">{time(sentAt)}</Text> : null}
+              </View>
+              {now ? <Text className="font-body text-[13px] leading-[18px] text-muted">{s.hint}</Text> : null}
             </View>
           </View>
         );
       })}
     </View>
-  );
-}
-
-/** Live "looking for a worker" card while REQUESTED, so the screen never feels idle. */
-function Searching() {
-  const reduced = useReducedMotion();
-  const o = useSharedValue(1);
-  useEffect(() => {
-    if (!reduced) o.value = withRepeat(withSequence(withTiming(0.3, { duration: 700 }), withTiming(1, { duration: 700 })), -1);
-  }, [reduced, o]);
-  const dot = useAnimatedStyle(() => ({ opacity: o.value }));
-  return (
-    <Animated.View entering={FadeInDown.delay(80).duration(250)} className="flex-row items-center gap-3 rounded-3xl border-[1.5px] border-dashed border-amber bg-amber-bg p-4">
-      <Animated.View style={dot} className="h-3 w-3 rounded-full bg-lime" />
-      <View className="flex-1">
-        <Text className="font-body-bold text-[15px] text-navy">Looking for a worker near you</Text>
-        <Text className="font-body text-[13px] text-amber-ink">You'll see their name and number here once they accept.</Text>
-      </View>
-    </Animated.View>
   );
 }
