@@ -66,13 +66,16 @@ export function Screen({
   );
 }
 
-/** Amber strip when offline (DESIGN S01 #1, A5). Visible on the projector during the airplane-mode demo. */
+/**
+ * Offline pill (DESIGN S01 #1, A5). Visible on the projector during the airplane-mode demo.
+ * Inset + rounded so it sits cleanly under the curved header instead of leaving corner gaps.
+ */
 export function OfflineBanner() {
   const { online } = useNetwork();
   const pending = useOutbox().filter((r) => r.status !== "sent").length;
   if (online) return null;
   return (
-    <Animated.View entering={FadeInUp} exiting={FadeOutUp} className="flex-row items-center gap-2 bg-charcoal px-5 py-[10px]">
+    <Animated.View entering={FadeInUp} exiting={FadeOutUp} className="mx-5 mt-3 flex-row items-center gap-2 rounded-2xl bg-charcoal px-4 py-[10px]">
       <AirplaneTilt size={18} color={C.lime} weight="fill" />
       <Text className="flex-1 font-body-semibold text-[13px] text-white">
         {pending ? `Offline · ${pending} waiting to send` : "Offline. The AI still works."}

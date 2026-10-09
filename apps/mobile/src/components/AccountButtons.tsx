@@ -17,7 +17,7 @@ export function AccountButtons() {
           <Cpu size={20} color={C.lime} weight="bold" />
         </View>
       </HeaderLink>
-      <HeaderLink href="/profile" label="My profile">
+      <HeaderLink href={user ? "/profile" : "/signup"} label={user ? "My profile" : "Sign up"}>
         <Avatar name={user?.name ?? ""} size={40} tone="amber" />
       </HeaderLink>
     </View>

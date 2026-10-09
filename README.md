@@ -6,6 +6,24 @@ TrabaWho is a Grab-style booking app for plumbers, electricians, carpenters, air
 
 > AppBuildersPH Hackathon 2026 · Theme: **Local AI** · "Build an AI product that remains genuinely useful when the cloud disappears."
 
+## For judges: try it in 5 minutes
+
+**A. On an Android phone (no server, no account needed)**
+1. Install the APK from the [GitHub Releases](https://github.com/Moncito/TrabaWHO/releases) page (Android 10+, ~6 GB RAM or more recommended).
+2. Open the app → **"Try the AI without an account"**.
+3. On first run, tap **Download AI** (one-time, ~1.3 GB over Wi-Fi). The model is saved on the phone.
+4. **Turn on airplane mode.** Everything AI still works:
+   - **Ano ang problema?** Type e.g. *"Nag-spark yung saksakan nung sinaksak ko yung charger"* → Booking Card (Electrician, EMERGENCY, safety note, price range).
+   - **Check a message:** paste *"GCash mo na lang ako directly, cancel mo na yung booking"* → flagged as a likely scam.
+   - **While you wait:** *"Amoy gas dito sa kusina, ano gagawin ko?"* → gas warning, 911, safe first steps.
+   - **AI on this phone** (chip icon): model load time, seconds per answer, tokens/s, measured on your device.
+   
+   Sending a booking to workers needs an account and our API (section C).
+
+**B. Reproduce the AI accuracy numbers on a laptop (no phone)**: [Run it yourself → 1](#1-reproduce-the-ai-numbers-laptop-no-phone-needed). Ollama + `npm run eval`.
+
+**C. Full stack with accounts, booking and sync**: [Run it yourself → 3 and 4](#3-run-the-api). Local PostgreSQL + API on a laptop, phone on USB.
+
 ---
 
 ## Why local AI?
@@ -125,6 +143,17 @@ Honesty notes:
 - Gemma 3 1B was also evaluated (service 17/20, task 9/20) and rejected.
 - Reproduce any number with the commands below; raw outputs are in `eval/results/`.
 
+**Which model file the app downloads.** The in-app download (first run) fetches unsloth's `Qwen3-1.7B-Q4_K_M.gguf` from Hugging Face (1,056 MB). Our numbers above were measured with Ollama's `qwen3:1.7b` (also Q4_K_M, 1,296 MB; same model, packaged differently). We ran both files through the same evals (Oct 10, laptop, same code):
+
+| Test | Ollama `qwen3:1.7b` (1,296 MB) | Hugging Face unsloth (1,056 MB) |
+| --- | --- | --- |
+| Tuned set: service / task | 19/20 / 16/20 | 19/20 / 16/20 |
+| Held-out: service / task / hazards | 10/12 / 4/12 / 12/12 | 10/12 / 4/12 / 12/12 |
+| Demo sentences: task | 4/6 | 5/6 |
+| Worker report: tasks / materials / duration | 5/5 / 4/7 / 5/5 | 5/5 / 3/7 / 5/5 |
+
+Accuracy is the same within one case either way. The in-app download was tested on the demo phone: 1,056 MB in about a minute on Wi-Fi, then loaded and ready offline. Phone speed was measured with the Ollama file; the Hugging Face file is smaller, so it is expected to be the same or slightly faster (not yet measured on the phone).
+
 ---
 
 ## Tech stack
@@ -169,13 +198,9 @@ npm run eval -- --backend ollama --model qwen3:1.7b
 npm run eval -- --backend keywords        # baseline without the model
 ```
 
-### 2. Try the app without a phone build (keyword AI only)
+### 2. Try the app on a phone without building it
 
-```bash
-cd apps/mobile
-cp .env.example .env     # EXPO_PUBLIC_AI_BACKEND=stub
-npx expo start --web
-```
+Install the release APK and use **"Try the AI without an account"** (see *For judges* above). A web preview is not supported: the offline database (expo-sqlite) does not bundle for web in this build.
 
 ### 3. Run the API
 
@@ -236,7 +261,7 @@ Creates clearly-labelled demo accounts in Quezon City, none verified: `demo.clie
 | Item | Answer |
 | --- | --- |
 | Models | Qwen3 1.7B Q4_K_M GGUF, Apache 2.0 license (Alibaba Qwen; GGUF by unsloth / Ollama library). Via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback. Gemma 3 1B evaluated, not used |
-| Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, expo-secure-store, NetInfo, Zod, Node.js, Express, Prisma, bcryptjs, jose (JWT), Vitest, Supertest, embedded-postgres (tests only), Ollama, Phosphor Icons |
+| Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, expo-secure-store, NetInfo, Zod, Node.js, Express, Prisma, bcryptjs, jose (JWT), Vitest, Supertest, embedded-postgres (local dev DB + tests), Ollama, Phosphor Icons |
 | Auth | Real email + password accounts (bcrypt hashes, signed JWTs). No demo account switcher and no fake seeded people; optional `@trabawho.test` rehearsal accounts are created only on request (`db:seed:demo`) |
 | APIs / cloud services | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API** |
 | Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon |

@@ -1,15 +1,12 @@
 import { BOOKING_STATUSES, safetyFor, type BookingCreate, type BookingStatus, type Urgency } from "@trabawho/shared";
 import { router, useLocalSearchParams } from "expo-router";
 import { ArrowRight, CaretRight, Check, CheckCircle, Handshake, MagnifyingGlass, Phone, Quotes, Wrench, X, type Icon } from "phosphor-react-native";
-import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
-import { CancelSheet } from "@/components/CancelSheet";
 import { Note, Screen } from "@/components/Screen";
 import { Avatar, Button, C, call, HazardAlert, InfoRows, Label, peso, serviceNameEn, StatusBadge, taskNameEn, TotalsCard, VerifiedBadge } from "@/components/ui";
-import { ApiError } from "@/data/api";
-import { cancelBooking, cancelInfo, refreshMine, uiStatus, useCachedBookings, useOutbox, type UiStatus } from "@/data/bookings";
+import { cancelInfo, refreshMine, uiStatus, useCachedBookings, useOutbox, type UiStatus } from "@/data/bookings";
 import { useDbVersion } from "@/data/db";
 import { useSession } from "@/data/session";
 import { useNetwork, usePolling } from "@/data/sync";
@@ -26,9 +23,6 @@ export default function BookingDetail() {
   const server = useCachedBookings().find((b) => b.clientRef === ref);
   const row = useOutbox().find((r) => r.id === ref);
   usePolling(() => (user ? refreshMine() : Promise.resolve()), online && !!user);
-  const [sheet, setSheet] = useState(false);
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const p = row ? (JSON.parse(row.payload) as BookingCreate) : null;
   const cancelled = ref ? cancelInfo(ref) : null;
@@ -73,20 +67,6 @@ export default function BookingDetail() {
   const worker = server?.worker;
   const sentAt = server ? Date.parse(server.createdAt) : row?.createdAt;
 
-  async function confirm(reason: string) {
-    setBusy(true);
-    setError(null);
-    try {
-      await cancelBooking(ref!, reason, server, p);
-      setSheet(false);
-    } catch (e) {
-      setError(e instanceof ApiError && e.status === 409 ? "It can't be cancelled anymore: a worker may have just accepted. Check the booking." : "Couldn't cancel. Check your internet and try again.");
-      if (user) await refreshMine().catch(() => undefined);
-    } finally {
-      setBusy(false);
-    }
-  }
-
   return (
     <Screen
       title={title}
@@ -95,7 +75,7 @@ export default function BookingDetail() {
       footer={
         canCancel ? (
           <>
-            <Button label="Cancel booking" icon={X} variant="dangerOutline" onPress={() => setSheet(true)} disabled={!!server && !online} disabledReason={server && !online ? "Cancelling a sent booking needs internet." : undefined} />
+            <Button label="Cancel booking" icon={X} variant="dangerOutline" onPress={() => router.push({ pathname: "/cancel-booking", params: { ref: ref! } })} disabled={!!server && !online} disabledReason={server && !online ? "Cancelling a sent booking needs internet." : undefined} />
             {server && !online ? null : <Text className="text-center font-body text-xs text-subtle">Free to cancel until a worker accepts.</Text>}
           </>
         ) : undefined
@@ -154,8 +134,6 @@ export default function BookingDetail() {
       ) : null}
 
       {server?.report ? <TotalsCard {...server.report} /> : null}
-
-      <CancelSheet visible={sheet} busy={busy} error={error} onClose={() => setSheet(false)} onConfirm={(r) => void confirm(r)} />
     </Screen>
   );
 }
