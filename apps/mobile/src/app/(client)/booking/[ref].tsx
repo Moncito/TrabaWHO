@@ -88,6 +88,7 @@ export default function BookingDetail() {
   }
 
   return (
+    <>
     <Screen
       title={title}
       subtitle={subtitle}
@@ -154,9 +155,11 @@ export default function BookingDetail() {
       ) : null}
 
       {server?.report ? <TotalsCard {...server.report} /> : null}
-
-      <CancelSheet visible={sheet} busy={busy} error={error} onClose={() => setSheet(false)} onConfirm={(r) => void confirm(r)} />
     </Screen>
+    {/* Outside <Screen>: a Modal nested in its scroll/animated body was drawn ~236 px too high on Android,
+        leaving empty space under the buttons and the tab bar showing below the sheet. */}
+    <CancelSheet visible={sheet} busy={busy} error={error} onClose={() => setSheet(false)} onConfirm={(r) => void confirm(r)} />
+    </>
   );
 }
 
