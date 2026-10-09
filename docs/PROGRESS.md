@@ -102,6 +102,14 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - `android-bundle`: `expo export --platform android`.
 - Not in CI: real model eval (run locally, commit results), DB migrations, APK build.
 
+### 2.12 On-phone AI stats screen (branch `ai/stats-panel`)
+- `apps/mobile/src/ai/stats.ts`: in-memory telemetry (nothing sent anywhere): backend, model id, load state + load time, last 20 calls with latency, source (model / fallback / none), attempts, prompt/generated tokens and tokens/s from llama.rn `timings`.
+- All three backends (llama, ollama, stub) record every intake/report call.
+- `/ai-stats` screen: offline banner ("Walang internet. AI is running on this phone."), model + backend, model load time, avg answer time, tokens/s, model answers vs fallback, recent calls, reset. Linked from login and "Ano ang problema?".
+- Model load + warm-up now starts in the background at app launch (first call was ~13–21 s on laptop otherwise).
+- Verified: mobile typecheck, Android bundle, and in the browser (web, stub mode): login → type "may naaamoy akong gas sa kusina" → Booking Card shows Tubero / Inspeksyon ng tubero / EMERGENCY / ₱300–₱600 / gas safety note with 911 → AI stats shows the call. On-phone numbers pending the dev build.
+- Purpose: demo step 6 ("Proof") and the measured phone latency for the README/pitch.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.
@@ -154,3 +162,4 @@ adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/file
 ## 6. Change log (append below)
 
 - **Oct 9:** docs v0.2 rescope; TASKS.md; shared package; eval; monorepo + mobile + API scaffold; CI; design docs; model selection; model-vs-keywords comparison; briefing alignment; model file from Ollama blob.
+- **Oct 9:** git workflow: feature branches, commits as Moncito, Moncito merges. Branches: `docs/progress-log` (this file), `ai/stats-panel` (AI stats screen + launch warm-up).
