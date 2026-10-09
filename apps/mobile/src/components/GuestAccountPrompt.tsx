@@ -49,7 +49,7 @@ export function GuestAccountPrompt({
           </Text>
         </Animated.View>
       ) : null}
-      <Button label="Sign up · Mag-sign up" icon={UserPlus} onPress={() => void go("/signup")} />
+      <Button label="Sign up · Mag-sign up" icon={UserPlus} center onPress={() => void go("/signup")} />
       <Button label="Log in" icon={SignIn} variant="ghost" onPress={() => void go("/login")} />
     </View>
   );
