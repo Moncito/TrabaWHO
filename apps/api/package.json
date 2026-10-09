@@ -13,7 +13,8 @@
     "db:deploy": "prisma migrate deploy",
     "db:seed": "tsx prisma/seed.ts",
     "db:seed:demo": "tsx prisma/seed-demo.ts",
-    "test": "vitest run"
+    "test": "vitest run",
+    "db:local": "tsx scripts/local-db.ts"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
