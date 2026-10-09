@@ -1,88 +1,72 @@
 import { router } from "expo-router";
-import { CaretRight, Cpu, UserCircle } from "phosphor-react-native";
-import { useEffect, useState } from "react";
-import { Pressable, Text, View } from "react-native";
+import { Cpu, SignIn, UserPlus } from "phosphor-react-native";
+import { useState } from "react";
 
-import { C, Card, Label, ServiceTile, VerifiedBadge, serviceName } from "@/components/ui";
 import { HeaderLink, Note, Screen } from "@/components/Screen";
-import { api, API_URL, type DemoUser } from "@/data/api";
-import { kvGet, kvSet } from "@/data/db";
-import { setUser } from "@/data/session";
+import { Button, C, Field } from "@/components/ui";
+import { authErrorText, login } from "@/data/auth";
+import { useNetwork } from "@/data/sync";
 
-/** C01: demo account switcher. Users come from GET /users and are cached for offline. */
+/** C01: email + password login. Needs internet; after that the app works offline. */
 export default function Login() {
-  const [users, setUsers] = useState<DemoUser[]>(() => kvGet<DemoUser[]>("users") ?? []);
+  const { online } = useNetwork();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    api<DemoUser[]>("/users")
-      .then((u) => {
-        kvSet("users", u);
-        setUsers(u);
-        setError(null);
-      })
-      .catch(() => setError(`Hindi maabot ang server (${API_URL}).`));
-  }, []);
-
-  function pick(u: DemoUser) {
-    setUser(u);
-    router.replace(u.role === "CLIENT" ? "/new-problem" : "/jobs");
+  async function submit() {
+    setBusy(true);
+    setError(null);
+    try {
+      const user = await login(email.trim(), password);
+      router.replace(user.role === "CLIENT" ? "/new-problem" : "/jobs");
+    } catch (e) {
+      setError(authErrorText(e));
+    } finally {
+      setBusy(false);
+    }
   }
 
-  const clients = users.filter((u) => u.role === "CLIENT");
-  const workers = users.filter((u) => u.role === "WORKER");
+  const ready = email.trim().length > 3 && password.length > 0;
 
   return (
     <Screen
       title="TrabaWHO"
-      subtitle="Choose your account · Pumili ng account"
+      subtitle="Mag-log in · Log in"
       right={
         <HeaderLink href="/ai-stats" label="AI stats">
           <Cpu size={24} color={C.lime} weight="bold" />
         </HeaderLink>
       }
+      footer={
+        <>
+          <Button
+            label="Mag-log in"
+            icon={SignIn}
+            loading={busy}
+            disabled={!ready || !online}
+            disabledReason={!online ? "Kailangan ng internet para mag-log in." : undefined}
+            onPress={submit}
+          />
+          <Button label="Gumawa ng account" icon={UserPlus} variant="ghost" onPress={() => router.push("/signup")} />
+        </>
+      }
     >
-      {error ? <Note>{users.length ? `${error} Naka-cache na listahan ang gamit.` : `${error} Kailangan ng internet sa unang login.`}</Note> : null}
-      {clients.length ? <Label>Client</Label> : null}
-      {clients.map((u) => (
-        <Row key={u.id} onPress={() => pick(u)} title={u.name} subtitle={`${u.barangay}, ${u.city}`} />
-      ))}
-      {workers.length ? <Label>Worker</Label> : null}
-      {workers.map((u) => (
-        <Row
-          key={u.id}
-          onPress={() => pick(u)}
-          title={u.name}
-          subtitle={u.services.map(serviceName).join(" · ")}
-          service={u.services[0]}
-          verified={u.isVerified}
-        />
-      ))}
-      <Text className="pt-2 text-center font-body text-xs text-subtle">Demo-only login: walang password.</Text>
+      {!online ? <Note>Offline ka. Kailangan ng internet para mag-log in o gumawa ng account. Pagkatapos mag-log in, gumagana ang app kahit offline.</Note> : null}
+      <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" placeholder="ikaw@email.com" />
+      <Field
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        autoCapitalize="none"
+        autoComplete="current-password"
+        textContentType="password"
+        returnKeyType="go"
+        onSubmitEditing={() => ready && online && void submit()}
+      />
+      {error ? <Note>{error}</Note> : null}
     </Screen>
-  );
-}
-
-function Row({ title, subtitle, onPress, service, verified }: { title: string; subtitle: string; onPress: () => void; service?: DemoUser["services"][number]; verified?: boolean }) {
-  return (
-    <Pressable onPress={onPress} className="active:opacity-80">
-      <Card>
-        <View className="flex-row items-center gap-3">
-          {service ? (
-            <ServiceTile service={service} />
-          ) : (
-            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-lime">
-              <UserCircle size={28} color={C.navy} weight="fill" />
-            </View>
-          )}
-          <View className="flex-1 gap-1">
-            <Text className="font-body-bold text-[17px] text-ink">{title}</Text>
-            <Text className="font-body text-[13px] text-muted">{subtitle}</Text>
-            {verified ? <VerifiedBadge /> : null}
-          </View>
-          <CaretRight size={20} color={C.subtle} />
-        </View>
-      </Card>
-    </Pressable>
   );
 }
