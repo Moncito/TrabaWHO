@@ -65,6 +65,12 @@ export default function AiStatsScreen() {
         <Stat label="Tokens / s" value={tps ? String(tps) : "-"} />
         <Stat label="Model answers" value={`${modelCalls.length}/${s.calls.length}`} />
       </View>
+      <View className="flex-row gap-3">
+        <Stat
+          label="Prompt warm-up"
+          value={s.warmupMs !== undefined ? secs(s.warmupMs) : s.loadState === "ready" && onDevice ? "warming up..." : "-"}
+        />
+      </View>
       {s.loadError ? <Text className="font-body text-sm text-emergency">Load error: {s.loadError}</Text> : null}
       {s.modelPath ? <Text className="font-body text-xs text-muted">File: {s.modelPath}</Text> : null}
 

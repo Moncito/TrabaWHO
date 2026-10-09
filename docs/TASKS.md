@@ -269,7 +269,7 @@ The proof
 The disclosures
 - [ ] Models used (Qwen3 1.7B Q4_K_M GGUF via llama.rn; Ollama on laptop for eval / Edge mode)
 - [ ] Technologies and frameworks (SPEC 10)
-- [ ] APIs and cloud services (Supabase Postgres; **no cloud AI API**)
+- [ ] APIs and cloud services (**none**: API + PostgreSQL run locally on the laptop; **no cloud AI API**)
 - [ ] Existing code and assets (Expo template, Google Fonts Anton/Archivo, Phosphor icons, capstone proposal doc)
 - [ ] AI development tools (Claude Code)
 - [ ] **Answer: "Why does this product benefit from running AI locally?"** (SPEC 4)

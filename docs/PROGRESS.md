@@ -141,6 +141,34 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
   - Worker (Ben, Tubero): accept online → airplane ON → Start disabled with reason, I-report works → add material ₱250 → save → Pending. Airplane OFF → COMPLETED; server total ₱1,100 (labor ₱850 + ₱250) matches the phone.
 - Without the model, the report extracts no materials (keyword rules can't). That is the model-vs-keywords point for the pitch.
 
+### 2.16 Held-out eval, database decision, team (branch `ai/heldout-eval`)
+- `swe/core-flow` merged into `main` (real client/worker screens, SQLite outbox + sync engine, device test log).
+- `eval/heldout.json`: 12 cases written by the SWE without seeing `intake.json` or the prompts. Realistic texting: typos and slang ("wla aq 2big sa gripo", "gusto ko magpagawa ng baokd", "paayos ng sidecar ng tricycle").
+- **Run once, no prompt changes before or after** (`eval/results/qwen3_1.7b.heldout.json`):
+
+| Held-out (12) | Qwen3 1.7B (local) | Keyword rules only |
+| --- | --- | --- |
+| Service | **11/12** | 8/12 |
+| Task | 4/12 | 5/12 |
+| Hazards | 11/12 | — |
+| Avg latency (laptop) | ~1.2 s (first call 7.1 s) | ~0 ms |
+
+- Per case: model right / keywords wrong on task: h12. Keywords right / model wrong: h07, h08 (model chose `AIRCON_INSPECT` for short vague aircon messages). Model chose a specific task where the label was `_INSPECT` on h02, h04, h05, h06 (e.g. "paggawa ng kubo" → cabinet). h10 (tricycle sidecar) went to carpentry. h11 "dumidiklap yung saksakan": SPARKING missed by model and rules.
+- Reading: the model generalizes far better on **service** (which worker to send); **task** on unseen phrasing is weak and the client confirms it on the Booking Card. Reported as is in README and SPEC 8.
+- **Do not tune prompts on `heldout.json`.** Any future prompt/keyword change needs a fresh held-out set to be reported fairly.
+- **Disclosed post-held-out safety fix:** added `diklap` and `dikilap` to the SPARKING hazard keywords (catalog) after h11 was missed, with a test. Reported numbers stay the pre-fix ones; README says so. No prompt changes.
+- Health check of `main` after the `swe/core-flow` merge: 40 tests pass, catalog valid, typecheck clean (after regenerating local typed routes in `.expo/types`, which is git-ignored), Android bundle builds. AI stats links, launch warm-up and the model picker all survived the merge.
+- **Database decision: local PostgreSQL on the laptop** (no Supabase). Disclosures in README, SPEC 10, TASKS 6 and ARCHITECTURE now say: APIs / cloud services = none; no cloud AI API.
+- **Team 404:** Marc Ace Flores, Adrian Imbang, Clarence Emlano (README Team section).
+
+### 2.17 First on-phone run + prompt warm-up fix
+- Model imported with the in-app picker (`file:///data/user/0/ph.trabawho.app/files/model.gguf`) on the Infinix X6873.
+- **AI stats (online, 3 intakes):** model load 4.47 s · answers 34.69 s, 7.95 s, 8.18 s (avg 16.94 s) · ~9 tokens/s · 3/3 answered by the model (no fallback).
+- Diagnosis: the 35 s first answer is prompt processing of the full intake prompt (system rules + 20-task catalog + 6 few-shot pairs); llama.cpp then keeps that prefix in its KV cache, so later answers only process the client's text (~8 s, mostly generating ~70 tokens at 9 tok/s).
+- Fix: `LlamaService.init()` now warms up with the real intake messages (`intakeMessages(...)`, `maxTokens: 1`) instead of "hi", and resets token counters after. AI stats shows "Prompt warm-up" time separately from model load.
+- Still to do on the phone: re-measure after the fix, **in airplane mode** (the first run was online).
+- Further speed ideas if needed (not done): shorter summary / fewer output tokens, tune `n_threads`, try Qwen3 0.6B (would need a new eval). Note: the report prompt has a different prefix, so the first report after an intake will re-process its prompt.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

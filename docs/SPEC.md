@@ -173,6 +173,8 @@ Example rows (**prices are illustrative** and labeled so in the demo unless sour
 | Report: materials extracted | 4/7 | 0/7 |
 | Intake latency (laptop) | ~0.7–1 s | ~0 ms |
 
+**Held-out set (12 cases by a teammate, run once, Oct 9):** service **11/12 model vs 8/12 keywords**; task 4/12 model vs 5/12 keywords; hazards 11/12 (missed "dumidiklap yung saksakan"). Pitch line: the model picks the right *kind of worker* far more often on real messy texts; the exact task is a suggestion the client confirms with one tap.
+
 On the tuned set the two tie on task but fail on **different** cases. The model is the only thing that extracts materials, writes the summary, and handles phrasing nobody wrote a keyword for. That is the answer to "why not just keywords?". The held-out set has to show it.
 
 ## 9. Demo script (5 minutes + 3 min Q&A)
@@ -196,8 +198,8 @@ Videos: record a clean run of the whole demo by hour 20 (backup for Demo Day), a
 | Runs locally           | Job intake (classification + extraction), job report extraction, price/duration estimates, safety notes, offline booking queue |
 | Requires internet      | Posting/syncing bookings and reports, worker matching, booking status                                   |
 | Models                 | Qwen3 1.7B, Q4_K_M GGUF (unsloth/Qwen3-1.7B-GGUF) via llama.rn on the phone; same model via Ollama on a laptop for eval / Edge-mode fallback. Gemma 3 1B evaluated and rejected |
-| Frameworks / tools     | React Native 0.86 + Expo SDK 57 (dev build), Expo Router, NativeWind, Reanimated, llama.rn, expo-sqlite, NetInfo, Zod, Node.js, Express 5, Prisma 6, Supabase Postgres, Phosphor Icons, Vitest, Ollama |
-| APIs / cloud services  | Supabase Postgres (bookings sync only). **No cloud AI API**                                             |
+| Frameworks / tools     | React Native 0.86 + Expo SDK 57 (dev build), Expo Router, NativeWind, Reanimated, llama.rn, expo-sqlite, NetInfo, Zod, Node.js, Express 5, Prisma 6, PostgreSQL (local), Phosphor Icons, Vitest, Ollama |
+| APIs / cloud services  | **None.** API + PostgreSQL run locally on the team laptop. **No cloud AI API**                          |
 | Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; capstone topic proposal (planning document only, no code). Catalog, prompts, safety text and eval sets are team-written during the hackathon |
 | AI dev tools           | Claude Code (list any others used)                                                                      |
 | Why local (required)   | SPEC 4                                                                                                  |
