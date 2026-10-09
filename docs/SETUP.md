@@ -172,6 +172,8 @@ adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/file
 
 Then set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env` and rebuild.
 
+**Verified on the demo phone** (Infinix X6873, Android 16): `adb push` into `/sdcard/Android/data/ph.trabawho.app/files/` works.
+
 **If `adb push` says "Permission denied"** (some phones block `Android/data`): copy the `.gguf` to the phone's **Downloads** (USB file transfer or Google Drive), open the app → **AI stats** → **Pumili ng model file (.gguf)**, pick it. The app copies it into its own storage (~1 min) and loads it. The app checks the imported copy first, then the adb path.
 
 ### 5.3 Edge-mode fallback (if the phone is too slow)
@@ -187,7 +189,11 @@ Disclose it in the pitch as "laptop-local, no cloud".
 
 ## 6. Software Engineer setup
 
-### 6.1 Supabase + API
+### 6.1 Database + API
+
+**Option A (verified, simplest for the demo): local Postgres on the laptop.** Install PostgreSQL, create a database, and set both `DATABASE_URL` and `DIRECT_URL` in `apps/api/.env` to it (e.g. `postgresql://postgres:<pw>@localhost:5432/trabawho`). Then run steps 3–4 below. The SWE verified migrate + seed (12 users) and a full smoke test: create 201 → duplicate create returns the same id → accept 200 → second accept 409 → start 200 → report → COMPLETED, total ₱800.
+
+**Option B: Supabase** (hosted Postgres):
 
 1. Create a Supabase project. Copy both connection strings (Settings → Database): pooled (port 6543) and direct (5432).
 2. `cp apps/api/.env.example apps/api/.env` and fill them in. **Never commit `.env`.**
@@ -218,6 +224,15 @@ cp .env.example .env          # set EXPO_PUBLIC_API_URL to the laptop's LAN IP
 npx expo prebuild --platform android
 npx expo run:android          # phone plugged in, USB debugging on
 ```
+
+**Troubleshooting (found on the SWE's Windows laptop):**
+
+| Problem | Fix |
+| --- | --- |
+| `ninja: error: manifest 'build.ninja' still dirty after 100 tries` in `react-native-reanimated:buildCMakeDebug` | The repo is inside **OneDrive**, which keeps touching build files. Build from a folder outside OneDrive, e.g. a git worktree: `git worktree add C:\dev\trabawho-native <branch>` |
+| `llama.rn` postinstall fails: `tar ... Cannot connect to C: resolve failed` | Run `npm install` from **PowerShell** (use `npm.cmd` if scripts are blocked), not Git Bash |
+| Gradle can't find the Android SDK | Create `apps/mobile/android/local.properties` with `sdk.dir=C:/Users/<you>/AppData/Local/Android/Sdk` |
+| Phone can't reach the API over USB | `adb reverse tcp:3000 tcp:3000`, then `EXPO_PUBLIC_API_URL=http://localhost:3000` |
 
 Release APK for the demo phones:
 
