@@ -1,10 +1,12 @@
 import { router } from "expo-router";
-import { Cpu, SignIn, UserPlus } from "phosphor-react-native";
+import { AirplaneTilt, Cpu, SignIn, UserPlus } from "phosphor-react-native";
 import { useState } from "react";
+import { Pressable, Text, View } from "react-native";
 
 import { HeaderLink, Note, Screen } from "@/components/Screen";
 import { Button, C, Field } from "@/components/ui";
 import { authErrorText, login } from "@/data/auth";
+import { startGuest } from "@/data/session";
 import { useNetwork } from "@/data/sync";
 
 /** C01: email + password login. Needs internet; after that the app works offline. */
@@ -68,6 +70,22 @@ export default function Login() {
         onSubmitEditing={() => ready && online && void submit()}
       />
       {error ? <Note>{error}</Note> : null}
+      <Pressable
+        accessibilityRole="button"
+        onPress={() => {
+          startGuest();
+          router.replace("/");
+        }}
+        className="mt-2 flex-row items-center gap-3 rounded-3xl border border-border bg-surface p-4 active:opacity-80"
+      >
+        <View className="h-10 w-10 items-center justify-center rounded-2xl bg-navy">
+          <AirplaneTilt size={20} color={C.lime} weight="fill" />
+        </View>
+        <View className="flex-1">
+          <Text className="font-body-bold text-[15px] text-ink">Try the AI without an account</Text>
+          <Text className="font-body text-xs text-muted">No internet needed · Subukan nang walang account</Text>
+        </View>
+      </Pressable>
     </Screen>
   );
 }

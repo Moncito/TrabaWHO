@@ -63,7 +63,7 @@ export default function Profile() {
 
   function logout() {
     endSession();
-    router.replace("/login");
+    router.replace("/welcome");
   }
 
   const set = (k: keyof typeof form) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
