@@ -73,7 +73,29 @@ export function startSession(t: string, user: SessionUser) {
   // Cached bookings belong to one account; never show them to another.
   if (prev && prev.id !== user.id) db.runSync("DELETE FROM bookings_cache");
   writeToken(t);
+  kvSet(GUEST_KEY, null);
   kvSet(USER_KEY, user);
+}
+
+// ---------- Guest mode: try the on-device AI with no account and no server ----------
+
+const GUEST_KEY = "guest_mode";
+
+export function isGuest(): boolean {
+  return !getUser() && kvGet<boolean>(GUEST_KEY) === true;
+}
+
+export function useGuest(): boolean {
+  return useDbQuery(isGuest);
+}
+
+/** Intake, Booking Card, scam check, first aid and AI stats work as a guest; booking asks to sign up. */
+export function startGuest() {
+  kvSet(GUEST_KEY, true);
+}
+
+export function endGuest() {
+  kvSet(GUEST_KEY, null);
 }
 
 /** Refresh the cached profile (after GET /me or PATCH /me). */
@@ -84,6 +106,7 @@ export function updateSessionUser(user: SessionUser) {
 /** Log out. Unsent outbox rows stay (they are tagged with their user) and send when that user logs back in. */
 export function endSession() {
   writeToken(null);
+  kvSet(GUEST_KEY, null);
   kvSet(USER_KEY, null);
   db.runSync("DELETE FROM bookings_cache");
   notify();

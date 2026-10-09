@@ -180,14 +180,20 @@ export default function BookingCardScreen() {
       subtitle={online ? "Check it, then book" : "Offline: saved on your phone first"}
       back
       footer={
-        <Button
-          label="Book now"
-          icon={CalendarCheck}
-          loading={booking}
-          onPress={book}
-          disabled={!address.trim() || !barangay.trim() || !user}
-          disabledReason={!user ? "Mag-login muna" : "Ilagay ang address at barangay"}
-        />
+        user ? (
+          <Button
+            label="Book now"
+            icon={CalendarCheck}
+            loading={booking}
+            onPress={book}
+            disabled={!address.trim() || !barangay.trim()}
+            disabledReason="Ilagay ang address at barangay"
+          />
+        ) : (
+          // Guest mode: the AI part is done offline; sending to workers needs an account.
+          // The draft (text + card) stays in memory, so after sign-up the client can book it.
+          <Button label="Sign up to book · Mag-sign up" icon={CalendarCheck} onPress={() => router.push("/signup")} />
+        )
       }
     >
       {sections.map((s, i) => (

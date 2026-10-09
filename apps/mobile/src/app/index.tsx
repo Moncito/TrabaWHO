@@ -2,12 +2,14 @@ import { Redirect } from "expo-router";
 
 import { modelInstalled } from "@/ai";
 import { kvGet } from "@/data/db";
-import { useSession } from "@/data/session";
+import { useGuest, useSession } from "@/data/session";
 
 export default function Index() {
   const user = useSession();
-  if (!user) return <Redirect href="/welcome" />;
+  const guest = useGuest();
+  if (!user && !guest) return <Redirect href="/welcome" />;
   // First run on a phone without the on-device model: offer the one-time download (skippable).
   if (!modelInstalled() && !kvGet<boolean>("modelSetupSkipped")) return <Redirect href="/model-setup" />;
-  return <Redirect href={user.role === "CLIENT" ? "/new-problem" : "/jobs"} />;
+  // Guests (no account, no server) go straight to the AI intake.
+  return <Redirect href={user?.role === "WORKER" ? "/jobs" : "/new-problem"} />;
 }
