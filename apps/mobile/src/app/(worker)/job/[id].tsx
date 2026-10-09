@@ -20,7 +20,7 @@ export default function JobDetail() {
   const b = useCachedBookings().find((x) => x.id === id);
   const pending = pendingReportFor(useOutbox(), id);
   const [busy, setBusy] = useState(false);
-  usePolling(() => (user ? refreshMine(user.id) : Promise.resolve()), online && !!user);
+  usePolling(() => (user ? refreshMine() : Promise.resolve()), online && !!user);
 
   if (!b) {
     return (
@@ -34,7 +34,7 @@ export default function JobDetail() {
     if (!user || !b) return;
     setBusy(true);
     try {
-      cacheBookings([await api<ServerBooking>(`/bookings/${b.id}/${action}`, { method: "POST", userId: user.id })]);
+      cacheBookings([await api<ServerBooking>(`/bookings/${b.id}/${action}`, { method: "POST" })]);
     } catch (e) {
       showToast("error", e instanceof ApiError && e.status === 409 ? "Nakuha na ng ibang worker" : "Hindi natuloy. Subukan ulit.");
     } finally {

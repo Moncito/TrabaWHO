@@ -197,17 +197,15 @@ Disclose it in the pitch as "laptop-local, no cloud".
 
 1. Create a Supabase project. Copy both connection strings (Settings → Database): pooled (port 6543) and direct (5432).
 2. `cp apps/api/.env.example apps/api/.env` and fill them in. **Never commit `.env`.**
-3. Create tables, seed, and run:
+3. Set `JWT_SECRET` in `.env`, create tables and run:
    ```bash
    cd apps/api
-   npx prisma migrate dev --name init
-   npm run db:seed
+   npx prisma migrate deploy
+   npm run db:seed:demo        # optional rehearsal accounts (@trabawho.test); there is no other seed data
    npm run dev                 # API on http://0.0.0.0:3000
    ```
-4. Test: `curl http://localhost:3000/health` and `curl http://localhost:3000/users`.
-   Other routes need header `x-user-id: 00000000-0000-4000-8000-000000000001` (seeded client).
-
-**Demo auth warning:** `x-user-id` lets anyone act as anyone. It's fine for the demo; say so in the README.
+4. Test: `curl http://localhost:3000/health`. Sign up with `POST /auth/signup` (or in the app); other routes need `Authorization: Bearer <token>`.
+   `npm test -w apps/api` runs the API tests against a throwaway embedded Postgres (no Docker).
 
 ### 6.2 Mobile app
 

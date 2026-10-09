@@ -25,17 +25,17 @@ export default function Jobs() {
 
   const loadOpen = async () => {
     if (!user) return;
-    const list = await api<ServerBooking[]>("/bookings/open", { userId: user.id });
+    const list = await api<ServerBooking[]>("/bookings/open");
     cacheBookings(list); // so job detail works from the cache
     setOpen(list);
   };
-  usePolling(() => Promise.all([loadOpen(), user ? refreshMine(user.id) : null]), online && !!user);
+  usePolling(() => Promise.all([loadOpen(), user ? refreshMine() : null]), online && !!user);
 
   async function accept(b: ServerBooking) {
     if (!user) return;
     setAccepting(b.id);
     try {
-      cacheBookings([await api<ServerBooking>(`/bookings/${b.id}/accept`, { method: "POST", userId: user.id })]);
+      cacheBookings([await api<ServerBooking>(`/bookings/${b.id}/accept`, { method: "POST" })]);
       router.push({ pathname: "/job/[id]", params: { id: b.id } });
     } catch (e) {
       showToast("error", e instanceof ApiError && e.status === 409 ? "Another worker already took this job" : "Couldn't accept. Try again.");

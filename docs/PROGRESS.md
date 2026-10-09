@@ -245,3 +245,39 @@ adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/file
 - **Oct 9:** docs v0.2 rescope; TASKS.md; shared package; eval; monorepo + mobile + API scaffold; CI; design docs; model selection; model-vs-keywords comparison; briefing alignment; model file from Ollama blob.
 - **Oct 9:** git workflow: feature branches, commits as Moncito, Moncito merges. Branches: `docs/progress-log` (this file), `ai/stats-panel` (AI stats screen + launch warm-up).
 - **Oct 9:** `swe/core-flow`: real screens, SQLite outbox + sync engine, initial Prisma migration, end-to-end offline demo flow verified on the phone.
+- **Oct 10:** `swe/auth-profiles`: real email + password auth and worker profiles (replaces the seeded account switcher and `x-user-id`).
+
+### Oct 10 — Real auth + worker profiles (`swe/auth-profiles`)
+
+**Why:** the demo account switcher let anyone act as anyone and showed fake seeded people. Judges asked for a real hiring-app flow.
+
+**Database** (migration `20261010000000_auth_profiles`, hand-written so it applies on a DB that already has rows):
+- `User` gains `email` (unique, stored lowercased), `passwordHash`, `bio` (default `""`), `yearsExperience` (default 0). `isVerified` stays, default false, never set by the API.
+- Existing rows (old seeded people) get a placeholder `legacy-<id>@trabawho.invalid` email and an unusable hash `!`, and lose `isVerified`. They can never log in. `npx prisma migrate reset` wipes them if wanted.
+
+**API:**
+- `POST /auth/signup` (Zod `SignupRequest` in shared: email, password min 8, name, phone, role, city, barangay; workers need >= 1 service; optional bio, yearsExperience) → `{ token, user }`, 409 on duplicate email.
+- `POST /auth/login` → `{ token, user }`; 401 with the same message for unknown email and wrong password (a dummy bcrypt compare keeps timing similar).
+- `GET /me`, `PATCH /me` (`ProfileUpdate`, strict: `isVerified`/`role`/`email` are rejected).
+- `GET /workers/:id`: public profile + `jobsCompleted` (COMPLETED bookings). `phone` only when the requester is a client with an ACCEPTED / IN_PROGRESS / COMPLETED booking with that worker (or the worker themself). No email, no hash.
+- bcryptjs cost 10; JWT HS256 via `jose`, 30-day expiry, `JWT_SECRET` env (production refuses to start without it; dev warns and uses a default). `index.ts` loads `apps/api/.env` with `process.loadEnvFile`.
+- `/bookings/*` uses bearer-token auth (`requireAuth`). `x-user-id` and `GET /users` are gone. Booking logic unchanged (idempotent clientRef, first-accept-wins, server-side totals); booking responses now include `worker.isVerified` so the app shows the badge only when true.
+- `src/app.ts` exports `createApp()` for tests; `src/index.ts` only listens.
+- `npm run db:seed` creates nothing (prints a note). `npm run db:seed:demo` creates 4 labelled `@trabawho.test` accounts (password `DEMO_PASSWORD` or `trabawho-demo`), none verified.
+
+**Mobile:**
+- Session: token in `expo-secure-store` (added with `npx expo install`, config plugin in app.json). If the installed dev build predates it, the require fails and the token falls back to the SQLite kv table, so the current APK keeps working without a rebuild. The user profile is cached in kv, so the app starts offline after a login.
+- `api.ts` sends `Authorization: Bearer`; a 401 on an authenticated call clears the session and routes to `/login`. Zod error bodies are turned into a readable line.
+- Outbox: rows keep their `userId`; `flush()` sends only the signed-in user's rows with the current token. Other accounts' rows wait until that account logs in again. A 401 keeps the row pending.
+- Logout / switching account clears `bookings_cache` (user-scoped).
+- Screens (built only from existing `ui.tsx` / `Screen.tsx` components; visual restyle is owned by the design branch): `login.tsx` (email, password, "Gumawa ng account"), `signup.tsx` (role → details → worker services / years / bio), `profile.tsx` (view, edit, log out; reached from the header person icon that replaced the account-switch icon), `worker/[id].tsx` (public profile, cached per worker for offline). The client booking detail links the worker card to the profile.
+- Login and signup are disabled offline with a clear message. Intake, Pending bookings and reports still work offline once logged in.
+- `index.tsx` still redirects to `/login` when signed out (no `welcome.tsx` on main yet; once `design/welcome-polish` merges, point it at `/welcome`).
+
+**Tests:** `apps/api/test/auth.test.ts` (vitest + supertest, 11 tests) against a real Postgres from `embedded-postgres` (random port, `prisma migrate deploy` with the real migrations in `globalSetup`). Covers signup, lowercased email, worker-needs-service / short password 400, isVerified can't be set, duplicate 409, login ok, wrong password + unknown email 401 with the same message, `/me` with/without/bad token, PATCH /me, booking create needs a token (x-user-id ignored), `/users` gone, worker profile phone gating and `jobsCompleted`.
+
+**Verified (Windows, Oct 10):**
+- `npm run typecheck` → all workspaces pass.
+- `npm test` → shared 47/47, API 11/11.
+- `CI=1 npx expo export --platform android` (apps/mobile) → bundle exported (11 MB hbc).
+- Not verified on the phone yet: needs the API running with the new migration.

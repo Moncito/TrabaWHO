@@ -8,7 +8,7 @@ db.execSync(`
   CREATE TABLE IF NOT EXISTS outbox (
     id TEXT PRIMARY KEY NOT NULL,          -- clientRef (uuid)
     type TEXT NOT NULL,                    -- BOOKING_CREATE | REPORT_CREATE
-    userId TEXT NOT NULL,                  -- x-user-id at enqueue time (account can be switched later)
+    userId TEXT NOT NULL,                  -- signed-in user at enqueue time; only sent while that user is signed in
     bookingId TEXT,                        -- REPORT_CREATE only
     payload TEXT NOT NULL,
     status TEXT NOT NULL DEFAULT 'pending', -- pending | sent | failed

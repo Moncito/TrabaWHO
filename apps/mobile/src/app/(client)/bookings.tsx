@@ -27,7 +27,7 @@ export default function Bookings() {
   const { online } = useNetwork();
   const outbox = useOutbox();
   const cache = useCachedBookings();
-  usePolling(() => (user ? refreshMine(user.id) : Promise.resolve()), online && !!user);
+  usePolling(() => (user ? refreshMine() : Promise.resolve()), online && !!user);
 
   const mine = cache.filter((b) => b.clientId === user?.id);
   const synced = new Set(mine.map((b) => b.clientRef));
