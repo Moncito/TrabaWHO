@@ -76,13 +76,14 @@ export const call = (phone: string) => Linking.openURL(`tel:${phone}`);
 
 // ---------- primitives ----------
 
-type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "onDark";
+type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "dangerOutline" | "onDark";
 // `orb` is the arrow circle on the 56 px pill (artboard v3 buttons).
 const BTN: Record<ButtonVariant, { box: string; text: string; icon: string; orb?: { box: string; icon: string } }> = {
   primary: { box: "bg-lime", text: "text-navy", icon: C.navy, orb: { box: "bg-navy", icon: C.white } },
   dark: { box: "bg-navy", text: "text-white", icon: C.white, orb: { box: "bg-lime", icon: C.navy } },
   ghost: { box: "border-[1.5px] border-border-strong bg-surface", text: "text-navy", icon: C.navy },
   danger: { box: "bg-danger", text: "text-white", icon: C.white },
+  dangerOutline: { box: "border-[1.5px] border-red-200 bg-surface", text: "text-danger-ink", icon: C.dangerInk },
   // Secondary action on navy screens (welcome, AI checking).
   onDark: { box: "border-[1.5px] border-white/30 bg-white/5", text: "text-white", icon: C.white },
 };
