@@ -1,0 +1,19 @@
+{
+  "name": "trabawho",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*",
+    "eval"
+  ],
+  "scripts": {
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present",
+    "test": "npm test --workspaces --if-present",
+    "validate:catalog": "npm run validate:catalog -w packages/shared",
+    "eval": "npm run eval -w eval --"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

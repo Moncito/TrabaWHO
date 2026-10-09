@@ -1,0 +1,422 @@
+{
+  "version": 1,
+  "currency": "PHP",
+  "pricesAreIllustrative": true,
+  "emergencyHotline": "911",
+  "services": [
+    {
+      "code": "PLUMBING",
+      "nameTl": "Tubero",
+      "nameEn": "Plumber",
+      "keywords": ["tubero", "plumber", "plumbing", "tubig", "tubo", "pipe", "gripo", "faucet", "lababo", "sink", "inidoro", "toilet", "drain", "kanal", "poso"]
+    },
+    {
+      "code": "ELECTRICAL",
+      "nameTl": "Elektrisyan",
+      "nameEn": "Electrician",
+      "keywords": ["elektrisyan", "electrician", "kuryente", "electric", "saksakan", "outlet", "socket", "breaker", "ilaw", "bumbilya", "switch", "wire", "wiring", "kawad"]
+    },
+    {
+      "code": "CARPENTRY",
+      "nameTl": "Karpintero",
+      "nameEn": "Carpenter",
+      "keywords": ["karpintero", "carpenter", "kahoy", "wood", "pinto", "pintuan", "door", "kabinet", "cabinet", "aparador", "kisame", "ceiling", "mesa", "upuan", "drawer"]
+    },
+    {
+      "code": "AIRCON",
+      "nameTl": "Aircon Technician",
+      "nameEn": "Aircon Technician",
+      "keywords": ["aircon", "airconditioner", "air con", "ac", "split type", "window type", "inverter", "freon"]
+    },
+    {
+      "code": "WELDING",
+      "nameTl": "Welder",
+      "nameEn": "Welder",
+      "keywords": ["welder", "welding", "weld", "hinang", "ihinang", "bakal", "metal", "gate", "grills", "grill", "rehas", "railing"]
+    }
+  ],
+  "tasks": [
+    {
+      "code": "PLUMB_LEAK_SINK",
+      "service": "PLUMBING",
+      "nameTl": "Ayusin ang tulo sa gripo o lababo",
+      "nameEn": "Fix leaking faucet or sink",
+      "promptHint": "tulo/tagas/leak sa gripo, lababo, o tubo",
+      "priceMin": 500,
+      "priceMax": 1200,
+      "minutesMin": 30,
+      "minutesMax": 90,
+      "questions": [
+        "Saan banda ang tulo: sa gripo, sa ilalim ng lababo, o sa tubo?",
+        "Tuloy-tuloy ba ang tulo o patak-patak lang?"
+      ],
+      "keywords": ["gripo", "faucet", "tulo", "tumutulo", "leak", "leaking", "tagas"]
+    },
+    {
+      "code": "PLUMB_CLOG",
+      "service": "PLUMBING",
+      "nameTl": "Alisin ang bara sa drain o inidoro",
+      "nameEn": "Unclog drain or toilet",
+      "promptHint": "barado/bara: lababo, floor drain, kanal o inidoro; ayaw bumaba ang tubig",
+      "priceMin": 600,
+      "priceMax": 1500,
+      "minutesMin": 30,
+      "minutesMax": 120,
+      "questions": [
+        "Saan ang bara: lababo, floor drain, o inidoro?",
+        "May lumalabas bang tubig o amoy pabalik?"
+      ],
+      "keywords": ["bara", "barado", "nabara", "clog", "clogged", "ayaw bumaba", "hindi bumababa", "floor drain"]
+    },
+    {
+      "code": "PLUMB_TOILET_REPAIR",
+      "service": "PLUMBING",
+      "nameTl": "Ayusin ang flush o tangke ng inidoro",
+      "nameEn": "Repair toilet flush or tank",
+      "promptHint": "inidoro/toilet: ayaw mag-flush, tuloy-tuloy ang agos sa tangke, tumutulo sa paanan",
+      "priceMin": 500,
+      "priceMax": 1500,
+      "minutesMin": 30,
+      "minutesMax": 90,
+      "questions": [
+        "Ayaw ba mag-flush, o tuloy-tuloy ang agos ng tubig sa tangke?",
+        "May tumutulo ba sa sahig sa paligid ng inidoro?"
+      ],
+      "keywords": ["inidoro", "toilet", "flush", "tangke", "bowl", "cr"]
+    },
+    {
+      "code": "PLUMBING_INSPECT",
+      "service": "PLUMBING",
+      "nameTl": "Inspeksyon ng tubero",
+      "nameEn": "Plumbing inspection",
+      "promptHint": "plumbing problem that is unclear or does not fit other plumbing tasks",
+      "priceMin": 300,
+      "priceMax": 600,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "Kailan nagsimula ang problema?",
+        "May tubig pa ba sa bahay ngayon?"
+      ],
+      "keywords": []
+    },
+    {
+      "code": "ELEC_OUTLET_REPAIR",
+      "service": "ELECTRICAL",
+      "nameTl": "Ayusin o palitan ang saksakan",
+      "nameEn": "Inspect or replace outlet",
+      "promptHint": "saksakan/outlet/socket: ayaw gumana, maluwag, may itim o sunog na marka, nag-spark",
+      "priceMin": 400,
+      "priceMax": 900,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "Isang saksakan lang ba ang may problema o marami?",
+        "May itim o sunog na marka ba sa saksakan?"
+      ],
+      "keywords": ["saksakan", "outlet", "socket", "plug", "extension"]
+    },
+    {
+      "code": "ELEC_BREAKER_TRIP",
+      "service": "ELECTRICAL",
+      "nameTl": "Breaker na laging nagti-trip",
+      "nameEn": "Breaker keeps tripping",
+      "promptHint": "breaker/fuse na nagti-trip o bumabagsak; nawawalan ng kuryente ang bahagi ng bahay",
+      "priceMin": 600,
+      "priceMax": 1500,
+      "minutesMin": 45,
+      "minutesMax": 120,
+      "questions": [
+        "Nagti-trip ba kapag may ginagamit na partikular na appliance?",
+        "Buong bahay ba o isang bahagi lang ang nawawalan ng kuryente?"
+      ],
+      "keywords": ["breaker", "trip", "nagtitrip", "nagtrip", "natitrip", "fuse", "circuit breaker", "panel"]
+    },
+    {
+      "code": "ELEC_LIGHT_FIXTURE",
+      "service": "ELECTRICAL",
+      "nameTl": "Ayusin o magkabit ng ilaw o switch",
+      "nameEn": "Repair or install light or switch",
+      "promptHint": "ilaw/bumbilya/fluorescent/LED o switch: patay, kumikisap, o magkakabit ng bago",
+      "priceMin": 400,
+      "priceMax": 1000,
+      "minutesMin": 30,
+      "minutesMax": 90,
+      "questions": [
+        "Napalitan na ba ang bumbilya at ayaw pa rin?",
+        "Ilan ang ilaw o switch na gagawin?"
+      ],
+      "keywords": ["ilaw", "bumbilya", "light", "lights", "bulb", "switch", "fluorescent", "led", "kumikisap", "kisap"]
+    },
+    {
+      "code": "ELECTRICAL_INSPECT",
+      "service": "ELECTRICAL",
+      "nameTl": "Inspeksyon ng elektrisyan",
+      "nameEn": "Electrical inspection",
+      "promptHint": "electrical problem that is unclear or does not fit other electrical tasks",
+      "priceMin": 300,
+      "priceMax": 700,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "May kuryente pa ba sa ibang bahagi ng bahay?",
+        "Kailan nagsimula ang problema?"
+      ],
+      "keywords": []
+    },
+    {
+      "code": "CARP_DOOR_REPAIR",
+      "service": "CARPENTRY",
+      "nameTl": "Ayusin ang pinto, bisagra o seradura",
+      "nameEn": "Fix door, hinge or lock",
+      "promptHint": "pinto/pintuan: ayaw sumara, sumasayad, sira ang bisagra, doorknob o seradura",
+      "priceMin": 500,
+      "priceMax": 1500,
+      "minutesMin": 45,
+      "minutesMax": 120,
+      "questions": [
+        "Ano ang problema: ayaw sumara, sumasayad, o sira ang seradura?",
+        "Kahoy ba o ibang materyal ang pinto?"
+      ],
+      "keywords": ["pinto", "pintuan", "door", "bisagra", "hinge", "doorknob", "seradura", "lock", "sumasayad", "kandado"]
+    },
+    {
+      "code": "CARP_CABINET_REPAIR",
+      "service": "CARPENTRY",
+      "nameTl": "Ayusin ang kabinet, drawer o muwebles",
+      "nameEn": "Fix cabinet, drawer or furniture",
+      "promptHint": "kabinet/cabinet, drawer, aparador, estante, mesa o upuan na sira o maluwag",
+      "priceMin": 500,
+      "priceMax": 1500,
+      "minutesMin": 45,
+      "minutesMax": 120,
+      "questions": [
+        "Anong muwebles ang sira at ano ang nangyari?",
+        "Kailangan bang palitan ang piyesa o idikit/ipako lang?"
+      ],
+      "keywords": ["kabinet", "cabinet", "aparador", "drawer", "mesa", "upuan", "furniture", "shelf", "estante", "closet"]
+    },
+    {
+      "code": "CARP_CEILING_REPAIR",
+      "service": "CARPENTRY",
+      "nameTl": "Ayusin ang kisame o dingding na kahoy",
+      "nameEn": "Repair ceiling or wooden wall panels",
+      "promptHint": "kisame/ceiling o dingding na kahoy: nakalaylay, basa, butas, o kinain ng anay",
+      "priceMin": 1000,
+      "priceMax": 3500,
+      "minutesMin": 60,
+      "minutesMax": 240,
+      "questions": [
+        "Gaano kalaki ang sirang bahagi ng kisame o dingding?",
+        "May tulo ba mula sa bubong o may anay?"
+      ],
+      "keywords": ["kisame", "ceiling", "plywood", "hardiflex", "anay", "termite", "dingding", "nakalaylay"]
+    },
+    {
+      "code": "CARPENTRY_INSPECT",
+      "service": "CARPENTRY",
+      "nameTl": "Inspeksyon ng karpintero",
+      "nameEn": "Carpentry inspection",
+      "promptHint": "carpentry or woodwork problem that is unclear or does not fit other carpentry tasks",
+      "priceMin": 300,
+      "priceMax": 700,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "Anong bahagi ng bahay ang may problema?",
+        "May litrato ka ba na maipapakita sa karpintero?"
+      ],
+      "keywords": []
+    },
+    {
+      "code": "AC_CLEANING",
+      "service": "AIRCON",
+      "nameTl": "Linis ng aircon",
+      "nameEn": "Aircon cleaning (window or split)",
+      "promptHint": "linis/cleaning ng aircon: maalikabok, mabaho ang hangin, regular maintenance",
+      "priceMin": 800,
+      "priceMax": 1800,
+      "minutesMin": 60,
+      "minutesMax": 120,
+      "questions": [
+        "Window type o split type ang aircon?",
+        "Ilang unit ang lilinisin?"
+      ],
+      "keywords": ["linis", "linisin", "cleaning", "clean", "maalikabok", "mabaho", "maintenance"]
+    },
+    {
+      "code": "AC_NOT_COLD",
+      "service": "AIRCON",
+      "nameTl": "Aircon na hindi lumalamig",
+      "nameEn": "Aircon not cooling",
+      "promptHint": "aircon umaandar pero hindi malamig / mahina ang lamig",
+      "priceMin": 800,
+      "priceMax": 2500,
+      "minutesMin": 60,
+      "minutesMax": 150,
+      "questions": [
+        "Umaandar ba ang aircon pero mainit ang hangin?",
+        "Kailan huling nalinis ang aircon?"
+      ],
+      "keywords": ["hindi malamig", "di malamig", "ayaw lumamig", "hindi lumalamig", "mainit", "walang lamig", "not cold", "freon", "compressor"]
+    },
+    {
+      "code": "AC_WATER_LEAK",
+      "service": "AIRCON",
+      "nameTl": "Aircon na tumutulo ng tubig",
+      "nameEn": "Aircon leaking water",
+      "promptHint": "tubig na tumutulo o tumatagas galing sa aircon papasok sa kwarto",
+      "priceMin": 600,
+      "priceMax": 1500,
+      "minutesMin": 45,
+      "minutesMax": 90,
+      "questions": [
+        "Sa loob ba ng kwarto tumutulo ang tubig galing sa aircon?",
+        "Window type o split type ang aircon?"
+      ],
+      "keywords": ["tulo", "tumutulo", "nagtutulo", "leak", "leaking", "drain hose"]
+    },
+    {
+      "code": "AIRCON_INSPECT",
+      "service": "AIRCON",
+      "nameTl": "Inspeksyon ng aircon",
+      "nameEn": "Aircon inspection",
+      "promptHint": "aircon problem that is unclear, e.g. won't turn on, noisy, error code",
+      "priceMin": 400,
+      "priceMax": 800,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "Bumubukas pa ba ang aircon?",
+        "May kakaibang tunog o error code ba?"
+      ],
+      "keywords": []
+    },
+    {
+      "code": "WELD_GATE_REPAIR",
+      "service": "WELDING",
+      "nameTl": "Ayusin ang gate na bakal",
+      "nameEn": "Repair steel gate",
+      "promptHint": "gate na bakal: sira, natanggal ang bisagra, ayaw sumara o mag-slide",
+      "priceMin": 800,
+      "priceMax": 2500,
+      "minutesMin": 60,
+      "minutesMax": 180,
+      "questions": [
+        "Swing gate o sliding gate?",
+        "Natanggal ba ang bisagra o may putol na bahagi?"
+      ],
+      "keywords": ["gate", "tarangkahan", "sliding gate", "swing gate", "rolling gate"]
+    },
+    {
+      "code": "WELD_GRILL_INSTALL",
+      "service": "WELDING",
+      "nameTl": "Magkabit o mag-ayos ng grills",
+      "nameEn": "Install or repair window grills",
+      "promptHint": "grills/rehas sa bintana o pinto: magpakabit, palitan, o ayusin",
+      "priceMin": 1500,
+      "priceMax": 5000,
+      "minutesMin": 120,
+      "minutesMax": 360,
+      "questions": [
+        "Ilang bintana o pinto ang lalagyan ng grills?",
+        "Bago bang kabit o aayusin lang ang luma?"
+      ],
+      "keywords": ["grills", "grill", "rehas", "window grill"]
+    },
+    {
+      "code": "WELD_METAL_REPAIR",
+      "service": "WELDING",
+      "nameTl": "Hinang ng sirang bakal",
+      "nameEn": "Weld broken metal part",
+      "promptHint": "sirang bakal na hindi gate o grills: railing, frame, patungan, hagdang bakal na putol o may bitak",
+      "priceMin": 600,
+      "priceMax": 2000,
+      "minutesMin": 45,
+      "minutesMax": 150,
+      "questions": [
+        "Anong bakal ang sira: railing, frame, stand, o iba pa?",
+        "Madadala ba ito o kailangang puntahan?"
+      ],
+      "keywords": ["railing", "frame", "stand", "tank stand", "putol", "bitak na bakal", "hagdan"]
+    },
+    {
+      "code": "WELDING_INSPECT",
+      "service": "WELDING",
+      "nameTl": "Inspeksyon ng welder",
+      "nameEn": "Welding inspection",
+      "promptHint": "metal or welding work that is unclear or does not fit other welding tasks",
+      "priceMin": 300,
+      "priceMax": 700,
+      "minutesMin": 30,
+      "minutesMax": 60,
+      "questions": [
+        "Anong bakal o metal ang may problema?",
+        "May sukat ka ba o litrato ng gagawin?"
+      ],
+      "keywords": []
+    }
+  ],
+  "hazards": [
+    {
+      "code": "GAS_SMELL",
+      "defaultService": "PLUMBING",
+      "nameTl": "Amoy gas",
+      "nameEn": "Gas smell",
+      "urgencyFloor": "EMERGENCY",
+      "showHotline": true,
+      "safetyNoteTl": "Posibleng may tagas ng gas. Huwag magsindi ng apoy at huwag mag-on o mag-off ng anumang switch o saksakan. Kung ligtas, isara ang regulator ng LPG, buksan ang mga bintana at pinto, at lumabas ng bahay. Tumawag sa 911 mula sa labas.",
+      "keywords": ["gas", "amoy gas","naaamoy gas", "gas leak", "tagas ng gas", "tumatagas na gas", "lpg", "gasul", "singaw ng gas"]
+    },
+    {
+      "code": "SPARKING",
+      "defaultService": "ELECTRICAL",
+      "nameTl": "May spark",
+      "nameEn": "Sparking",
+      "urgencyFloor": "EMERGENCY",
+      "showHotline": false,
+      "safetyNoteTl": "Huwag hawakan ang saksakan, kawad o appliance na nag-spark. Kung ligtas, patayin ang main breaker. Huwag gumamit ng tubig kung may apoy.",
+      "keywords": ["spark", "sparks", "nagspark", "nag spark", "nagsparks", "kislap", "kumislap", "short circuit", "nagshort"]
+    },
+    {
+      "code": "BURNING_SMELL",
+      "defaultService": "ELECTRICAL",
+      "nameTl": "Amoy sunog o usok",
+      "nameEn": "Burning smell or smoke",
+      "urgencyFloor": "EMERGENCY",
+      "showHotline": true,
+      "safetyNoteTl": "May amoy sunog o usok: kung ligtas, patayin ang main breaker at tanggalin sa saksakan ang mga appliance. Lumayo kung may apoy o makapal na usok at tumawag sa 911.",
+      "keywords": ["amoy sunog", "nasusunog", "nasunog", "usok", "umuusok", "burning", "smoke", "amoy plastik na nasusunog"]
+    },
+    {
+      "code": "ACTIVE_FLOODING",
+      "defaultService": "PLUMBING",
+      "nameTl": "Bumabaha sa loob",
+      "nameEn": "Active flooding",
+      "urgencyFloor": "EMERGENCY",
+      "showHotline": false,
+      "safetyNoteTl": "Isara ang main valve ng tubig (karaniwang malapit sa metro). Kung umaabot ang tubig sa saksakan o appliance, patayin ang main breaker kung ligtas at huwag lumusong sa tubig.",
+      "keywords": ["baha", "bumabaha", "binabaha", "flood", "flooding", "umaapaw", "apaw", "pumutok ang tubo", "sumabog ang tubo", "burst", "lumalabas ang tubig"]
+    },
+    {
+      "code": "NO_POWER",
+      "defaultService": "ELECTRICAL",
+      "nameTl": "Walang kuryente",
+      "nameEn": "No power",
+      "urgencyFloor": "TODAY",
+      "showHotline": false,
+      "safetyNoteTl": "Tingnan muna kung brownout sa buong lugar. Huwag paulit-ulit i-on ang breaker na nagti-trip; hintayin ang elektrisyan.",
+      "keywords": ["walang kuryente", "nawalan ng kuryente", "no power", "patay lahat ng ilaw", "walang power"]
+    },
+    {
+      "code": "STRUCTURAL_DAMAGE",
+      "defaultService": "CARPENTRY",
+      "nameTl": "Sira sa istruktura",
+      "nameEn": "Structural damage",
+      "urgencyFloor": "TODAY",
+      "showHotline": false,
+      "safetyNoteTl": "Lumayo sa bahaging may bitak, lumulubog o bumibigay, at huwag itong lagyan ng bigat hanggang masuri.",
+      "keywords": ["bumagsak", "gumuho", "bibigay", "bumibigay", "lumulubog", "bitak", "crack", "collapse", "nakalaylay"]
+    }
+  ]
+}

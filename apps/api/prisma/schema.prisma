@@ -1,0 +1,85 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL") // Supabase pooled connection (port 6543, ?pgbouncer=true)
+  directUrl = env("DIRECT_URL") // Supabase direct connection (port 5432), for migrations
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  CLIENT
+  WORKER
+}
+
+enum Urgency {
+  EMERGENCY
+  TODAY
+  SCHEDULED
+}
+
+enum BookingStatus {
+  REQUESTED
+  ACCEPTED
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id             String    @id @default(uuid())
+  role           Role
+  name           String
+  phone          String
+  services       String[] // workers only: service codes
+  city           String
+  barangay       String
+  isVerified     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  clientBookings Booking[] @relation("ClientBookings")
+  workerBookings Booking[] @relation("WorkerBookings")
+}
+
+model Booking {
+  id             String        @id @default(uuid())
+  clientRef      String        @unique // client-generated UUID for idempotent sync
+  clientId       String
+  client         User          @relation("ClientBookings", fields: [clientId], references: [id])
+  workerId       String?
+  worker         User?         @relation("WorkerBookings", fields: [workerId], references: [id])
+  serviceCode    String
+  taskCode       String
+  urgency        Urgency
+  hazards        String[]
+  aiSummary      String
+  aiConfidence   String
+  aiModel        String
+  editedByUser   Boolean       @default(false)
+  address        String
+  city           String
+  barangay       String
+  priceMin       Int
+  priceMax       Int
+  status         BookingStatus @default(REQUESTED)
+  createdOffline Boolean       @default(false)
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+  report         JobReport?
+}
+
+model JobReport {
+  id              String   @id @default(uuid())
+  clientRef       String   @unique
+  bookingId       String   @unique
+  booking         Booking  @relation(fields: [bookingId], references: [id])
+  tasksDone       String[]
+  materials       Json // [{ name, qty, unit, unitPrice }]
+  durationMinutes Int
+  notes           String
+  laborCost       Int
+  materialsCost   Int
+  total           Int
+  createdOffline  Boolean  @default(false)
+  createdAt       DateTime @default(now())
+}

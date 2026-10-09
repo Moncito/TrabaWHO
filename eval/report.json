@@ -1,0 +1,42 @@
+[
+  {
+    "id": "r01",
+    "bookingTask": "PLUMB_LEAK_SINK",
+    "text": "Pinalitan ko yung gripo tsaka nilagyan ng teflon, isang gripo tsaka isang roll ng teflon, mga 40 minutes",
+    "expectedTasks": ["PLUMB_LEAK_SINK"],
+    "expectedMaterials": [{ "name": "faucet", "qty": 1, "unit": "pc" }, { "name": "teflon tape", "qty": 1, "unit": "roll" }],
+    "expectedDuration": 40
+  },
+  {
+    "id": "r02",
+    "bookingTask": "ELEC_BREAKER_TRIP",
+    "text": "Pinalitan ko yung breaker na 20 amps tapos inayos ko yung wiring, gumamit ng tatlong metro ng wire. Isang oras at kalahati",
+    "expectedTasks": ["ELEC_BREAKER_TRIP"],
+    "expectedMaterials": [{ "name": "circuit breaker", "qty": 1, "unit": "pc" }, { "name": "wire", "qty": 3, "unit": "m" }],
+    "expectedDuration": 90
+  },
+  {
+    "id": "r03",
+    "bookingTask": "AC_NOT_COLD",
+    "text": "nilinis ko muna tapos nagdagdag ng freon, isang kilo ng freon, dalawang oras lahat",
+    "expectedTasks": ["AC_NOT_COLD"],
+    "expectedMaterials": [{ "name": "freon", "qty": 1, "unit": "kg" }],
+    "expectedDuration": 120
+  },
+  {
+    "id": "r04",
+    "bookingTask": "CARP_DOOR_REPAIR",
+    "text": "Kinatam ko yung ilalim ng pinto tapos pinalitan ko yung dalawang bisagra. 1 hour",
+    "expectedTasks": ["CARP_DOOR_REPAIR"],
+    "expectedMaterials": [{ "name": "hinge", "qty": 2, "unit": "pc" }],
+    "expectedDuration": 60
+  },
+  {
+    "id": "r05",
+    "bookingTask": "WELD_GATE_REPAIR",
+    "text": "hinang ko ulit yung bisagra ng gate, gumamit ng kalahating kilo ng welding rod, tapos pininturahan, mga 2 hours",
+    "expectedTasks": ["WELD_GATE_REPAIR"],
+    "expectedMaterials": [{ "name": "welding rod", "qty": 0.5, "unit": "kg" }],
+    "expectedDuration": 120
+  }
+]

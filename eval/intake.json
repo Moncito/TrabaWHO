@@ -1,0 +1,27 @@
+[
+  { "id": "i01", "text": "Tumutulo yung gripo sa lababo namin, buong gabi may patak", "expectedService": "PLUMBING", "expectedTask": "PLUMB_LEAK_SINK", "expectedHazards": [] },
+  { "id": "i02", "text": "Barado po floor drain sa banyo, umaapaw na yung tubig pag naliligo", "expectedService": "PLUMBING", "expectedTask": "PLUMB_CLOG", "expectedHazards": [] },
+  { "id": "i03", "text": "tuloy tuloy yung agos ng tubig sa tangke ng inidoro kahit di ginagamit", "expectedService": "PLUMBING", "expectedTask": "PLUMB_TOILET_REPAIR", "expectedHazards": [] },
+  { "id": "i04", "text": "Pumutok yung tubo sa ilalim ng lababo, bumabaha na sa kusina!!", "expectedService": "PLUMBING", "expectedTask": "PLUMB_LEAK_SINK", "expectedHazards": ["ACTIVE_FLOODING"] },
+  { "id": "i05", "text": "Mahina yung tubig sa buong bahay simula kahapon, di ko alam bakit", "expectedService": "PLUMBING", "expectedTask": "PLUMBING_INSPECT", "expectedHazards": [] },
+
+  { "id": "i06", "text": "Yung outlet sa sala may itim na marka tapos amoy sunog pag may nakasaksak", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["BURNING_SMELL"] },
+  { "id": "i07", "text": "Laging nagti-trip yung breaker pag sabay ang ref at microwave", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_BREAKER_TRIP", "expectedHazards": [] },
+  { "id": "i08", "text": "The light in our bedroom keeps flickering even after we changed the bulb", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_LIGHT_FIXTURE", "expectedHazards": [] },
+  { "id": "i09", "text": "Walang kuryente sa kalahati ng bahay pero may kuryente naman yung kapitbahay", "expectedService": "ELECTRICAL", "expectedTask": "ELECTRICAL_INSPECT", "expectedHazards": ["NO_POWER"] },
+  { "id": "i10", "text": "pagsaksak ko ng electric fan biglang may kislap tsaka putok sa saksakan", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+
+  { "id": "i11", "text": "Ayaw na sumara ng pinto ng kwarto, sumasayad sa sahig", "expectedService": "CARPENTRY", "expectedTask": "CARP_DOOR_REPAIR", "expectedHazards": [] },
+  { "id": "i12", "text": "nasira yung pinto ng kabinet sa kusina, natanggal yung bisagra", "expectedService": "CARPENTRY", "expectedTask": "CARP_CABINET_REPAIR", "expectedHazards": [] },
+  { "id": "i13", "text": "Nakalaylay na yung kisame sa sala dahil sa anay, parang bibigay na", "expectedService": "CARPENTRY", "expectedTask": "CARP_CEILING_REPAIR", "expectedHazards": ["STRUCTURAL_DAMAGE"] },
+
+  { "id": "i14", "text": "Pa-general cleaning po ng 2 split type aircon, medyo mabaho na yung hangin", "expectedService": "AIRCON", "expectedTask": "AC_CLEANING", "expectedHazards": [] },
+  { "id": "i15", "text": "Our window type AC is running but only blowing warm air", "expectedService": "AIRCON", "expectedTask": "AC_NOT_COLD", "expectedHazards": [] },
+  { "id": "i16", "text": "May tubig na tumutulo galing sa aircon papunta sa kama namin", "expectedService": "AIRCON", "expectedTask": "AC_WATER_LEAK", "expectedHazards": [] },
+
+  { "id": "i17", "text": "Natanggal sa riles yung sliding gate namin, di na maisara", "expectedService": "WELDING", "expectedTask": "WELD_GATE_REPAIR", "expectedHazards": [] },
+  { "id": "i18", "text": "Gusto ko po magpakabit ng grills sa tatlong bintana", "expectedService": "WELDING", "expectedTask": "WELD_GRILL_INSTALL", "expectedHazards": [] },
+  { "id": "i19", "text": "Putol na yung isang paa ng tank stand na bakal, nakatagilid na yung tangke", "expectedService": "WELDING", "expectedTask": "WELD_METAL_REPAIR", "expectedHazards": ["STRUCTURAL_DAMAGE"] },
+
+  { "id": "i20", "text": "may naaamoy akong gas malapit sa kalan pero sarado naman daw", "expectedService": "PLUMBING", "expectedTask": "PLUMBING_INSPECT", "expectedHazards": ["GAS_SMELL"] }
+]
