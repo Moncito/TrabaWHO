@@ -1,7 +1,8 @@
 import { useNetInfo } from "@react-native-community/netinfo";
-import { Pressable, Text, View } from "react-native";
+import { useState } from "react";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 
-import { aiStats, useAiStats } from "@/ai";
+import { aiStats, canImportModel, importModelFromPicker, useAiStats } from "@/ai";
 import { Screen } from "@/components/Screen";
 
 const secs = (ms?: number) => (ms === undefined ? "-" : `${(ms / 1000).toFixed(2)} s`);
@@ -25,6 +26,21 @@ export default function AiStatsScreen() {
   const avg = modelCalls.length ? modelCalls.reduce((t, c) => t + c.latencyMs, 0) / modelCalls.length : undefined;
   const tps = modelCalls.find((c) => c.tokensPerSecond)?.tokensPerSecond;
   const onDevice = s.backend === "llama";
+  const [importing, setImporting] = useState(false);
+  const [importMsg, setImportMsg] = useState<string | null>(null);
+
+  async function importModel() {
+    setImporting(true);
+    setImportMsg("Kinokopya ang model (~1 minuto)...");
+    try {
+      const ok = await importModelFromPicker();
+      setImportMsg(ok ? "Model loaded." : null);
+    } catch (e) {
+      setImportMsg(`Hindi na-load: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setImporting(false);
+    }
+  }
 
   return (
     <Screen title="AI sa phone">
@@ -50,6 +66,24 @@ export default function AiStatsScreen() {
         <Stat label="Model answers" value={`${modelCalls.length}/${s.calls.length}`} />
       </View>
       {s.loadError ? <Text className="font-body text-sm text-emergency">Load error: {s.loadError}</Text> : null}
+      {s.modelPath ? <Text className="font-body text-xs text-muted">File: {s.modelPath}</Text> : null}
+
+      {canImportModel ? (
+        <View className="gap-2">
+          <Pressable
+            className="rounded-xl bg-lime px-4 py-3 disabled:opacity-50"
+            disabled={importing}
+            onPress={importModel}
+          >
+            {importing ? (
+              <ActivityIndicator color="#1F2937" />
+            ) : (
+              <Text className="text-center font-body-bold text-charcoal">Pumili ng model file (.gguf)</Text>
+            )}
+          </Pressable>
+          {importMsg ? <Text className="font-body text-sm text-charcoal">{importMsg}</Text> : null}
+        </View>
+      ) : null}
 
       <Text className="font-body-bold text-base text-charcoal">Recent calls</Text>
       {s.calls.length === 0 ? (

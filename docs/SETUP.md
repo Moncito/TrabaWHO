@@ -172,6 +172,8 @@ adb push models/qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/file
 
 Then set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env` and rebuild.
 
+**If `adb push` says "Permission denied"** (some phones block `Android/data`): copy the `.gguf` to the phone's **Downloads** (USB file transfer or Google Drive), open the app → **AI stats** → **Pumili ng model file (.gguf)**, pick it. The app copies it into its own storage (~1 min) and loads it. The app checks the imported copy first, then the adb path.
+
 ### 5.3 Edge-mode fallback (if the phone is too slow)
 
 Laptop and phone on the same hotspot. Let Ollama listen on the network (`OLLAMA_HOST=0.0.0.0` as a Windows user env var, then restart Ollama), and set in `apps/mobile/.env`:
