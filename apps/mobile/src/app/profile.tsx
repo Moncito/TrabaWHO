@@ -1,11 +1,12 @@
 import { catalog, ProfileUpdate, type ServiceCode } from "@trabawho/shared";
 import { Redirect, router } from "expo-router";
-import { CheckCircle, FloppyDisk, PencilSimple, SignOut, UserCircle } from "phosphor-react-native";
+import { CaretRight, CheckCircle, Cpu, FirstAidKit, FloppyDisk, IdentificationCard, PencilSimple, SealCheck, ShieldCheck, SignOut, type Icon } from "phosphor-react-native";
+import Animated, { FadeInDown } from "react-native-reanimated";
 import { useEffect, useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
 import { Note, Screen } from "@/components/Screen";
-import { Button, C, Card, Field, Label, ServiceTile, serviceName, VerifiedBadge } from "@/components/ui";
+import { Avatar, Button, C, Card, Field, InfoRows, Label, ServiceTile, serviceNameEn } from "@/components/ui";
 import { authErrorText, fetchMe, updateMe } from "@/data/auth";
 import { useOutbox } from "@/data/bookings";
 import { endSession, useSession } from "@/data/session";
@@ -52,7 +53,7 @@ export default function Profile() {
     try {
       await updateMe(patch);
       setEditing(false);
-      showToast("synced", "Na-save ang profile");
+      showToast("synced", "Profile saved");
     } catch (e) {
       setError(authErrorText(e));
     } finally {
@@ -70,21 +71,21 @@ export default function Profile() {
   if (editing) {
     return (
       <Screen
-        title="I-edit ang profile"
+        title="Edit profile"
         back
         footer={
           <>
-            <Button label="I-save" icon={FloppyDisk} loading={busy} disabled={!online} disabledReason={!online ? "Kailangan ng internet para mag-save." : undefined} onPress={save} />
-            <Button label="Kanselahin" variant="ghost" onPress={() => setEditing(false)} />
+            <Button label="Save changes" icon={FloppyDisk} loading={busy} disabled={!online} disabledReason={!online ? "Needs internet to save." : undefined} onPress={save} />
+            <Button label="Cancel" variant="ghost" onPress={() => setEditing(false)} />
           </>
         }
       >
-        <Field label="Buong pangalan" value={form.name} onChangeText={set("name")} />
+        <Field label="Full name" value={form.name} onChangeText={set("name")} />
         <Field label="Phone" value={form.phone} onChangeText={set("phone")} keyboardType="phone-pad" />
         <Field label="Barangay" value={form.barangay} onChangeText={set("barangay")} />
         {isWorker ? (
           <>
-            <Label>Mga serbisyo</Label>
+            <Label>Services</Label>
             {catalog.services.map((s) => {
               const code = s.code as ServiceCode;
               const on = form.services.includes(code);
@@ -99,15 +100,15 @@ export default function Profile() {
                   <Card>
                     <View className="flex-row items-center gap-3">
                       <ServiceTile service={code} size={40} />
-                      <Text className="flex-1 font-body-bold text-[17px] text-ink">{s.nameTl}</Text>
+                      <Text className="flex-1 font-body-bold text-[17px] text-ink">{s.nameEn}</Text>
                       {on ? <CheckCircle size={26} color={C.navy} weight="fill" /> : <CheckCircle size={26} color={C.subtle} />}
                     </View>
                   </Card>
                 </Pressable>
               );
             })}
-            <Field label="Taon ng karanasan" value={form.years} onChangeText={(t) => set("years")(t.replace(/\D/g, "").slice(0, 2))} keyboardType="number-pad" />
-            <Field label="Maikling bio" value={form.bio} onChangeText={set("bio")} multiline maxLength={300} />
+            <Field label="Years of experience" value={form.years} onChangeText={(t) => set("years")(t.replace(/\D/g, "").slice(0, 2))} keyboardType="number-pad" />
+            <Field label="Short bio" value={form.bio} onChangeText={set("bio")} multiline maxLength={300} />
           </>
         ) : null}
         {error ? <Note>{error}</Note> : null}
@@ -116,50 +117,64 @@ export default function Profile() {
   }
 
   return (
-    <Screen
-      title="Aking profile"
-      subtitle={isWorker ? "Worker" : "Client"}
-      back
-      footer={
-        <>
-          <Button label="I-edit ang profile" icon={PencilSimple} variant="dark" onPress={startEdit} />
-          <Button label="Mag-log out" icon={SignOut} variant="ghost" onPress={logout} />
-        </>
-      }
-    >
-      <Card>
-        <View className="flex-row items-center gap-3">
-          {isWorker && user.services[0] ? <ServiceTile service={user.services[0]} /> : <UserCircle size={48} color={C.navy} weight="fill" />}
-          <View className="flex-1 gap-1">
-            <Text className="font-body-bold text-[17px] text-ink">{user.name}</Text>
-            <Text className="font-body text-[13px] text-muted">{user.email}</Text>
-            {user.isVerified ? <VerifiedBadge /> : null}
+    <Screen title="My profile" subtitle={isWorker ? "Worker account" : "Client account"} back footer={<Button label="Edit profile" icon={PencilSimple} variant="dark" onPress={startEdit} />}>
+      <Animated.View entering={FadeInDown.duration(250)} className="items-center gap-2 rounded-3xl bg-navy px-4 pb-5 pt-6">
+        <Avatar name={user.name} size={76} tone="amber" />
+        <Text className="pt-1 text-center font-headline text-[22px] leading-[26px] text-white">{user.name}</Text>
+        <Text className="font-body text-[13px] text-haze">{user.email}</Text>
+        <View className="flex-row flex-wrap justify-center gap-2 pt-1">
+          <View className="rounded-full bg-white/10 px-3 py-1">
+            <Text className="font-body-bold text-[11px] uppercase tracking-wide text-white">{isWorker ? "Worker" : "Client"}</Text>
           </View>
+          {user.isVerified ? (
+            <View className="flex-row items-center gap-1 rounded-full bg-white px-3 py-1">
+              <SealCheck size={13} color={C.navy} weight="fill" />
+              <Text className="font-body-bold text-[11px] uppercase tracking-wide text-navy">Verified</Text>
+            </View>
+          ) : null}
         </View>
-        <Label>Phone</Label>
-        <Text className="font-body text-[15px] text-ink">{user.phone}</Text>
-        <Label>Lugar</Label>
-        <Text className="font-body text-[15px] text-ink">
-          {user.barangay}, {user.city}
-        </Text>
-        {isWorker ? (
-          <>
-            <Label>Mga serbisyo</Label>
-            <Text className="font-body text-[15px] text-ink">{user.services.map(serviceName).join(" · ")}</Text>
-            <Label>Karanasan</Label>
-            <Text className="font-body text-[15px] text-ink">{user.yearsExperience} taon</Text>
-            {user.bio ? (
-              <>
-                <Label>Bio</Label>
-                <Text className="font-body text-[15px] text-ink">{user.bio}</Text>
-              </>
-            ) : null}
-          </>
-        ) : null}
-      </Card>
-      {isWorker ? <Button label="Tingnan ang public profile" variant="ghost" size="sm" onPress={() => router.push({ pathname: "/worker/[id]", params: { id: user.id } })} /> : null}
-      {isWorker && !user.isVerified ? <Note>Hindi pa verified. Ang verification ay ginagawa ng TrabaWHO team pagkatapos suriin ang ID.</Note> : null}
-      {pending ? <Note>{`May ${pending} item na hindi pa naipapadala. Kung mag-log out ka, ipapadala ito sa susunod mong pag-log in.`}</Note> : null}
+      </Animated.View>
+
+      <InfoRows
+        rows={[
+          { label: "Phone", value: user.phone },
+          { label: "Area", value: `${user.barangay}, ${user.city}` },
+          ...(isWorker
+            ? [
+                { label: "Services", value: user.services.map(serviceNameEn).join(", ") || "None yet" },
+                { label: "Experience", value: `${user.yearsExperience} year${user.yearsExperience === 1 ? "" : "s"}` },
+              ]
+            : []),
+        ]}
+      />
+      {isWorker && user.bio ? (
+        <View className="gap-1 rounded-3xl border border-border bg-surface p-4">
+          <Label>About me</Label>
+          <Text className="font-body text-[15px] leading-[22px] text-ink">{user.bio}</Text>
+        </View>
+      ) : null}
+      {isWorker && !user.isVerified ? <Note>Not verified yet. The TrabaWHO team verifies workers after checking an ID.</Note> : null}
+      {pending ? <Note>{`${pending} item${pending > 1 ? "s" : ""} not sent yet. If you log out, they send the next time you log in.`}</Note> : null}
+
+      <View className="overflow-hidden rounded-3xl border border-border bg-surface">
+        {isWorker ? <MenuRow icon={IdentificationCard} label="View my public profile" first onPress={() => router.push({ pathname: "/worker/[id]", params: { id: user.id } })} /> : null}
+        <MenuRow icon={FirstAidKit} label="While you wait · first aid" onPress={() => router.push("/first-aid")} first={!isWorker} />
+        <MenuRow icon={ShieldCheck} label="Check a message for scams" onPress={() => router.push("/scam-check")} />
+        <MenuRow icon={Cpu} label="AI on this phone" onPress={() => router.push("/ai-stats")} />
+        <MenuRow icon={SignOut} label="Log out" danger onPress={logout} />
+      </View>
     </Screen>
+  );
+}
+
+function MenuRow({ icon: I, label, onPress, danger, first }: { icon: Icon; label: string; onPress: () => void; danger?: boolean; first?: boolean }) {
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} className={`flex-row items-center gap-3 px-4 py-[14px] active:bg-soft ${first ? "" : "border-t border-border"}`}>
+      <View className={`h-9 w-9 items-center justify-center rounded-xl ${danger ? "bg-danger-bg" : "bg-info-bg"}`}>
+        <I size={18} color={danger ? C.danger : C.navy} weight="bold" />
+      </View>
+      <Text className={`flex-1 font-body-bold text-[15px] ${danger ? "text-danger-ink" : "text-ink"}`}>{label}</Text>
+      {danger ? null : <CaretRight size={16} color={C.subtle} weight="bold" />}
+    </Pressable>
   );
 }

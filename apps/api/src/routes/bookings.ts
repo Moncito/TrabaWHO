@@ -74,6 +74,16 @@ bookings.post("/:id/start", requireRole("WORKER"), async (req, res) => {
   res.json(await prisma.booking.findUnique({ where: { id: String(req.params.id) }, include: withPeople }));
 });
 
+// Client cancels before any worker accepts (free). Conditional update so it can't race an accept.
+bookings.post("/:id/cancel", requireRole("CLIENT"), async (req, res) => {
+  const result = await prisma.booking.updateMany({
+    where: { id: String(req.params.id), clientId: req.user!.id, status: "REQUESTED", workerId: null },
+    data: { status: "CANCELLED" },
+  });
+  if (result.count === 0) return res.status(409).json({ error: "This booking can no longer be cancelled" });
+  res.json(await prisma.booking.findUnique({ where: { id: String(req.params.id) }, include: withPeople }));
+});
+
 // Report: idempotent on clientRef; marks booking COMPLETED. Totals recomputed server-side.
 bookings.post("/:id/report", requireRole("WORKER"), async (req, res) => {
   const parsed = ReportCreate.safeParse({ ...req.body, bookingId: String(req.params.id) });

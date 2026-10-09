@@ -1,9 +1,10 @@
 import { Link, router, type Href } from "expo-router";
 import { AirplaneTilt, ArrowsClockwise, CaretLeft, CheckCircle, WarningCircle } from "phosphor-react-native";
-import type { ReactNode } from "react";
+import { BottomTabBarHeightContext } from "expo-router/tabs";
+import { useContext, type ReactNode } from "react";
 import { KeyboardAvoidingView, Pressable, ScrollView, Text, View } from "react-native";
 import Animated, { FadeInUp, FadeOutUp, LinearTransition, SlideInUp, SlideOutUp } from "react-native-reanimated";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOutbox } from "@/data/bookings";
 import { useNetwork } from "@/data/sync";
@@ -29,36 +30,44 @@ export function Screen({
   children?: ReactNode;
   scroll?: boolean;
 }) {
-  const body = <View className="gap-3 px-5 py-4">{children}</View>;
+  const insets = useSafeAreaInsets();
+  // Inside the tabs the pill tab bar already clears the system nav bar; elsewhere the footer must.
+  const inTabs = useContext(BottomTabBarHeightContext) !== undefined;
+  const footerPad = inTabs ? 12 : Math.max(insets.bottom, 12) + 4;
+  const body = <View className="gap-3 px-5 pb-8 pt-5">{children}</View>;
   return (
     <SafeAreaView edges={["top"]} className="flex-1 bg-navy">
-      <View className="flex-row items-center gap-3 bg-navy px-4 pb-4 pt-2">
+      <View className="z-10 flex-row items-center gap-3 rounded-b-[28px] bg-navy px-5 pb-5 pt-2">
         {back ? (
           <Pressable accessibilityLabel="Bumalik" onPress={() => router.back()} className="h-11 w-11 items-center justify-center rounded-full bg-white/10">
             <CaretLeft size={22} color={C.white} weight="bold" />
           </Pressable>
         ) : null}
         <View className="flex-1">
-          <Text className="font-headline text-[26px] leading-[30px] text-white" numberOfLines={2}>
+          <Text className="font-headline text-[24px] leading-[29px] text-white" numberOfLines={2}>
             {title}
           </Text>
           {subtitle ? <Text className="font-body text-[13px] text-haze">{subtitle}</Text> : null}
         </View>
         {right}
       </View>
-      <KeyboardAvoidingView behavior="padding" className="flex-1 bg-soft">
+      <KeyboardAvoidingView behavior="padding" className="-mt-7 flex-1 bg-soft pt-7">
         <OfflineBanner />
         <Animated.View layout={LinearTransition} className="flex-1">
           {scroll ? <ScrollView keyboardShouldPersistTaps="handled">{body}</ScrollView> : body}
         </Animated.View>
-        {footer ? <View className="gap-2 border-t border-border bg-surface px-5 pb-6 pt-3">{footer}</View> : null}
+        {footer ? (
+          <View className="gap-2 rounded-t-[28px] border-t border-border bg-surface px-5 pt-3" style={{ paddingBottom: footerPad, elevation: 8, shadowColor: C.navy, shadowOpacity: 0.08, shadowRadius: 12, shadowOffset: { width: 0, height: -4 } }}>
+            {footer}
+          </View>
+        ) : null}
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
 }
 
 /** Amber strip when offline (DESIGN S01 #1, A5). Visible on the projector during the airplane-mode demo. */
-function OfflineBanner() {
+export function OfflineBanner() {
   const { online } = useNetwork();
   const pending = useOutbox().filter((r) => r.status !== "sent").length;
   if (online) return null;
@@ -66,7 +75,7 @@ function OfflineBanner() {
     <Animated.View entering={FadeInUp} exiting={FadeOutUp} className="flex-row items-center gap-2 bg-charcoal px-5 py-[10px]">
       <AirplaneTilt size={18} color={C.lime} weight="fill" />
       <Text className="flex-1 font-body-semibold text-[13px] text-white">
-        {pending ? `Offline · ${pending} item naghihintay ipadala` : "Offline. Gumagana pa rin ang AI."}
+        {pending ? `Offline · ${pending} waiting to send` : "Offline. The AI still works."}
       </Text>
     </Animated.View>
   );
@@ -75,7 +84,7 @@ function OfflineBanner() {
 export function HeaderLink({ href, label, children }: { href: Href; label: string; children: ReactNode }) {
   return (
     <Link href={href} asChild>
-      <Pressable accessibilityLabel={label} className="h-11 w-11 items-center justify-center">
+      <Pressable accessibilityLabel={label} className="min-h-11 min-w-11 items-center justify-center active:opacity-70">
         {children}
       </Pressable>
     </Link>

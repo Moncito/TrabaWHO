@@ -40,8 +40,8 @@ export default function Report() {
 
   if (!b || !user) {
     return (
-      <Screen title="I-report" back>
-        <Note>Hindi makita ang trabaho.</Note>
+      <Screen title="Report" back>
+        <Note>We couldn't find this job. Hindi makita ang trabaho.</Note>
       </Screen>
     );
   }
@@ -127,7 +127,7 @@ export default function Report() {
       title="Check your report"
       subtitle="I-check ang report"
       back
-      footer={<Button label="Save report" variant="dark" icon={FloppyDisk} loading={busy} onPress={save} disabled={!rowsValid} disabledReason="Lagyan ng presyo ang bawat materyales (0 kung wala)" />}
+      footer={<Button label="Save report" variant="dark" icon={FloppyDisk} loading={busy} onPress={save} disabled={!rowsValid} disabledReason="Add a price for each material (0 if none)" />}
     >
       <Card>
         <Label>Ginawa</Label>
@@ -141,8 +141,8 @@ export default function Report() {
         </Text>
       </Card>
       <Card>
-        <Label>Materyales (ikaw ang mag-presyo)</Label>
-        {rows.length === 0 ? <Text className="font-body text-[13px] text-muted">Walang materyales na nabanggit.</Text> : null}
+        <Label>Materials (you set the price)</Label>
+        {rows.length === 0 ? <Text className="font-body text-[13px] text-muted">No materials mentioned.</Text> : null}
         {rows.map((r, i) => {
           const amount = toInt(r.price) * Number(r.qty);
           return (
@@ -169,7 +169,7 @@ export default function Report() {
             </View>
           );
         })}
-        <Button label="Magdagdag ng materyales" icon={Plus} size="sm" variant="ghost" onPress={() => setRows((rs) => [...rs, { name: "", qty: "1", unit: "pc", price: "" }])} />
+        <Button label="Add material" icon={Plus} size="sm" variant="ghost" onPress={() => setRows((rs) => [...rs, { name: "", qty: "1", unit: "pc", price: "" }])} />
       </Card>
       {totals ? <TotalsCard {...totals} /> : null}
     </Screen>

@@ -4,9 +4,9 @@ import { Briefcase, CaretRight, Handshake, MapPin, WifiSlash } from "phosphor-re
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
-import { AccountButtons } from "@/components/AccountButtons";
+import { AccountButtons, ToolCards } from "@/components/AccountButtons";
 import { Screen } from "@/components/Screen";
-import { Button, C, Card, EmptyState, HazardAlert, peso, ServiceTile, serviceName, StatusBadge, taskName, UrgencyBadge } from "@/components/ui";
+import { Button, C, Card, EmptyState, SkeletonCard, HazardAlert, peso, ServiceTile, serviceName, StatusBadge, taskName, UrgencyBadge } from "@/components/ui";
 import { api, ApiError, type ServerBooking } from "@/data/api";
 import { cacheBookings, pendingReportFor, refreshMine, useCachedBookings, useOutbox } from "@/data/bookings";
 import { useSession } from "@/data/session";
@@ -18,7 +18,7 @@ export default function Jobs() {
   const user = useSession();
   const { online } = useNetwork();
   const [tab, setTab] = useState<"open" | "mine">("open");
-  const [open, setOpen] = useState<ServerBooking[]>([]);
+  const [open, setOpen] = useState<ServerBooking[] | null>(null);
   const [accepting, setAccepting] = useState<string | null>(null);
   const outbox = useOutbox();
   const mine = useCachedBookings().filter((b) => b.workerId === user?.id);
@@ -38,7 +38,7 @@ export default function Jobs() {
       cacheBookings([await api<ServerBooking>(`/bookings/${b.id}/accept`, { method: "POST" })]);
       router.push({ pathname: "/job/[id]", params: { id: b.id } });
     } catch (e) {
-      showToast("error", e instanceof ApiError && e.status === 409 ? "Nakuha na ng ibang worker" : "Hindi ma-accept. Subukan ulit.");
+      showToast("error", e instanceof ApiError && e.status === 409 ? "Another worker already took this job" : "Couldn't accept. Try again.");
       await loadOpen().catch(() => undefined);
     } finally {
       setAccepting(null);
@@ -57,9 +57,14 @@ export default function Jobs() {
 
       {tab === "open" ? (
         !online ? (
-          <EmptyState icon={WifiSlash} title="Kailangan ng internet" hint="Para makita at tanggapin ang bagong trabaho. Makikita mo pa rin ang Akin." />
+          <EmptyState icon={WifiSlash} title="You're offline" hint="New jobs need internet. Your accepted jobs are still under Mine." action={{ label: "Show my jobs", icon: Briefcase, onPress: () => setTab("mine") }} />
+        ) : open === null ? (
+          <>
+            <SkeletonCard />
+            <SkeletonCard />
+          </>
         ) : open.length === 0 ? (
-          <EmptyState icon={Briefcase} title="Walang bukas na trabaho" hint="Nire-refresh kada 5 segundo." />
+          <EmptyState icon={Briefcase} title="No open jobs right now" hint="New requests near you show up here automatically." />
         ) : (
           open.map((b) => (
             <Card key={b.id}>
@@ -71,7 +76,7 @@ export default function Jobs() {
           ))
         )
       ) : mine.length === 0 ? (
-        <EmptyState icon={Briefcase} title="Wala ka pang tinanggap" />
+        <EmptyState icon={Briefcase} title="No accepted jobs yet" hint="Accept a job from Open and it stays here, even offline." action={{ label: "See open jobs", icon: Handshake, onPress: () => setTab("open") }} />
       ) : (
         mine.map((b) => (
           <Pressable key={b.id} onPress={() => router.push({ pathname: "/job/[id]", params: { id: b.id } })} className="active:opacity-80">
@@ -84,12 +89,13 @@ export default function Jobs() {
               </View>
               <View className="flex-row flex-wrap gap-2">
                 <StatusBadge status={b.status} />
-                {pendingReportFor(outbox, b.id) ? <Text className="self-center font-body-semibold text-xs text-muted">Report: Pending</Text> : null}
+                {pendingReportFor(outbox, b.id) ? <Text className="self-center font-body-semibold text-xs text-muted">Report saved, sending soon</Text> : null}
               </View>
             </Card>
           </Pressable>
         ))
       )}
+      <ToolCards />
     </Screen>
   );
 }

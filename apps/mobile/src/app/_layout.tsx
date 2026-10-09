@@ -20,7 +20,9 @@ ai.init().catch(() => undefined);
 
 export default function RootLayout() {
   // Roboto Bold for titles, Roboto Regular for body (artboard v3).
-  const [loaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
+  // A font error must never leave the app stuck on the splash: fall back to system fonts.
+  const [fontsLoaded, fontError] = useFonts({ Roboto_400Regular, Roboto_700Bold });
+  const loaded = fontsLoaded || !!fontError;
   useSyncTriggers();
 
   useEffect(() => {
