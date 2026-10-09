@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { AirplaneTilt, CheckCircle, CloudArrowUp, Cpu, HandCoins, SealCheck, ShieldCheck, Sparkle } from "phosphor-react-native";
 import { useEffect, type ReactNode } from "react";
-import { Text, useWindowDimensions, View } from "react-native";
+import { Image, Text, useWindowDimensions, View } from "react-native";
 import Animated, {
   Extrapolation,
   FadeIn,
@@ -24,6 +24,13 @@ import { Button, C, SERVICE_ICON } from "@/components/ui";
 type Slide = { key: string; title: string; tl: string; body: string; art: ReactNode };
 
 const SLIDES: Slide[] = [
+  {
+    key: "logo",
+    title: "Welcome to TrabaWHO.",
+    tl: "Maaasahang tulong sa bahay.",
+    body: "Trusted home repairs near you: plumbers, electricians, carpenters, aircon and welding.",
+    art: <LogoArt />,
+  },
   {
     key: "describe",
     title: "Fix anything at home.",
@@ -142,6 +149,17 @@ function Glow({ children }: { children: ReactNode }) {
       <View className="absolute h-[190px] w-[190px] rounded-full bg-white/5" />
       {children}
     </View>
+  );
+}
+
+/** Slide 0: the brand mark in a white disc with a soft amber halo (artboard A00). */
+function LogoArt() {
+  return (
+    <Glow>
+      <Animated.View entering={ZoomIn.springify().damping(14)} className="h-[150px] w-[150px] items-center justify-center overflow-hidden rounded-full bg-white" style={{ borderWidth: 8, borderColor: "rgba(245,158,11,0.25)" }}>
+        <Image source={require("../../assets/images/logo.png")} style={{ width: 140, height: 140 }} resizeMode="contain" accessibilityLabel="TrabaWHO logo" />
+      </Animated.View>
+    </Glow>
   );
 }
 

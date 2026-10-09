@@ -1,24 +1,25 @@
 import { catalog, SignupRequest, type Role, type ServiceCode } from "@trabawho/shared";
 import { router } from "expo-router";
-import { Briefcase, CheckCircle, House, UserPlus } from "phosphor-react-native";
+import { Check, CheckCircle, UserPlus } from "phosphor-react-native";
 import { useState, type ReactNode } from "react";
 import { Pressable, Text, View } from "react-native";
 
-import { Note, Screen } from "@/components/Screen";
-import { Button, C, Card, Field, Label, ServiceTile } from "@/components/ui";
+import { AuthLayout, TextLink } from "@/components/AuthLayout";
+import { Note } from "@/components/Screen";
+import { Button, C, Field, Label, ServiceTile } from "@/components/ui";
 import { authErrorText, signup } from "@/data/auth";
 import { useNetwork } from "@/data/sync";
 
 const FIELD_NAMES: Record<string, string> = {
   email: "Email",
   password: "Password",
-  name: "Pangalan",
+  name: "Full name",
   phone: "Phone",
-  city: "Lungsod",
+  city: "City",
   barangay: "Barangay",
-  services: "Serbisyo",
+  services: "Services",
   bio: "Bio",
-  yearsExperience: "Taon ng karanasan",
+  yearsExperience: "Years of experience",
 };
 
 /** First validation problem as a readable line, or null if the body is valid. */
@@ -30,11 +31,12 @@ function firstProblem(body: unknown): string | null {
   return field ? `${field}: ${issue.message}` : issue.message;
 }
 
-/** Sign-up: 1 role, 2 account details, 3 (workers) services, experience, bio. Needs internet. */
+/** Sign-up (artboard A2): role switch + account details; workers add services on step 2. Needs internet. */
 export default function Signup() {
   const { online } = useNetwork();
-  const [step, setStep] = useState<1 | 2 | 3>(1);
-  const [role, setRole] = useState<Role | null>(null);
+  const [step, setStep] = useState<1 | 2>(1);
+  const [role, setRole] = useState<Role>("CLIENT");
+  const [agreed, setAgreed] = useState(false);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,7 +50,7 @@ export default function Signup() {
   const [error, setError] = useState<string | null>(null);
 
   const body = {
-    role: role ?? "CLIENT",
+    role,
     name,
     email: email.trim(),
     password,
@@ -60,11 +62,8 @@ export default function Signup() {
     yearsExperience: years.trim() ? Number(years) : 0,
   };
 
-  function back() {
-    setError(null);
-    if (step === 1) router.back();
-    else setStep(step === 3 ? 2 : 1);
-  }
+  const total = role === "WORKER" ? 2 : 1;
+  const last = step === total;
 
   async function submit() {
     const problem = firstProblem(body);
@@ -83,83 +82,88 @@ export default function Signup() {
 
   function next() {
     setError(null);
-    if (step === 1) return setStep(2);
-    if (step === 2 && role === "WORKER") {
-      // Check step 2 fields now; services are chosen on step 3.
+    if (!agreed) return setError("Please agree to the Terms and Privacy Policy.");
+    if (step === 1 && role === "WORKER") {
+      // Check the account fields now; services are chosen on step 2.
       const problem = firstProblem({ ...body, services: ["PLUMBING"], yearsExperience: 0, bio: "" });
       if (problem) return setError(problem);
-      return setStep(3);
+      return setStep(2);
     }
     void submit();
   }
 
-  const last = step === 3 || (step === 2 && role === "CLIENT");
-  const total = role === "CLIENT" ? 2 : 3;
-  const footer = (
-    <>
-      <Button
-        label={last ? "Create account" : "Next"}
-        icon={last ? UserPlus : undefined}
-        loading={busy}
-        disabled={(step === 1 && !role) || (last && !online)}
-        disabledReason={last && !online ? "Needs internet to create an account." : undefined}
-        onPress={next}
-      />
-      <Button label={step === 1 ? "I have an account · Log in" : "Back"} variant="ghost" onPress={step === 1 ? () => router.replace("/login") : back} />
-    </>
-  );
-
   return (
-    <Screen title="Create account" subtitle={`Step ${step} of ${total} · Gumawa ng account`} back footer={footer}>
-      <View className="flex-row gap-2">
-        {Array.from({ length: total }, (_, i) => (
-          <View key={i} className={`h-[6px] flex-1 rounded-full ${i < step ? "bg-lime" : "bg-border"}`} />
-        ))}
-      </View>
+    <AuthLayout
+      title="Create your"
+      mark={step === 2 ? "worker profile" : "account"}
+      subtitle={step === 2 ? "Step 2 of 2 · What jobs do you take?" : "Gumawa ng account. It takes a minute."}
+      back
+      footer={
+        step === 1 ? (
+          <Text className="font-body text-[14px] text-muted">
+            Already have an account? <TextLink label="Log in" onPress={() => router.replace("/login")} />
+          </Text>
+        ) : undefined
+      }
+    >
       {!online ? <Note>You're offline. Creating an account needs internet.</Note> : null}
 
       {step === 1 ? (
         <>
-          <Text className="font-body-bold text-[20px] text-ink">How will you use TrabaWHO?</Text>
-          <Choice selected={role === "CLIENT"} onPress={() => setRole("CLIENT")} icon={<House size={26} color={C.navy} weight="fill" />} title="Client" hint="I need something fixed at home · Magpapagawa ako" />
-          <Choice selected={role === "WORKER"} onPress={() => setRole("WORKER")} icon={<Briefcase size={26} color={C.navy} weight="fill" />} title="Worker" hint="I take repair jobs · Tumatanggap ako ng trabaho" />
+          <View className="gap-[6px]">
+            <Label>I am signing up as</Label>
+            <View accessibilityRole="radiogroup" className="flex-row rounded-full border border-border bg-soft p-1">
+              {(["CLIENT", "WORKER"] as const).map((r) => (
+                <Pressable
+                  key={r}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: role === r }}
+                  onPress={() => setRole(r)}
+                  className={`h-11 flex-1 items-center justify-center rounded-full ${role === r ? "bg-navy" : ""}`}
+                >
+                  <Text className={`font-body-bold text-sm ${role === r ? "text-white" : "text-muted"}`}>{r === "CLIENT" ? "I need help" : "I'm a worker"}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+          <Field label="Full name" value={name} onChangeText={setName} autoComplete="name" textContentType="name" placeholder="Ana Reyes" />
+          <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" placeholder="you@email.com" />
+          <Field label="Password" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" placeholder="At least 8 characters" />
+          <Field label="Mobile number" value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber" placeholder="09171234567" />
+          <View className="flex-row gap-3">
+            <View className="flex-1">
+              <Field label="Barangay" value={barangay} onChangeText={setBarangay} placeholder="Batasan Hills" />
+            </View>
+            <View className="flex-1">
+              <Field label="City" value={city} onChangeText={setCity} />
+            </View>
+          </View>
+          <Pressable accessibilityRole="checkbox" accessibilityState={{ checked: agreed }} onPress={() => setAgreed((v) => !v)} className="min-h-11 flex-row items-center justify-center gap-[10px]">
+            <View className={`h-[22px] w-[22px] items-center justify-center rounded-md border-2 ${agreed ? "border-navy bg-navy" : "border-border-strong bg-surface"}`}>
+              {agreed ? <Check size={14} color={C.white} weight="bold" /> : null}
+            </View>
+            <Text className="font-body text-[14px] text-muted">
+              I agree to the <Text className="font-body-bold text-navy">Terms</Text> and <Text className="font-body-bold text-navy">Privacy Policy</Text>.
+            </Text>
+          </Pressable>
         </>
-      ) : null}
-
-      {step === 2 ? (
-        <>
-          <Field label="Full name" value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
-          <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" />
-          <Field label="Password (8+ characters)" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" />
-          <Field label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber" placeholder="09171234567" />
-          <Field label="Barangay" value={barangay} onChangeText={setBarangay} />
-          <Field label="City" value={city} onChangeText={setCity} />
-        </>
-      ) : null}
-
-      {step === 3 ? (
+      ) : (
         <>
           <Label>Your services (pick at least one)</Label>
-          {catalog.services.map((s) => {
-            const code = s.code as ServiceCode;
+          {catalog.services.map((sv) => {
+            const code = sv.code as ServiceCode;
             const on = services.includes(code);
-            return (
-              <Choice
-                key={code}
-                selected={on}
-                onPress={() => setServices(on ? services.filter((x) => x !== code) : [...services, code])}
-                icon={<ServiceTile service={code} size={40} />}
-                title={s.nameEn}
-              />
-            );
+            return <Choice key={code} selected={on} onPress={() => setServices(on ? services.filter((x) => x !== code) : [...services, code])} icon={<ServiceTile service={code} size={40} />} title={sv.nameEn} />;
           })}
           <Field label="Years of experience" value={years} onChangeText={(t) => setYears(t.replace(/\D/g, "").slice(0, 2))} keyboardType="number-pad" placeholder="0" />
           <Field label="Short bio (optional)" value={bio} onChangeText={setBio} multiline maxLength={300} placeholder="e.g. Plumber, 10 years in Quezon City." />
         </>
-      ) : null}
+      )}
 
       {error ? <Note>{error}</Note> : null}
-    </Screen>
+      <Button label={last ? "Create account" : "Next"} icon={last ? UserPlus : undefined} loading={busy} disabled={last && !online} disabledReason={last && !online ? "Needs internet to create an account." : undefined} onPress={next} />
+      {step === 2 ? <Button label="Back" variant="ghost" size="sm" onPress={() => setStep(1)} /> : null}
+    </AuthLayout>
   );
 }
 
