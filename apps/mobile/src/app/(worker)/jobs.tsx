@@ -4,7 +4,7 @@ import { Briefcase, CaretRight, Handshake, MapPin, WifiSlash } from "phosphor-re
 import { useState } from "react";
 import { Pressable, Text, View } from "react-native";
 
-import { AccountButtons } from "@/components/AccountButtons";
+import { AccountButtons, ToolCards } from "@/components/AccountButtons";
 import { Screen } from "@/components/Screen";
 import { Button, C, Card, EmptyState, SkeletonCard, HazardAlert, peso, ServiceTile, serviceName, StatusBadge, taskName, UrgencyBadge } from "@/components/ui";
 import { api, ApiError, type ServerBooking } from "@/data/api";
@@ -95,6 +95,7 @@ export default function Jobs() {
           </Pressable>
         ))
       )}
+      <ToolCards />
     </Screen>
   );
 }

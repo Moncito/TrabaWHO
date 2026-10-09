@@ -69,6 +69,7 @@ const HAZARD_ICON: Record<HazardCode, Icon> = {
 
 export const serviceName = (s: ServiceCode) => catalog.services.find((x) => x.code === s)?.nameTl ?? s;
 export const serviceNameEn = (s: ServiceCode) => catalog.services.find((x) => x.code === s)?.nameEn ?? s;
+export const taskNameEn = (t: string) => catalog.tasks.find((x) => x.code === t)?.nameEn ?? t;
 export const taskName = (t: string) => catalog.tasks.find((x) => x.code === t)?.nameTl ?? t;
 export const peso = (n: number) => `₱${n.toLocaleString("en-PH")}`;
 export const call = (phone: string) => Linking.openURL(`tel:${phone}`);
@@ -164,6 +165,41 @@ export function ServiceTile({ service, size = 48 }: { service: ServiceCode; size
   return (
     <View className="items-center justify-center rounded-2xl bg-navy" style={{ width: size, height: size }}>
       <I size={size * 0.5} color={C.white} weight="fill" />
+    </View>
+  );
+}
+
+/** Initials in a navy circle (no stock photos: we only show what the user typed). */
+export function Avatar({ name, size = 44, tone = "navy" }: { name: string; size?: number; tone?: "navy" | "amber" }) {
+  const initials = name
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((w) => w[0]!.toUpperCase())
+    .join("");
+  return (
+    <View className={`items-center justify-center rounded-full ${tone === "navy" ? "bg-navy" : "bg-lime"}`} style={{ width: size, height: size }}>
+      <Text className={`font-body-bold ${tone === "navy" ? "text-white" : "text-navy"}`} style={{ fontSize: size * 0.36 }}>
+        {initials || "?"}
+      </Text>
+    </View>
+  );
+}
+
+/** Label/value rows in one card, divided by hairlines (artboard "kv" rows). */
+export function InfoRows({ rows }: { rows: { label: string; value: ReactNode; strong?: boolean }[] }) {
+  return (
+    <View className="rounded-3xl border border-border bg-surface px-4">
+      {rows.map((r, i) => (
+        <View key={r.label} className={`flex-row items-start justify-between gap-4 py-3 ${i ? "border-t border-border" : ""}`}>
+          <Text className="font-body text-[14px] text-muted">{r.label}</Text>
+          {typeof r.value === "string" ? (
+            <Text className={`flex-1 text-right text-[14px] ${r.strong ? "font-body-bold text-navy" : "font-body-bold text-ink"}`}>{r.value}</Text>
+          ) : (
+            <View className="flex-1 items-end">{r.value}</View>
+          )}
+        </View>
+      ))}
     </View>
   );
 }

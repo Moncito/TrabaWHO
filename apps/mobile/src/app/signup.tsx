@@ -94,46 +94,52 @@ export default function Signup() {
   }
 
   const last = step === 3 || (step === 2 && role === "CLIENT");
+  const total = role === "CLIENT" ? 2 : 3;
   const footer = (
     <>
       <Button
-        label={last ? "Gumawa ng account" : "Susunod"}
+        label={last ? "Create account" : "Next"}
         icon={last ? UserPlus : undefined}
         loading={busy}
         disabled={(step === 1 && !role) || (last && !online)}
-        disabledReason={last && !online ? "Kailangan ng internet para gumawa ng account." : undefined}
+        disabledReason={last && !online ? "Needs internet to create an account." : undefined}
         onPress={next}
       />
-      <Button label={step === 1 ? "May account na? Mag-log in" : "Bumalik"} variant="ghost" onPress={step === 1 ? () => router.replace("/login") : back} />
+      <Button label={step === 1 ? "I have an account · Log in" : "Back"} variant="ghost" onPress={step === 1 ? () => router.replace("/login") : back} />
     </>
   );
 
   return (
-    <Screen title="Gumawa ng account" subtitle={`Hakbang ${step} sa ${role === "CLIENT" ? 2 : 3}`} back footer={footer}>
-      {!online ? <Note>Offline ka. Kailangan ng internet para gumawa ng account.</Note> : null}
+    <Screen title="Create account" subtitle={`Step ${step} of ${total} · Gumawa ng account`} back footer={footer}>
+      <View className="flex-row gap-2">
+        {Array.from({ length: total }, (_, i) => (
+          <View key={i} className={`h-[6px] flex-1 rounded-full ${i < step ? "bg-lime" : "bg-border"}`} />
+        ))}
+      </View>
+      {!online ? <Note>You're offline. Creating an account needs internet.</Note> : null}
 
       {step === 1 ? (
         <>
-          <Label>Ano ang kailangan mo?</Label>
-          <Choice selected={role === "CLIENT"} onPress={() => setRole("CLIENT")} icon={<House size={26} color={C.navy} weight="fill" />} title="Client" hint="Magpapagawa ako (plumbing, electrical, at iba pa)" />
-          <Choice selected={role === "WORKER"} onPress={() => setRole("WORKER")} icon={<Briefcase size={26} color={C.navy} weight="fill" />} title="Worker" hint="Tumatanggap ako ng trabaho" />
+          <Text className="font-body-bold text-[20px] text-ink">How will you use TrabaWHO?</Text>
+          <Choice selected={role === "CLIENT"} onPress={() => setRole("CLIENT")} icon={<House size={26} color={C.navy} weight="fill" />} title="Client" hint="I need something fixed at home · Magpapagawa ako" />
+          <Choice selected={role === "WORKER"} onPress={() => setRole("WORKER")} icon={<Briefcase size={26} color={C.navy} weight="fill" />} title="Worker" hint="I take repair jobs · Tumatanggap ako ng trabaho" />
         </>
       ) : null}
 
       {step === 2 ? (
         <>
-          <Field label="Buong pangalan" value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
+          <Field label="Full name" value={name} onChangeText={setName} autoComplete="name" textContentType="name" />
           <Field label="Email" value={email} onChangeText={setEmail} autoCapitalize="none" autoComplete="email" keyboardType="email-address" textContentType="emailAddress" />
           <Field label="Password (8+ characters)" value={password} onChangeText={setPassword} secureTextEntry autoCapitalize="none" autoComplete="new-password" textContentType="newPassword" />
           <Field label="Phone" value={phone} onChangeText={setPhone} keyboardType="phone-pad" autoComplete="tel" textContentType="telephoneNumber" placeholder="09171234567" />
           <Field label="Barangay" value={barangay} onChangeText={setBarangay} />
-          <Field label="Lungsod / City" value={city} onChangeText={setCity} />
+          <Field label="City" value={city} onChangeText={setCity} />
         </>
       ) : null}
 
       {step === 3 ? (
         <>
-          <Label>Mga serbisyo (pumili ng kahit isa)</Label>
+          <Label>Your services (pick at least one)</Label>
           {catalog.services.map((s) => {
             const code = s.code as ServiceCode;
             const on = services.includes(code);
@@ -143,12 +149,12 @@ export default function Signup() {
                 selected={on}
                 onPress={() => setServices(on ? services.filter((x) => x !== code) : [...services, code])}
                 icon={<ServiceTile service={code} size={40} />}
-                title={s.nameTl}
+                title={s.nameEn}
               />
             );
           })}
-          <Field label="Ilang taon na ang karanasan?" value={years} onChangeText={(t) => setYears(t.replace(/\D/g, "").slice(0, 2))} keyboardType="number-pad" placeholder="0" />
-          <Field label="Maikling bio (optional)" value={bio} onChangeText={setBio} multiline maxLength={300} placeholder="Hal. Tubero, 10 taon na sa Quezon City." />
+          <Field label="Years of experience" value={years} onChangeText={(t) => setYears(t.replace(/\D/g, "").slice(0, 2))} keyboardType="number-pad" placeholder="0" />
+          <Field label="Short bio (optional)" value={bio} onChangeText={setBio} multiline maxLength={300} placeholder="e.g. Plumber, 10 years in Quezon City." />
         </>
       ) : null}
 
@@ -160,16 +166,16 @@ export default function Signup() {
 function Choice({ selected, onPress, icon, title, hint }: { selected: boolean; onPress: () => void; icon: ReactNode; title: string; hint?: string }) {
   return (
     <Pressable onPress={onPress} accessibilityRole="checkbox" accessibilityState={{ checked: selected }} className="active:opacity-80">
-      <Card>
+      <View className={`rounded-3xl bg-surface p-4 ${selected ? "border-2 border-navy" : "border border-border"}`}>
         <View className="flex-row items-center gap-3">
           {icon}
           <View className="flex-1 gap-1">
             <Text className="font-body-bold text-[17px] text-ink">{title}</Text>
             {hint ? <Text className="font-body text-[13px] text-muted">{hint}</Text> : null}
           </View>
-          {selected ? <CheckCircle size={26} color={C.navy} weight="fill" /> : <CheckCircle size={26} color={C.subtle} />}
+          {selected ? <CheckCircle size={26} color={C.navy} weight="fill" /> : <View className="h-6 w-6 rounded-full border-2 border-border-strong" />}
         </View>
-      </Card>
+      </View>
     </Pressable>
   );
 }

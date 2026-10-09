@@ -96,17 +96,6 @@ export default function FirstAid() {
         </View>
       }
     >
-      {msgs.length === 1 ? (
-        <View className="gap-2">
-          <Label>Try asking</Label>
-          {EXAMPLES.map((e) => (
-            <Pressable key={e} onPress={() => void send(e)} className="flex-row items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 active:opacity-80">
-              <ChatCircleText size={18} color={C.navy} weight="bold" />
-              <Text className="flex-1 font-body text-[14px] text-ink">{e}</Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
       {/* Newest turn first: the latest answer shows right under the header without scrolling. */}
       {msgs.map((m, idx) =>
           m.from === "user" ? (
@@ -123,9 +112,11 @@ export default function FirstAid() {
             </View>
           ) : (
             <Animated.View key={m.id} entering={FadeInUp.duration(250)} className="max-w-[92%] gap-3 self-start rounded-[20px] rounded-bl-md border border-border bg-surface p-4">
-              <View className="flex-row items-center gap-2">
-                <FirstAidKit size={18} color={C.lime} weight="fill" />
-                <Text className="flex-1 font-body-bold text-[15px] text-ink">{m.text}</Text>
+              <View className="flex-row items-start gap-3">
+                <View className="h-8 w-8 items-center justify-center rounded-full bg-amber-bg">
+                  <FirstAidKit size={18} color={C.amberInk} weight="fill" />
+                </View>
+                <Text className="shrink font-body-bold text-[15px] leading-[21px] text-ink">{m.text}</Text>
               </View>
               {"card" in m ? (
                 <>
@@ -153,6 +144,17 @@ export default function FirstAid() {
             </Animated.View>
           ),
         )}
+      {msgs.length === 1 ? (
+        <View className="gap-2">
+          <Label>Try asking</Label>
+          {EXAMPLES.map((e) => (
+            <Pressable key={e} onPress={() => void send(e)} className="flex-row items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 active:opacity-80">
+              <ChatCircleText size={18} color={C.navy} weight="bold" />
+              <Text className="flex-1 font-body text-[14px] text-ink">{e}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
     </Screen>
   );
 }

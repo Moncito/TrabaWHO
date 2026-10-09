@@ -1,25 +1,25 @@
 import { router } from "expo-router";
-import { ChatCircleText, Check, Cpu, Sparkle, WifiSlash } from "phosphor-react-native";
+import type { ServiceCode } from "@trabawho/shared";
+import { Check, Cpu, Sparkle, WifiSlash } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, Pressable, Text, View } from "react-native";
-import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
+import Animated, { Easing, FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ai, useAiStats } from "@/ai";
-import { AccountButtons } from "@/components/AccountButtons";
+import { AccountButtons, ToolCards } from "@/components/AccountButtons";
 import { Screen } from "@/components/Screen";
-import { Button, C, Field, Label } from "@/components/ui";
+import { Button, C, Field, Label, SERVICE_ICON } from "@/components/ui";
+import { useSession } from "@/data/session";
 import { useNetwork } from "@/data/sync";
 import { setDraftCard, setDraftText, useDraft } from "@/state/draft";
-
-// Tap-to-try demo phrases.
-const EXAMPLES = ["May tulo sa ilalim ng lababo namin", "Nag-spark yung saksakan nung sinaksak ko yung charger"];
 
 /** C02 input + C03 AI thinking. */
 export default function NewProblem() {
   const { text } = useDraft();
   const [busy, setBusy] = useState(false);
   const stats = useAiStats();
+  const user = useSession();
   // Re-cache the intake prompt while the client types (a worker report may have replaced it).
   useEffect(() => void ai.prewarm?.("intake"), []);
 
@@ -35,45 +35,64 @@ export default function NewProblem() {
 
   if (busy) return <AIThinking />;
 
+  const first = user?.name.split(" ")[0];
   return (
     <Screen
       title="What needs fixing?"
-      subtitle="Ano ang problema? Taglish, Filipino or English. Works offline."
+      subtitle={first ? `Hi ${first} · Taglish, Filipino or English` : "Taglish, Filipino or English"}
       right={<AccountButtons />}
       footer={<Button label="Check my problem" icon={Sparkle} onPress={analyze} disabled={!text.trim()} />}
     >
-      <Field
-        label="Describe the problem"
-        multiline
-        placeholder="e.g. The kitchen outlet sparked and stopped working"
-        value={text}
-        onChangeText={setDraftText}
-      />
-      {!text.trim() ? (
-        <View className="gap-2">
-          <Label>Try an example</Label>
-          {EXAMPLES.map((e) => (
-            <Pressable key={e} onPress={() => setDraftText(e)} className="flex-row items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 active:opacity-80">
-              <ChatCircleText size={18} color={C.navy} weight="bold" />
-              <Text className="flex-1 font-body text-[14px] leading-[20px] text-ink">{e}</Text>
-            </Pressable>
-          ))}
+      <Field label="Describe the problem" multiline placeholder="e.g. May tulo sa ilalim ng lababo namin" value={text} onChangeText={setDraftText} />
+
+      <View className="gap-2">
+        <Label>Or tap a common problem</Label>
+        <View className="flex-row justify-between">
+          {QUICK.map((q, i) => {
+            const I = SERVICE_ICON[q.service];
+            const on = text === q.text;
+            return (
+              <Animated.View key={q.service} entering={FadeInDown.delay(i * 40).duration(250)} className="w-[19%]">
+                <Pressable accessibilityLabel={q.label} onPress={() => setDraftText(q.text)} className="items-center gap-[6px] active:opacity-70">
+                  <View className={`h-14 w-14 items-center justify-center rounded-2xl ${on ? "bg-lime" : "bg-navy"}`}>
+                    <I size={26} color={on ? C.navy : C.white} weight="fill" />
+                  </View>
+                  <Text className="font-body-bold text-xs text-ink" numberOfLines={1}>
+                    {q.label}
+                  </Text>
+                </Pressable>
+              </Animated.View>
+            );
+          })}
         </View>
-      ) : null}
-      <View className="flex-row items-center gap-3 rounded-3xl bg-navy px-4 py-3">
-        <View className="h-9 w-9 items-center justify-center rounded-full bg-lime">
-          <Cpu size={18} color={C.navy} weight="fill" />
+      </View>
+
+      <View className="flex-row items-center gap-3 rounded-3xl bg-navy p-4">
+        <View className="h-12 w-12 items-center justify-center rounded-full bg-lime">
+          <Cpu size={24} color={C.navy} weight="fill" />
         </View>
-        <View className="flex-1">
-          <Text className="font-body-bold text-[14px] text-white">AI runs on this phone</Text>
+        <View className="flex-1 gap-[2px]">
+          <Text className="font-body-bold text-[11px] uppercase tracking-widest text-lime">No signal? No problem</Text>
+          <Text className="font-body-bold text-[15px] text-white">The AI runs on this phone</Text>
           <Text className="font-body text-xs text-haze">
-            {stats.loadState === "loading" ? "Loading the model…" : stats.loadState === "failed" ? "Using keyword rules for now" : "No internet needed · walang data na gagamitin"}
+            {stats.loadState === "loading" ? "Loading the model…" : stats.loadState === "failed" ? "Using keyword rules for now" : "Bookings save offline and send themselves later."}
           </Text>
         </View>
       </View>
+
+      <ToolCards />
     </Screen>
   );
 }
+
+// One tap fills a real-sounding problem per service (the first two are the demo phrases).
+const QUICK: { service: ServiceCode; label: string; text: string }[] = [
+  { service: "PLUMBING", label: "Plumbing", text: "May tulo sa ilalim ng lababo namin" },
+  { service: "ELECTRICAL", label: "Electric", text: "Nag-spark yung saksakan nung sinaksak ko yung charger" },
+  { service: "CARPENTRY", label: "Carpentry", text: "Sira ang bisagra ng pinto namin, hindi na sumasara" },
+  { service: "AIRCON", label: "Aircon", text: "Hindi na lumalamig ang aircon namin" },
+  { service: "WELDING", label: "Welding", text: "Bumigay ang hinang ng gate namin na bakal" },
+];
 
 const STEPS = ["Understanding your problem", "Finding the right service", "Safety check and price"];
 
