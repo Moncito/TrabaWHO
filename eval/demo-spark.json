@@ -1,0 +1,6 @@
+[
+  { "id": "p01", "text": "Nag-spark yung saksakan nung sinaksak ko yung charger", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+  { "id": "p02", "text": "May spark at umuusok yung outlet sa kwarto", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+  { "id": "p03", "text": "Yung saksakan sa kusina nag-spark tapos ayaw na gumana", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+  { "id": "p04", "text": "Kumislap yung outlet pag sinasaksak ko yung rice cooker", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] }
+]

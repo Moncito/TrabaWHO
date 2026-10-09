@@ -77,7 +77,13 @@ Model: **Qwen3 1.7B, Q4_K_M GGUF**. Laptop numbers via Ollama 0.40.1; phone numb
 What the held-out set shows:
 - **The model generalizes much better at the decision that matters most: which kind of worker to send** (92% vs 67%). Messages like "wla aq 2big sa gripo" or "nagground ako pag binubuksan ko ref ko" have no keyword the rules know.
 - **Fine-grained task choice is weak on unseen phrasing** (33%). The Booking Card lets the client change the task before booking, and the worker confirms on site, so a wrong task costs one tap, not a wrong worker.
-- One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). The numbers above are from **before** any fix. **After** seeing this result we added "diklap"/"dikilap" to the code-side sparking keywords, so the safety note now shows for it. This is the only change made after the held-out run, and it touches safety keywords only, not prompts.
+- One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). The numbers above are from **before** any fix.
+
+**Changes made after the held-out run** (so the held-out set is no longer fully blind for them):
+1. Added "diklap"/"dikilap" to the code-side sparking keywords (safety only).
+2. After the full demo run on the phone: the model added a flooding hazard to "May tulo sa ilalim ng lababo namin" (a small leak became an emergency) and copied "simula kaninang umaga" from a prompt example into a summary. Fixes: code now keeps model-only flooding / no-power / structural hazards only if the client's text supports them (gas, sparks and burning smell are always trusted); EMERGENCY needs a confirmed hazard; the prompt says to use only details the client wrote, and the gas example no longer contains a time.
+
+Re-run after these changes (Oct 9, 23:10, laptop): tuned set unchanged (service 19/20, task 16/20); held-out **service 10/12, task 4/12, hazards 12/12** (one typo message, "magpagawa ng baokd", flipped from carpentry to welding). We report both runs; the first one is the blind result.
 
 **Anti-scam check** (`eval/scam.json`, 12 messages: 8 scam, 4 normal; written by the team alongside the prompt, so treat as a tuned set; laptop, Oct 9):
 
@@ -101,6 +107,8 @@ Measured with the in-app AI stats screen, **airplane mode on**, Qwen3 1.7B Q4_K_
 | **Average answer** | **8.21 s** |
 | Generation speed | 8.9–9.2 tokens/s |
 | Answers from the model (not the keyword fallback) | 3/3 |
+| **Worker report** right after an intake (prompt pre-processed when the screen opens) | 7.16 s, 12.6 tokens/s; tasks, both materials and 90 min all correct |
+| **Sustained: 14 intakes in a row**, airplane mode | avg 7.99 s (6.9–9.1 s), 7.8–8.9 tokens/s, no slowdown; battery 33.4 → 36.2 °C |
 
 <img src="docs/images/ai-stats-phone-offline.png" alt="AI stats screen on the phone in airplane mode" width="280">
 
@@ -187,16 +195,19 @@ npx expo prebuild --platform android
 npx expo run:android                     # installs the dev build
 ```
 
-Get the model file (either way gives the same Q4_K_M GGUF):
+Or skip the build: install the release APK from the GitHub Release (on-device AI already enabled).
+
+Get the model file (either way gives the same Q4_K_M GGUF, ~1.1–1.3 GB):
 - Download `Qwen3-1.7B-Q4_K_M.gguf` from https://huggingface.co/unsloth/Qwen3-1.7B-GGUF, or
 - Copy Ollama's local blob after `ollama pull qwen3:1.7b` (see `docs/SETUP.md` section 5.2).
 
-```bash
-adb shell mkdir -p /sdcard/Android/data/ph.trabawho.app/files
-adb push qwen3-1.7b-q4_k_m.gguf /sdcard/Android/data/ph.trabawho.app/files/model.gguf
-```
+Load it into the app (verified on the demo phone):
+1. Put the `.gguf` in the phone's **Downloads** (download it on the phone, USB file transfer, or `adb push qwen3-1.7b-q4_k_m.gguf /sdcard/Download/`).
+2. Open the app → **AI stats** (chip icon) → **Pumili ng model file (.gguf)** → pick it. The app copies it into its own storage (~1 min) and loads it.
 
-Set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env`, restart with `npx expo start -c`, and turn on airplane mode. The **AI stats** screen shows model load time, latency and tokens/s measured on the phone.
+(Pushing straight into `/sdcard/Android/data/ph.trabawho.app/files/` with `adb shell mkdir` does **not** work: the folder adb creates can't be read by the app.)
+
+For a dev build, set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env` and restart with `npx expo start -c`. Turn on airplane mode: the **AI stats** screen shows model load time, latency and tokens/s measured on the phone. Wait ~20 s after opening the app before the first question (the prompt warm-up runs in the background).
 
 Full setup details: [`docs/SETUP.md`](docs/SETUP.md).
 
@@ -212,7 +223,7 @@ Seeded users (Quezon City): clients Juan dela Cruz and Maria Santos; 10 workers 
 
 | Item | Answer |
 | --- | --- |
-| Models | Qwen3 1.7B Q4_K_M GGUF (via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback). Gemma 3 1B evaluated, not used |
+| Models | Qwen3 1.7B Q4_K_M GGUF, Apache 2.0 license (Alibaba Qwen; GGUF by unsloth / Ollama library). Via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback. Gemma 3 1B evaluated, not used |
 | Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, NetInfo, Zod, Node.js, Express, Prisma, Vitest, Ollama, Phosphor Icons |
 | APIs / cloud services | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API** |
 | Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon |

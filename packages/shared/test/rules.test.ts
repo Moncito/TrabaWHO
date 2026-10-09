@@ -101,6 +101,19 @@ describe("normalizeIntake + booking card", () => {
     const card = buildBookingCard(n, "model");
     expect(card.showEmergencyHotline).toBe(true);
   });
+  it("drops a model-only flooding hazard on a simple leak and caps EMERGENCY (phone bug, Oct 9)", () => {
+    const n = normalizeIntake(
+      { ...base, service: "PLUMBING", task: "PLUMB_LEAK_SINK", urgency: "EMERGENCY", hazards: ["ACTIVE_FLOODING"] },
+      "May tulo sa ilalim ng lababo namin",
+    );
+    expect(n.hazards).toEqual([]);
+    expect(n.urgency).toBe("TODAY");
+  });
+  it("keeps flooding when the text says so, and trusts the model on sparks", () => {
+    expect(normalizeIntake({ ...base, hazards: ["ACTIVE_FLOODING"] }, "bumabaha na sa kusina").hazards).toContain("ACTIVE_FLOODING");
+    const s = normalizeIntake({ ...base, urgency: "EMERGENCY", hazards: ["SPARKING"] }, "may lumabas na ilaw sa saksakan");
+    expect(s).toMatchObject({ hazards: ["SPARKING"], urgency: "EMERGENCY" });
+  });
   it("card prices come from the catalog", () => {
     const card = buildBookingCard(base, "model");
     expect(card).toMatchObject({ priceMin: 400, priceMax: 900, lowConfidence: false });
