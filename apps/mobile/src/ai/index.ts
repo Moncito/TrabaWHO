@@ -3,6 +3,8 @@ import type { AIService } from "@trabawho/shared";
 import { aiStats } from "./stats";
 import { StubService } from "./StubService";
 
+const ADB_MODEL_PATH = process.env.EXPO_PUBLIC_AI_MODEL_PATH ?? "file:///sdcard/Android/data/ph.trabawho.app/files/model.gguf";
+
 /**
  * Pick the backend with EXPO_PUBLIC_AI_BACKEND in apps/mobile/.env:
  *   stub (default) | llama | ollama
@@ -14,8 +16,7 @@ function createAI(): AIService {
 
   if (backend === "llama") {
     const { LlamaService } = require("./LlamaService") as typeof import("./LlamaService");
-    const path = process.env.EXPO_PUBLIC_AI_MODEL_PATH ?? "file:///sdcard/Android/data/ph.trabawho.app/files/model.gguf";
-    return new LlamaService(modelId, path);
+    return new LlamaService(modelId, ADB_MODEL_PATH);
   }
   if (backend === "ollama") {
     const { OllamaService } = require("./OllamaService") as typeof import("./OllamaService");
@@ -27,7 +28,7 @@ function createAI(): AIService {
 export const ai: AIService = createAI();
 aiStats.setBackend(process.env.EXPO_PUBLIC_AI_BACKEND ?? "stub", ai.modelId);
 
-/** True when the in-app model picker applies (on-device llama backend only). */
+/** True when the in-app model picker / download applies (on-device llama backend only). */
 export const canImportModel = (process.env.EXPO_PUBLIC_AI_BACKEND ?? "stub") === "llama";
 
 /**
@@ -36,11 +37,23 @@ export const canImportModel = (process.env.EXPO_PUBLIC_AI_BACKEND ?? "stub") ===
  */
 export async function importModelFromPicker(): Promise<boolean> {
   const { pickAndImportModel } = require("./modelFile") as typeof import("./modelFile");
-  const { LlamaService } = require("./LlamaService") as typeof import("./LlamaService");
   const path = await pickAndImportModel();
   if (!path) return false;
-  if (ai instanceof LlamaService) await ai.reload();
+  await reloadModel();
   return true;
+}
+
+/** True when the on-device model file is in place (always true for stub / Edge mode). */
+export function modelInstalled(): boolean {
+  if (!canImportModel) return true;
+  const { resolveModelPath } = require("./modelFile") as typeof import("./modelFile");
+  return resolveModelPath(ADB_MODEL_PATH) !== null;
+}
+
+/** Load the model again after it was downloaded or imported. */
+export async function reloadModel(): Promise<void> {
+  const { LlamaService } = require("./LlamaService") as typeof import("./LlamaService");
+  if (ai instanceof LlamaService) await ai.reload();
 }
 
 export { aiStats, useAiStats } from "./stats";
