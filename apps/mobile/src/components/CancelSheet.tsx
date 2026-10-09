@@ -17,7 +17,9 @@ export function CancelSheet({ visible, busy, error, onClose, onConfirm }: { visi
   const reason = picked === "other" && more.trim() ? more.trim() : label;
 
   return (
-    <Modal visible={visible} transparent animationType="none" statusBarTranslucent onRequestClose={onClose}>
+    // navigationBarTranslucent: the sheet reaches the bottom edge (no dimmed tab bar peeking below it);
+    // the padding below keeps the buttons clear of the system navigation bar.
+    <Modal visible={visible} transparent animationType="none" statusBarTranslucent navigationBarTranslucent onRequestClose={onClose}>
       <Animated.View entering={FadeIn.duration(120)} className="flex-1 justify-end" style={{ backgroundColor: "rgba(0,26,77,0.55)" }}>
         <Pressable accessibilityLabel="Close" className="flex-1" onPress={onClose} />
         <Animated.View
@@ -25,7 +27,7 @@ export function CancelSheet({ visible, busy, error, onClose, onConfirm }: { visi
           entering={SlideInDown.duration(220).easing(Easing.out(Easing.cubic)).reduceMotion(ReduceMotion.System)}
           accessibilityViewIsModal
           className="gap-3 rounded-t-[28px] bg-surface px-5 pt-3"
-          style={{ paddingBottom: Math.max(insets.bottom, 12) + 8 }}
+          style={{ paddingBottom: insets.bottom + 12 }}
         >
           <View className="h-1 w-10 self-center rounded-full bg-border-strong" />
           <View className="flex-row items-start gap-3">
