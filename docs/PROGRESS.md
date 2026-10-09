@@ -130,7 +130,7 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - **API verified against local Postgres** (no Supabase project yet): migrate + seed (12 users) OK, migration committed. Smoke test: create 201 → duplicate create returns the same id → accept 200 → second accept 409 → start 200 → report → COMPLETED, total ₱800.
 - **Phone → API:** over USB via `adb reverse tcp:3000 tcp:3000` (`http://localhost:3000`); on Demo Day `http://<laptop-hotspot-IP>:3000`.
 - **Real screens + offline outbox/sync** built on branch `swe/core-flow` (typecheck, tests, bundle pass; phone testing in progress). Not on GitHub yet at the time of this note. It must merge `main` first: `main` changed `login.tsx`, `new-problem.tsx` and the `src/ai/` files (AI stats, model picker).
-- **Held-out cases:** the SWE declined to write them and asked the AI engineer to. Plan: the AI engineer writes them without opening `eval/intake.json` or `prompts.ts` (he hasn't read either; the cases and prompts were written by Claude).
+- **Held-out cases:** the SWE declined to write them and asked the AI engineer to. Plan: the AI engineer writes them without opening `eval/intake.json` or `prompts.ts` (both were drafted with Claude Code, so whoever writes the held-out set should not read them first).
 - **Branch cleanup:** merged branches deleted; from now on one working branch per stream (`ai/updates`).
 
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
