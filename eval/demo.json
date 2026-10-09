@@ -1,0 +1,8 @@
+[
+  { "id": "d01", "text": "May tulo sa ilalim ng lababo namin", "expectedService": "PLUMBING", "expectedTask": "PLUMB_LEAK_SINK", "expectedHazards": [] },
+  { "id": "d02", "text": "Nag-spark yung saksakan sa sala tapos namatay yung electric fan", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+  { "id": "d03", "text": "Umaapaw na yung tubig sa CR, barado yung inidoro", "expectedService": "PLUMBING", "expectedTask": "PLUMB_CLOG", "expectedHazards": ["ACTIVE_FLOODING"] },
+  { "id": "d04", "text": "Amoy gas dito sa kusina, ano gagawin ko?", "expectedService": "PLUMBING", "expectedTask": "PLUMBING_INSPECT", "expectedHazards": ["GAS_SMELL"] },
+  { "id": "d05", "text": "Sira yung pinto ng CR, ayaw na sumara", "expectedService": "CARPENTRY", "expectedTask": "CARP_DOOR_REPAIR", "expectedHazards": [] },
+  { "id": "d06", "text": "Laging nagti-trip yung breaker pag sabay ang aircon at plantsa", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_BREAKER_TRIP", "expectedHazards": [] }
+]

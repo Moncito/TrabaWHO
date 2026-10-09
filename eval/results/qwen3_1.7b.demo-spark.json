@@ -1,0 +1,91 @@
+{
+  "backend": "ollama",
+  "model": "qwen3:1.7b",
+  "ranAt": "2026-10-09T15:34:39.219Z",
+  "machine": "laptop",
+  "intake": {
+    "summary": {
+      "file": "demo-spark.json",
+      "cases": 4,
+      "service": "4/4 (100%)",
+      "task": "4/4 (100%)",
+      "hazards": "4/4 (100%)",
+      "fallbackUsed": 0,
+      "avgLatencyMs": 781,
+      "maxLatencyMs": 1047,
+      "keywordsService": "4/4 (100%)",
+      "keywordsTask": "4/4 (100%)",
+      "modelRightKeywordsWrong": [],
+      "keywordsRightModelWrong": []
+    },
+    "rows": [
+      {
+        "id": "p01",
+        "source": "model",
+        "latencyMs": 1047,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "p02",
+        "source": "model",
+        "latencyMs": 607,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING",
+          "BURNING_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "p03",
+        "source": "model",
+        "latencyMs": 739,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "p04",
+        "source": "model",
+        "latencyMs": 729,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      }
+    ]
+  },
+  "report": null,
+  "scam": null
+}
