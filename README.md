@@ -73,15 +73,25 @@ What the held-out set shows:
 
 **On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 
-| Metric | Value (Oct 9, in-app AI stats, 3 intakes) |
-| --- | --- |
-| Model load (1.27 GB GGUF) | 4.47 s |
-| First intake answer | 34.7 s (processing the full prompt for the first time) |
-| Next intake answers | 7.95 s and 8.18 s |
-| Generation speed | ~9 tokens/s |
-| Answers from the model (not the fallback) | 3/3 |
+Measured with the in-app AI stats screen, **airplane mode on**, Qwen3 1.7B Q4_K_M via llama.rn, 3 intakes (Oct 9, 22:08):
 
-The first answer was slow because the phone had to process the whole instruction prompt (task list + examples) once; after that llama.cpp reuses it from its cache. The app now pre-processes the real intake prompt at launch ("prompt warm-up" on the AI stats screen), so the first answer should also take ~8 s. _To re-measure after this change._
+| Metric | Value |
+| --- | --- |
+| Model load (1.27 GB GGUF) | 3.25 s |
+| Prompt warm-up (runs in the background while the app opens) | 23.5 s |
+| Answer times | 9.57 s, 7.49 s, 7.56 s |
+| **Average answer** | **8.21 s** |
+| Generation speed | 8.9–9.2 tokens/s |
+| Answers from the model (not the keyword fallback) | 3/3 |
+
+<img src="docs/images/ai-stats-phone-offline.png" alt="AI stats screen on the phone in airplane mode" width="280">
+
+What the model answered on the phone:
+1. "Ayaw gumana ng saksakan sa kusina, nag-spark kanina" → Electrician, outlet repair, EMERGENCY, sparking safety note ✅
+2. "Barado yung inidoro namin, umaapaw na yung tubig" → Plumber, unclog, EMERGENCY, flooding safety note ✅
+3. "Hindi na lumalamig yung aircon kahit naka-high" → Aircon, but "inspection" with a low-confidence banner instead of "not cooling" (right worker, task to be confirmed by the client) ⚠️
+
+Before the warm-up fix, the first answer took 34.7 s: the phone had to process the whole instruction prompt (task list + examples) once. The app now pre-processes the real intake prompt at launch, and llama.cpp reuses it from its cache, so even the first answer takes ~9.6 s.
 
 Honesty notes:
 - Prompts were tuned while looking at `intake.json`, so those numbers are optimistic. The held-out numbers are the fair ones.
