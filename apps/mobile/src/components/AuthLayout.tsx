@@ -5,6 +5,7 @@ import { Image, KeyboardAvoidingView, Pressable, ScrollView, Text, View } from "
 import Animated, { FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+import { useStatusBarStyle } from "./Screen";
 import { C } from "./ui";
 
 /** White auth screens (artboards A1/A2): back, logo, title with one highlighted word, form, footer links. */
@@ -27,6 +28,7 @@ export function AuthLayout({
   footer?: ReactNode;
   children: ReactNode;
 }) {
+  useStatusBarStyle("dark");
   return (
     <SafeAreaView edges={["top", "bottom"]} className="flex-1 bg-surface">
       <View className="h-12 flex-row items-center px-3">

@@ -77,7 +77,7 @@ Reply with ONE JSON object only. No extra text.
 
 Fields:
 - tasksDone: one or more task codes from the list below that the worker says they did
-- materials: ONLY materials the worker says they used, as { name, qty, unit }. Never add materials that are not in the text. name is a short ENGLISH name: translate Filipino words (e.g. turnilyo = Screw, pako = Nail, tubo = Pipe, bumbilya = Bulb, pandikit = Glue). qty is a number ("isa"=1, "dalawa"=2, "tatlo"=3, "apat"=4, "lima"=5, "kalahati"=0.5). unit is one of pc, m, ft, kg, L, roll, set, box. Empty list if none.
+- materials: ONLY materials the worker says they used, as { name, qty, unit }. Never add materials that are not in the text. name is a short ENGLISH name: translate Filipino words (e.g. turnilyo = Screw, pako = Nail, tubo = Pipe, bumbilya = Bulb, pandikit = Glue). qty is a number ("isa"=1, "dalawa"=2, "tatlo"=3, "apat"=4, "lima"=5, "kalahati"=0.5). unit is one of pc, m, ft, kg, L, roll, set, box. Empty list if none. A part that was only cleaned, checked or fixed (filter, coil, pipe, outlet) is NOT a material; a material is something added, refilled, installed or used up, including gas or liquid refills measured in kg or L.
 - durationMinutes: total work time in minutes. If not mentioned, estimate from the work described.
 - notes: one short sentence of what was done, in the worker's language
 Never include prices.

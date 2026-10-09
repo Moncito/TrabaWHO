@@ -5,7 +5,7 @@ const LINE: Partial<Record<UiStatus, string>> = {
   REQUESTED: "Finding you a worker…",
   ACCEPTED: "A worker accepted your job",
   IN_PROGRESS: "Work in progress",
-  COMPLETED: "Done · paid in cash",
+  COMPLETED: "Done · pay in cash",
 };
 import { router } from "expo-router";
 import { ArrowsClockwise, CaretRight, ListBullets, Plus } from "phosphor-react-native";

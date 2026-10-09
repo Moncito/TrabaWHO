@@ -22,7 +22,7 @@ TrabaWho is a Grab-style booking app for plumbers, electricians, carpenters, air
 
 **B. Reproduce the AI accuracy numbers on a laptop (no phone)**: [Run it yourself → 1](#1-reproduce-the-ai-numbers-laptop-no-phone-needed). Ollama + `npm run eval`.
 
-**C. Full stack with accounts, booking and sync**: [Run it yourself → 3 and 4](#3-run-the-api). Local PostgreSQL + API on a laptop, phone on USB.
+**C. Full stack with accounts, booking and sync**: [Run it yourself → 3 and 4](#3-run-the-api). Local PostgreSQL + API on a laptop, phone on USB (about 5 commands, no Docker).
 
 ---
 
@@ -204,15 +204,46 @@ Install the release APK and use **"Try the AI without an account"** (see *For ju
 
 ### 3. Run the API
 
-```bash
-cd apps/api
-cp .env.example .env     # DATABASE_URL / DIRECT_URL = your local Postgres; set JWT_SECRET to a long random string
-npx prisma migrate deploy  # applies all migrations (init + auth_profiles)
-npm run dev              # http://0.0.0.0:3000
-npm test                 # API tests: start a throwaway Postgres (embedded-postgres, no Docker) and run the migrations
+The API and its PostgreSQL run on your laptop. The phone reaches them over the USB cable (`adb reverse`), so no Wi-Fi setup, Docker or Postgres install is needed.
+
+**1. Create `apps/api/.env`** with this content (the database matches `npm run db:local` below):
+
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/trabawho"
+DIRECT_URL="postgresql://postgres:postgres@localhost:5432/trabawho"
+PORT=3000
+JWT_SECRET="any-long-random-string"
 ```
 
-There is no seeded data: people sign up in the app (email + password, Client or Worker). `npm run db:seed` only prints this note.
+**2. Terminal 1: start the database.** Keep this terminal open; Ctrl+C stops it. Data is kept in `apps/api/.pgdata`.
+
+```bash
+npm run db:local -w apps/api
+```
+
+**3. Terminal 2: set up the database and start the API** (from the repo root):
+
+```bash
+npm run db:generate -w apps/api   # Prisma client
+npm run db:deploy -w apps/api     # create the tables (all migrations)
+npm run db:seed:demo -w apps/api  # optional: demo accounts, see "Demo accounts" below
+npm start -w apps/api             # API on http://localhost:3000
+```
+
+**4. Connect the phone.** Turn on USB debugging (Settings → About phone → tap *Build number* 7 times, then Developer options → USB debugging), plug it in, accept the prompt on the phone, then:
+
+```bash
+adb devices                       # the phone should be listed as "device"
+adb reverse tcp:3000 tcp:3000     # the phone's localhost:3000 now reaches the laptop's API
+```
+
+Run `adb reverse` again whenever you unplug and replug the phone.
+
+**5. Open the app** and log in (with demo accounts: `demo.client@trabawho.test`, password `trabawho-demo`) or sign up. To see a job from both sides on one phone, book as the client, log out, log in as `demo.plumber@trabawho.test` to accept it and send the report, then log back in as the client.
+
+Without the demo seed there is no data: people sign up in the app (email + password, Client or Worker).
+
+API tests (`npm test -w apps/api`) start their own throwaway Postgres; they don't need the steps above.
 
 ### 4. On-device AI on an Android phone
 
@@ -221,6 +252,8 @@ cd apps/mobile
 npx expo prebuild --platform android
 npx expo run:android                     # installs the dev build
 ```
+
+For the dev build, also run `adb reverse tcp:8081 tcp:8081` so the phone reaches Metro over USB. On Windows, clone to a short path outside OneDrive (e.g. `C:\dev\TrabaWHO`); the native build fails on long or synced paths.
 
 Or skip the build: install the release APK from the GitHub Release (on-device AI already enabled).
 

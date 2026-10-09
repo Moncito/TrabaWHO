@@ -10,6 +10,8 @@ export default function ClientTabs() {
   const guest = useGuest();
   return (
     <Tabs
+      // Back from a hidden route (booking detail) returns to the tab it came from, not the first tab.
+      backBehavior="history"
       tabBar={(props) => <PillTabBar {...props} />}
       screenOptions={{
         headerShown: false,

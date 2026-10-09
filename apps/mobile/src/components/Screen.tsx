@@ -1,9 +1,10 @@
-import { Link, router, type Href } from "expo-router";
+import { Link, router, useFocusEffect, type Href } from "expo-router";
+import { setStatusBarStyle } from "expo-status-bar";
 import { AirplaneTilt, ArrowsClockwise, CaretLeft, CheckCircle, WarningCircle } from "phosphor-react-native";
 import { BottomTabBarHeightContext } from "expo-router/tabs";
-import { useContext, type ReactNode } from "react";
+import { useCallback, useContext, type ReactNode } from "react";
 import { KeyboardAvoidingView, Pressable, ScrollView, Text, View } from "react-native";
-import Animated, { FadeInUp, FadeOutUp, LinearTransition, SlideInUp, SlideOutUp } from "react-native-reanimated";
+import Animated, { Easing, FadeInDown, FadeInUp, FadeOutUp, LinearTransition, ReduceMotion } from "react-native-reanimated";
 import { SafeAreaView, useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { useOutbox } from "@/data/bookings";
@@ -103,8 +104,9 @@ export function ToastHost() {
     <SafeAreaView pointerEvents="none" className="absolute left-0 right-0 top-14 items-center px-4">
       <Animated.View
         key={t.id}
-        entering={SlideInUp.springify().damping(18)}
-        exiting={SlideOutUp}
+        // Short eased drop, no spring: the old slide from off-screen bounced on arrival.
+        entering={FadeInDown.duration(200).easing(Easing.out(Easing.cubic)).reduceMotion(ReduceMotion.System)}
+        exiting={FadeOutUp.duration(150).reduceMotion(ReduceMotion.System)}
         className="flex-row items-center gap-2 rounded-2xl bg-charcoal px-4 py-3"
         style={{ elevation: 6 }}
       >
@@ -112,6 +114,17 @@ export function ToastHost() {
         <Text className="font-body-semibold text-sm text-white">{t.text}</Text>
       </Animated.View>
     </SafeAreaView>
+  );
+}
+
+/** Status bar icon colour while this screen is focused (root default is light, for the navy headers). */
+export function useStatusBarStyle(style: "light" | "dark") {
+  // Focus-based: tab screens stay mounted, so a <StatusBar> element would not switch back.
+  useFocusEffect(
+    useCallback(() => {
+      setStatusBarStyle(style);
+      return () => setStatusBarStyle("light");
+    }, [style]),
   );
 }
 
