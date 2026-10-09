@@ -1,0 +1,146 @@
+{
+  "backend": "ollama",
+  "model": "qwen3:1.7b",
+  "ranAt": "2026-10-09T19:03:01.033Z",
+  "machine": "laptop",
+  "intake": null,
+  "report": {
+    "summary": {
+      "cases": 5,
+      "tasks": "5/5 (100%)",
+      "materials": "4/7 (57%)",
+      "duration": "5/5 (100%)",
+      "avgLatencyMs": 1414,
+      "keywordsMaterials": "0/7 (0%)"
+    },
+    "rows": [
+      {
+        "id": "r01",
+        "source": "model",
+        "latencyMs": 2063,
+        "tasksOk": true,
+        "materialsMatched": 1,
+        "materialsExpected": 2,
+        "durationOk": true,
+        "kwMaterialsMatched": 0,
+        "draft": {
+          "tasksDone": [
+            "PLUMB_LEAK_SINK"
+          ],
+          "materials": [
+            {
+              "name": "Teflon",
+              "qty": 1,
+              "unit": "roll"
+            },
+            {
+              "name": "Gripo",
+              "qty": 1,
+              "unit": "pc"
+            }
+          ],
+          "durationMinutes": 40,
+          "notes": "Pinalitan ang gripo at nilagyan ng teflon."
+        }
+      },
+      {
+        "id": "r02",
+        "source": "model",
+        "latencyMs": 1189,
+        "tasksOk": true,
+        "materialsMatched": 1,
+        "materialsExpected": 2,
+        "durationOk": true,
+        "kwMaterialsMatched": 0,
+        "draft": {
+          "tasksDone": [
+            "ELEC_BREAKER_TRIP"
+          ],
+          "materials": [
+            {
+              "name": "Wire",
+              "qty": 3,
+              "unit": "m"
+            }
+          ],
+          "durationMinutes": 90,
+          "notes": "Pinalitan ang breaker na 20 amps at inayos ang wiring."
+        }
+      },
+      {
+        "id": "r03",
+        "source": "model",
+        "latencyMs": 1153,
+        "tasksOk": true,
+        "materialsMatched": 1,
+        "materialsExpected": 1,
+        "durationOk": true,
+        "kwMaterialsMatched": 0,
+        "draft": {
+          "tasksDone": [
+            "AC_NOT_COLD",
+            "AC_CLEANING"
+          ],
+          "materials": [
+            {
+              "name": "Freon",
+              "qty": 1,
+              "unit": "kg"
+            }
+          ],
+          "durationMinutes": 120,
+          "notes": "Nilinis ang aircon at nagdagdag ng freon na isang kilo."
+        }
+      },
+      {
+        "id": "r04",
+        "source": "model",
+        "latencyMs": 1185,
+        "tasksOk": true,
+        "materialsMatched": 0,
+        "materialsExpected": 1,
+        "durationOk": true,
+        "kwMaterialsMatched": 0,
+        "draft": {
+          "tasksDone": [
+            "CARP_DOOR_REPAIR",
+            "CARP_CEILING_REPAIR"
+          ],
+          "materials": [],
+          "durationMinutes": 60,
+          "notes": "Kinatam ang ilalim ng pinto at pinalitan ang dalawang bisagra."
+        }
+      },
+      {
+        "id": "r05",
+        "source": "model",
+        "latencyMs": 1482,
+        "tasksOk": true,
+        "materialsMatched": 1,
+        "materialsExpected": 1,
+        "durationOk": true,
+        "kwMaterialsMatched": 0,
+        "draft": {
+          "tasksDone": [
+            "WELD_GATE_REPAIR"
+          ],
+          "materials": [
+            {
+              "name": "Welding rod",
+              "qty": 0.5,
+              "unit": "kg"
+            },
+            {
+              "name": "Paint",
+              "qty": 1,
+              "unit": "roll"
+            }
+          ],
+          "durationMinutes": 120,
+          "notes": "Hinang ko ulit yung bisagra ng gate at pininturahan."
+        }
+      }
+    ]
+  },
+  "scam": null
+}

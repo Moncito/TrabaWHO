@@ -1,0 +1,120 @@
+{
+  "backend": "ollama",
+  "model": "qwen3-unsloth:1.7b",
+  "ranAt": "2026-10-09T19:04:11.484Z",
+  "machine": "laptop",
+  "intake": {
+    "summary": {
+      "file": "demo.json",
+      "cases": 6,
+      "service": "6/6 (100%)",
+      "task": "5/6 (83%)",
+      "hazards": "6/6 (100%)",
+      "fallbackUsed": 0,
+      "avgLatencyMs": 722,
+      "maxLatencyMs": 827,
+      "keywordsService": "6/6 (100%)",
+      "keywordsTask": "5/6 (83%)",
+      "modelRightKeywordsWrong": [
+        "d03"
+      ],
+      "keywordsRightModelWrong": [
+        "d02"
+      ]
+    },
+    "rows": [
+      {
+        "id": "d01",
+        "source": "model",
+        "latencyMs": 827,
+        "service": "PLUMBING",
+        "task": "PLUMB_LEAK_SINK",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_LEAK_SINK",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "d02",
+        "source": "model",
+        "latencyMs": 723,
+        "service": "ELECTRICAL",
+        "task": "ELEC_BREAKER_TRIP",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "d03",
+        "source": "model",
+        "latencyMs": 706,
+        "service": "PLUMBING",
+        "task": "PLUMB_CLOG",
+        "hazards": [
+          "ACTIVE_FLOODING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_TOILET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": false
+      },
+      {
+        "id": "d04",
+        "source": "model",
+        "latencyMs": 663,
+        "service": "PLUMBING",
+        "task": "PLUMBING_INSPECT",
+        "hazards": [
+          "GAS_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "PLUMBING_INSPECT",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "d05",
+        "source": "model",
+        "latencyMs": 672,
+        "service": "CARPENTRY",
+        "task": "CARP_DOOR_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "CARP_DOOR_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "d06",
+        "source": "model",
+        "latencyMs": 741,
+        "service": "ELECTRICAL",
+        "task": "ELEC_BREAKER_TRIP",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_BREAKER_TRIP",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      }
+    ]
+  },
+  "report": null,
+  "scam": null
+}

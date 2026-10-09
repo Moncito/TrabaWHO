@@ -1,0 +1,207 @@
+{
+  "backend": "ollama",
+  "model": "qwen3-unsloth:1.7b",
+  "ranAt": "2026-10-09T19:04:04.783Z",
+  "machine": "laptop",
+  "intake": {
+    "summary": {
+      "file": "heldout.json",
+      "cases": 12,
+      "service": "10/12 (83%)",
+      "task": "4/12 (33%)",
+      "hazards": "12/12 (100%)",
+      "fallbackUsed": 0,
+      "avgLatencyMs": 707,
+      "maxLatencyMs": 971,
+      "keywordsService": "8/12 (67%)",
+      "keywordsTask": "5/12 (42%)",
+      "modelRightKeywordsWrong": [
+        "h12"
+      ],
+      "keywordsRightModelWrong": [
+        "h07",
+        "h08"
+      ]
+    },
+    "rows": [
+      {
+        "id": "h01",
+        "source": "model",
+        "latencyMs": 759,
+        "service": "PLUMBING",
+        "task": "PLUMB_TOILET_REPAIR",
+        "hazards": [
+          "STRUCTURAL_DAMAGE"
+        ],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_TOILET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h02",
+        "source": "model",
+        "latencyMs": 594,
+        "service": "PLUMBING",
+        "task": "PLUMB_LEAK_SINK",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "PLUMB_LEAK_SINK",
+        "kwServiceOk": true,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h03",
+        "source": "model",
+        "latencyMs": 664,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "h04",
+        "source": "model",
+        "latencyMs": 737,
+        "service": "ELECTRICAL",
+        "task": "ELEC_BREAKER_TRIP",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h05",
+        "source": "model",
+        "latencyMs": 643,
+        "service": "CARPENTRY",
+        "task": "CARP_CABINET_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h06",
+        "source": "model",
+        "latencyMs": 631,
+        "service": "WELDING",
+        "task": "WELD_GRILL_INSTALL",
+        "hazards": [],
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h07",
+        "source": "model",
+        "latencyMs": 618,
+        "service": "AIRCON",
+        "task": "AIRCON_INSPECT",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "AC_WATER_LEAK",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "h08",
+        "source": "model",
+        "latencyMs": 670,
+        "service": "AIRCON",
+        "task": "AIRCON_INSPECT",
+        "hazards": [
+          "BURNING_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": "AC_NOT_COLD",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "h09",
+        "source": "model",
+        "latencyMs": 672,
+        "service": "WELDING",
+        "task": "WELD_GATE_REPAIR",
+        "hazards": [],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "WELD_GATE_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "h10",
+        "source": "model",
+        "latencyMs": 971,
+        "service": "CARPENTRY",
+        "task": "CARP_CABINET_REPAIR",
+        "hazards": [],
+        "serviceOk": false,
+        "taskOk": false,
+        "hazardsOk": true,
+        "kwTask": null,
+        "kwServiceOk": false,
+        "kwTaskOk": false
+      },
+      {
+        "id": "h11",
+        "source": "model",
+        "latencyMs": 726,
+        "service": "ELECTRICAL",
+        "task": "ELEC_OUTLET_REPAIR",
+        "hazards": [
+          "SPARKING"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "ELEC_OUTLET_REPAIR",
+        "kwServiceOk": true,
+        "kwTaskOk": true
+      },
+      {
+        "id": "h12",
+        "source": "model",
+        "latencyMs": 798,
+        "service": "PLUMBING",
+        "task": "PLUMB_LEAK_SINK",
+        "hazards": [
+          "GAS_SMELL"
+        ],
+        "serviceOk": true,
+        "taskOk": true,
+        "hazardsOk": true,
+        "kwTask": "PLUMBING_INSPECT",
+        "kwServiceOk": true,
+        "kwTaskOk": false
+      }
+    ]
+  },
+  "report": null,
+  "scam": null
+}
