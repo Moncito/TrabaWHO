@@ -1,16 +1,19 @@
 import { router } from "expo-router";
-import { Check, Cpu, Sparkle, WifiSlash } from "phosphor-react-native";
+import { ChatCircleText, Check, Cpu, Sparkle, WifiSlash } from "phosphor-react-native";
 import { useEffect, useState } from "react";
-import { ActivityIndicator, Text, View } from "react-native";
+import { ActivityIndicator, Pressable, Text, View } from "react-native";
 import Animated, { Easing, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ai, useAiStats } from "@/ai";
 import { AccountButtons } from "@/components/AccountButtons";
 import { Screen } from "@/components/Screen";
-import { Button, C, Card, Field } from "@/components/ui";
+import { Button, C, Field, Label } from "@/components/ui";
 import { useNetwork } from "@/data/sync";
 import { setDraftCard, setDraftText, useDraft } from "@/state/draft";
+
+// Tap-to-try demo phrases.
+const EXAMPLES = ["May tulo sa ilalim ng lababo namin", "Nag-spark yung saksakan nung sinaksak ko yung charger"];
 
 /** C02 input + C03 AI thinking. */
 export default function NewProblem() {
@@ -42,19 +45,32 @@ export default function NewProblem() {
       <Field
         label="Describe the problem"
         multiline
-        placeholder="Hal. Ayaw gumana ng saksakan sa kusina, nag-spark kanina"
+        placeholder="e.g. The kitchen outlet sparked and stopped working"
         value={text}
         onChangeText={setDraftText}
       />
-      <Card>
-        <View className="flex-row items-center gap-2">
-          <Cpu size={18} color={C.navy} weight="bold" />
-          <Text className="flex-1 font-body text-[13px] text-muted">
-            AI sa phone na ito: {stats.modelId}
-            {stats.loadState === "loading" ? " (naglo-load...)" : stats.loadState === "failed" ? " (hindi na-load: keyword rules muna)" : ""}
+      {!text.trim() ? (
+        <View className="gap-2">
+          <Label>Try an example</Label>
+          {EXAMPLES.map((e) => (
+            <Pressable key={e} onPress={() => setDraftText(e)} className="flex-row items-center gap-3 rounded-2xl border border-border bg-surface px-4 py-3 active:opacity-80">
+              <ChatCircleText size={18} color={C.navy} weight="bold" />
+              <Text className="flex-1 font-body text-[14px] leading-[20px] text-ink">{e}</Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
+      <View className="flex-row items-center gap-3 rounded-3xl bg-navy px-4 py-3">
+        <View className="h-9 w-9 items-center justify-center rounded-full bg-lime">
+          <Cpu size={18} color={C.navy} weight="fill" />
+        </View>
+        <View className="flex-1">
+          <Text className="font-body-bold text-[14px] text-white">AI runs on this phone</Text>
+          <Text className="font-body text-xs text-haze">
+            {stats.loadState === "loading" ? "Loading the model…" : stats.loadState === "failed" ? "Using keyword rules for now" : "No internet needed · walang data na gagamitin"}
           </Text>
         </View>
-      </Card>
+      </View>
     </Screen>
   );
 }

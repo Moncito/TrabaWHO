@@ -69,7 +69,7 @@ export default function BookingCardScreen() {
       );
     };
     return (
-      <Screen title="Pumili ng serbisyo" subtitle="Hindi sigurado ang AI. Anong klaseng trabaho ito?" back>
+      <Screen title="Pick a service" subtitle="The AI isn't sure. Pumili ng serbisyo." back>
         {SERVICE_CODES.map((s) => (
           <Pressable key={s} onPress={() => pick(s)} className="active:opacity-80">
             <Card>
@@ -132,13 +132,13 @@ export default function BookingCardScreen() {
       <View className="gap-1 rounded-xl bg-soft p-3">
         <View className="flex-row items-center gap-1">
           <Sparkle size={14} color={C.lime} weight="fill" />
-          <Label>Buod ng AI</Label>
+          <Label>AI summary</Label>
         </View>
         <Text className="font-body text-[15px] leading-[21px] text-ink">{card.summary}</Text>
       </View>
       <View className="flex-row items-end justify-between">
         <View>
-          <Label>Tantiyang presyo</Label>
+          <Label>Estimated price</Label>
           <Text className="font-headline text-[28px] leading-[32px] text-navy">
             {peso(card.priceMin)}–{peso(card.priceMax).slice(1)}
           </Text>
@@ -150,11 +150,11 @@ export default function BookingCardScreen() {
           </Text>
         </View>
       </View>
-      {catalog.pricesAreIllustrative ? <Text className="font-body text-xs text-subtle">Halimbawang presyo lang (illustrative).</Text> : null}
+      {catalog.pricesAreIllustrative ? <Text className="font-body text-xs text-subtle">Sample prices for the demo.</Text> : null}
     </Card>,
     card.questions.length ? (
       <Card key="q">
-        <Label>Itatanong ng worker</Label>
+        <Label>The worker may ask</Label>
         {card.questions.map((q) => (
           <View key={q} className="flex-row gap-2">
             <Question size={16} color={C.muted} />
@@ -168,7 +168,7 @@ export default function BookingCardScreen() {
         <MapPin size={16} color={C.ink} weight="bold" />
         <Text className="font-body-bold text-[17px] text-ink">Where's the job? · Saan ang trabaho?</Text>
       </View>
-      <Field label="Address" placeholder="Hal. 12 Sampaguita St." value={address} onChangeText={setAddress} />
+      <Field label="Address" placeholder="e.g. 12 Sampaguita St." value={address} onChangeText={setAddress} />
       <Field label="Barangay" value={barangay} onChangeText={setBarangay} />
       <Text className="font-body text-[13px] text-muted">{user?.city}</Text>
     </Card>,
@@ -253,7 +253,7 @@ function EditSheet({
           </Pressable>
         </View>
         <ScrollView contentContainerClassName="gap-3 pb-4">
-          <Label>Serbisyo</Label>
+          <Label>Service</Label>
           <View className="flex-row flex-wrap gap-2">
             {SERVICE_CODES.map((s) => (
               <Chip
@@ -276,7 +276,7 @@ function EditSheet({
               </Text>
             </Pressable>
           ))}
-          <Label>Gaano kabilis?</Label>
+          <Label>How soon?</Label>
           <View className="flex-row flex-wrap gap-2">
             {URGENCIES.map((u) => (
               <Chip key={u} label={URGENCY_LABEL[u]} selected={u === urgency} disabled={!allowed(u)} onPress={() => setUrgency(u)} />

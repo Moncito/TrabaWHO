@@ -1,6 +1,6 @@
 import type { BookingCreate, ServiceCode, TaskCode, Urgency } from "@trabawho/shared";
 import { router } from "expo-router";
-import { ArrowsClockwise, CaretRight, ListBullets } from "phosphor-react-native";
+import { ArrowsClockwise, CaretRight, ListBullets, Plus } from "phosphor-react-native";
 import { Pressable, Text, View } from "react-native";
 
 import { AccountButtons } from "@/components/AccountButtons";
@@ -43,7 +43,7 @@ export default function Bookings() {
 
   return (
     <Screen title="My bookings" subtitle={user?.name} right={<AccountButtons />}>
-      {rows.length === 0 ? <EmptyState icon={ListBullets} title="Wala pang booking" hint="Pumunta sa Bago para mag-book." /> : null}
+      {rows.length === 0 ? <EmptyState icon={ListBullets} title="No bookings yet" hint="Describe a problem and we'll find you a worker. Wala pang booking." action={{ label: "Book a worker", icon: Plus, onPress: () => router.navigate("/new-problem") }} /> : null}
       {rows.map((r) => (
         <Pressable key={r.ref} onPress={() => router.push({ pathname: "/booking/[ref]", params: { ref: r.ref } })} className="active:opacity-80">
           <Card tone={r.status === "PENDING" ? "dashed" : "default"} className={r.status === "FAILED" ? "border-danger" : ""}>
@@ -61,7 +61,7 @@ export default function Bookings() {
             </View>
             {r.status === "PENDING" ? <Text className="font-body text-xs text-muted">Pending — ipapadala pag may internet</Text> : null}
             {r.status === "FAILED" && r.outboxId ? (
-              <Button label="Subukan ngayon" icon={ArrowsClockwise} size="sm" variant="ghost" onPress={() => void retry(r.outboxId)} disabled={!online} disabledReason="Kailangan ng internet" />
+              <Button label="Try again" icon={ArrowsClockwise} size="sm" variant="ghost" onPress={() => void retry(r.outboxId)} disabled={!online} disabledReason="Needs internet" />
             ) : null}
           </Card>
         </Pressable>

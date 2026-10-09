@@ -175,18 +175,18 @@ type BadgeStyle = { label: string; box: string; text: string; color: string; ico
 // Status = fill + ink pairs from the v3 system. Pending is a soft pill so it never reads as a button.
 const STATUS: Record<UiStatus, BadgeStyle> = {
   PENDING: { label: "Pending", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: CloudArrowUp },
-  FAILED: { label: "Hindi naipadala", box: "bg-danger-bg", text: "text-danger-ink", color: C.dangerInk, icon: ArrowsClockwise },
-  REQUESTED: { label: "Hinahanapan", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: MagnifyingGlass },
-  ACCEPTED: { label: "Tinanggap", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: Handshake },
-  IN_PROGRESS: { label: "Ginagawa", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Wrench },
-  COMPLETED: { label: "Tapos na", box: "bg-ok-bg", text: "text-ok", color: C.ok, icon: CheckCircle },
+  FAILED: { label: "Not sent", box: "bg-danger-bg", text: "text-danger-ink", color: C.dangerInk, icon: ArrowsClockwise },
+  REQUESTED: { label: "Finding worker", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: MagnifyingGlass },
+  ACCEPTED: { label: "Accepted", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: Handshake },
+  IN_PROGRESS: { label: "In progress", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Wrench },
+  COMPLETED: { label: "Done", box: "bg-ok-bg", text: "text-ok", color: C.ok, icon: CheckCircle },
   CANCELLED: { label: "Cancelled", box: "bg-soft", text: "text-subtle", color: C.subtle, icon: XCircle },
 };
 
 const URGENCY: Record<Urgency, BadgeStyle> = {
   EMERGENCY: { label: "Emergency", box: "bg-danger", text: "text-white", color: C.white, icon: Siren },
-  TODAY: { label: "Ngayong araw", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Clock },
-  SCHEDULED: { label: "Naka-schedule", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: CalendarBlank },
+  TODAY: { label: "Today", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Clock },
+  SCHEDULED: { label: "Scheduled", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: CalendarBlank },
 };
 
 function Badge({ s }: { s: BadgeStyle }) {
@@ -238,7 +238,7 @@ export function HazardAlert({ notes, showHotline, hotline = catalog.emergencyHot
     <Card tone="danger">
       <View className="flex-row items-center gap-2">
         <Warning size={24} color={C.danger} weight="fill" />
-        <Text className="font-headline text-xl text-danger-ink">Mag-ingat</Text>
+        <Text className="font-headline text-xl text-danger-ink">Be careful · Mag-ingat</Text>
       </View>
       {notes.map((n) => {
         const I = HAZARD_ICON[n.hazard];
@@ -252,7 +252,7 @@ export function HazardAlert({ notes, showHotline, hotline = catalog.emergencyHot
           </View>
         );
       })}
-      {showHotline ? <Button label={`Tumawag sa ${hotline}`} icon={PhoneCall} variant="danger" onPress={() => call(hotline)} /> : null}
+      {showHotline ? <Button label={`Call ${hotline}`} icon={PhoneCall} variant="danger" onPress={() => call(hotline)} /> : null}
     </Card>
   );
 }
@@ -260,14 +260,14 @@ export function HazardAlert({ notes, showHotline, hotline = catalog.emergencyHot
 export function PersonCard({ name, role, phone, verified }: { name: string; role: "worker" | "client"; phone: string; verified?: boolean }) {
   return (
     <Card>
-      <Label>{role === "worker" ? "Ang iyong worker" : "Client"}</Label>
+      <Label>{role === "worker" ? "Your worker" : "Client"}</Label>
       <View className="flex-row items-center justify-between gap-3">
         <View className="flex-1 gap-1">
           <Text className="font-body-bold text-[17px] text-ink">{name}</Text>
           {verified ? <VerifiedBadge /> : null}
           <Text className="font-body text-[13px] text-muted">{phone}</Text>
         </View>
-        <Button label={`Tawagan`} icon={Phone} size="sm" variant="dark" onPress={() => call(phone)} />
+        <Button label="Call" icon={Phone} size="sm" variant="dark" onPress={() => call(phone)} />
       </View>
     </Card>
   );
@@ -291,12 +291,33 @@ export function StatusHero({ kind, icon: I, title, message }: { kind: "sent" | "
   );
 }
 
-export function EmptyState({ icon: I, title, hint }: { icon: Icon; title: string; hint?: string }) {
+export function EmptyState({ icon: I, title, hint, action }: { icon: Icon; title: string; hint?: string; action?: { label: string; icon?: Icon; onPress: () => void } }) {
   return (
-    <View className="items-center gap-2 py-10">
-      <I size={40} color={C.subtle} />
-      <Text className="text-center font-body-bold text-[17px] text-ink">{title}</Text>
-      {hint ? <Text className="text-center font-body text-[13px] text-muted">{hint}</Text> : null}
+    <Animated.View entering={FadeIn.duration(300)} className="items-center gap-3 rounded-3xl border border-border bg-surface px-6 py-10">
+      <View className="h-16 w-16 items-center justify-center rounded-full bg-info-bg">
+        <I size={30} color={C.navy} weight="bold" />
+      </View>
+      <View className="items-center gap-1">
+        <Text className="text-center font-body-bold text-[17px] text-ink">{title}</Text>
+        {hint ? <Text className="text-center font-body text-[14px] leading-[20px] text-muted">{hint}</Text> : null}
+      </View>
+      {action ? <Button label={action.label} icon={action.icon} size="sm" variant="dark" onPress={action.onPress} /> : null}
+    </Animated.View>
+  );
+}
+
+/** Placeholder card while the first list load is in flight (no layout jump when data lands). */
+export function SkeletonCard() {
+  return (
+    <View className="gap-3 rounded-3xl border border-border bg-surface p-4">
+      <View className="flex-row items-center gap-3">
+        <View className="h-12 w-12 rounded-2xl bg-soft" />
+        <View className="flex-1 gap-2">
+          <View className="h-4 w-3/4 rounded-full bg-soft" />
+          <View className="h-3 w-1/2 rounded-full bg-soft" />
+        </View>
+      </View>
+      <View className="h-11 rounded-full bg-soft" />
     </View>
   );
 }
@@ -305,19 +326,19 @@ export function TotalsCard({ laborCost, materialsCost, total }: { laborCost: num
   return (
     <Card tone="dark">
       <View className="flex-row justify-between">
-        <Text className="font-body text-sm text-haze">Labor (mula sa catalog)</Text>
+        <Text className="font-body text-sm text-haze">Labor (from catalog)</Text>
         <Text className="font-body-bold text-sm text-white">{peso(laborCost)}</Text>
       </View>
       <View className="flex-row justify-between">
-        <Text className="font-body text-sm text-haze">Materyales</Text>
+        <Text className="font-body text-sm text-haze">Materials</Text>
         <Text className="font-body-bold text-sm text-white">{peso(materialsCost)}</Text>
       </View>
       <View className="h-px bg-white/20" />
       <View className="flex-row items-end justify-between">
-        <Text className="font-body-bold text-[11px] uppercase tracking-widest text-haze">Kabuuan</Text>
+        <Text className="font-body-bold text-[11px] uppercase tracking-widest text-haze">Total</Text>
         <Text className="font-headline text-[32px] leading-[36px] text-lime">{peso(total)}</Text>
       </View>
-      <Text className="font-body text-xs text-haze">Cash pagkatapos ng trabaho</Text>
+      <Text className="font-body text-xs text-haze">Pay cash after the job</Text>
     </Card>
   );
 }

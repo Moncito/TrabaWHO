@@ -66,7 +66,7 @@ function OfflineBanner() {
     <Animated.View entering={FadeInUp} exiting={FadeOutUp} className="flex-row items-center gap-2 bg-charcoal px-5 py-[10px]">
       <AirplaneTilt size={18} color={C.lime} weight="fill" />
       <Text className="flex-1 font-body-semibold text-[13px] text-white">
-        {pending ? `Offline · ${pending} item naghihintay ipadala` : "Offline. Gumagana pa rin ang AI."}
+        {pending ? `Offline · ${pending} waiting to send` : "Offline. The AI still works."}
       </Text>
     </Animated.View>
   );
