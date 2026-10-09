@@ -108,7 +108,7 @@ export default function AiStatsScreen() {
               <View className="flex-1">
                 <Text className="font-body-bold text-[14px] text-ink">{KIND[c.kind]}</Text>
                 <Text className="font-body text-xs text-subtle">
-                  {c.source === "model" ? "On-device model" : c.source === "fallback" ? "Keyword rules" : "No answer"}
+                  {c.source === "model" ? "On-device model" : c.source === "fallback" ? "Keyword rules" : c.source === "unclear" ? "Not understood (no card)" : "No answer"}
                   {c.attempts > 1 ? ` · ${c.attempts} tries` : ""}
                 </Text>
               </View>

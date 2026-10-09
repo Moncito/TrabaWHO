@@ -8,7 +8,7 @@ export interface AiCallStat {
   kind: "intake" | "report" | "scam";
   at: number;
   latencyMs: number;
-  source: "model" | "fallback" | "none";
+  source: "model" | "fallback" | "none" | "unclear";
   attempts: number;
   promptTokens?: number;
   generatedTokens?: number;

@@ -2,10 +2,11 @@ import { catalog as defaultCatalog, getTask, tasksForService, type Catalog } fro
 import { buildBookingCard, normalizeIntake } from "../rules/bookingCard";
 import { parseDurationMinutes } from "../rules/duration";
 import { keywordIntake } from "../rules/fallback";
+import { checkProblemText, hasRepairSignal } from "../rules/inputCheck";
 import { IntakeResult, ReportDraft, type BookingCardData, type TaskCode } from "../schemas";
 import type { z } from "zod";
 import { intakeJsonSchema, reportJsonSchema } from "./jsonSchemas";
-import { intakeMessages, reportMessages, type ChatMessage } from "./prompts";
+import { intakeExamples, intakeMessages, reportMessages, type ChatMessage } from "./prompts";
 
 /**
  * One LLM call. Backends: llama.rn on the phone, Ollama / llama.cpp server on a laptop
@@ -19,9 +20,9 @@ export interface LlmRequest {
 export type LlmCall = (req: LlmRequest) => Promise<string>;
 
 export interface IntakeOutcome {
-  /** null = model and keyword fallback both failed: UI shows the service picker. */
+  /** null = nothing usable (or the model only guessed at off-topic text): UI shows the service picker. */
   card: BookingCardData | null;
-  source: "model" | "fallback" | "none";
+  source: "model" | "fallback" | "none" | "unclear";
   attempts: number;
   latencyMs: number;
   rawOutputs: string[];
@@ -77,6 +78,8 @@ export async function callWithRetry<T>(
 /** ARCHITECTURE 3.3: prompt -> LLM -> Zod -> retry once -> keyword fallback -> rules engine. */
 export async function runIntake(text: string, llm: LlmCall, c: Catalog = defaultCatalog): Promise<IntakeOutcome> {
   const started = Date.now();
+  // The UI checks first; this keeps nonsense away from the model for any other caller too.
+  if (!checkProblemText(text, c).ok) return { card: null, source: "unclear", attempts: 0, latencyMs: 0, rawOutputs: [] };
   const { value, attempts, rawOutputs } = await callWithRetry(
     llm,
     intakeMessages(text, c),
@@ -92,11 +95,26 @@ export async function runIntake(text: string, llm: LlmCall, c: Catalog = default
     rawOutputs,
   });
 
-  if (value) return done(buildBookingCard(normalizeIntake(value, text, c), "model", c), "model");
+  if (value) {
+    if (isUnfoundedGuess(value, text, c)) return done(null, "unclear");
+    return done(buildBookingCard(normalizeIntake(value, text, c), "model", c), "model");
+  }
 
   const fallback = keywordIntake(text, c);
   if (fallback) return done(buildBookingCard(normalizeIntake(fallback, text, c), "fallback", c), "fallback");
   return done(null, "none");
+}
+
+const exampleSummaries = new Set(intakeExamples.map((e) => (e.answer as { summary: string }).summary));
+
+/**
+ * The model must always pick a task, so off-topic text ("hello how are you") still gets one.
+ * With no repair or hazard word in the client's text, distrust a low-confidence answer, and one
+ * that copies a prompt example (on the phone, "asdsadasdasd" came back as the gas example).
+ */
+function isUnfoundedGuess(value: z.infer<typeof IntakeResult>, text: string, c: Catalog): boolean {
+  if (hasRepairSignal(text, c)) return false;
+  return value.confidence === "low" || exampleSummaries.has(value.summary);
 }
 
 function fallbackReport(text: string, bookingTask: TaskCode, c: Catalog): ReportDraft {
