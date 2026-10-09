@@ -1,0 +1,112 @@
+import type { BookingCreate, BookingStatus, ReportCreate } from "@trabawho/shared";
+
+import { api, type ServerBooking } from "./api";
+import { db, notify, useDbQuery } from "./db";
+
+// ---------- bookings_cache ----------
+
+/** Upsert server bookings; only notifies when something actually changed (polling runs every 5 s). */
+export function cacheBookings(list: ServerBooking[]) {
+  let changed = false;
+  db.withTransactionSync(() => {
+    for (const b of list) {
+      const json = JSON.stringify(b);
+      const old = db.getFirstSync<{ json: string }>("SELECT json FROM bookings_cache WHERE id = ?", b.id);
+      if (old?.json === json) continue;
+      db.runSync("INSERT OR REPLACE INTO bookings_cache (id, clientRef, json) VALUES (?, ?, ?)", b.id, b.clientRef, json);
+      changed = true;
+    }
+  });
+  if (changed) notify();
+}
+
+export function cachedBookings(): ServerBooking[] {
+  return db
+    .getAllSync<{ json: string }>("SELECT json FROM bookings_cache")
+    .map((r) => JSON.parse(r.json) as ServerBooking)
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+}
+
+export function useCachedBookings(): ServerBooking[] {
+  return useDbQuery(cachedBookings);
+}
+
+export async function refreshMine(userId: string): Promise<ServerBooking[]> {
+  const list = await api<ServerBooking[]>("/bookings/mine", { userId });
+  cacheBookings(list);
+  return list;
+}
+
+// ---------- outbox ----------
+
+export type OutboxStatus = "pending" | "sent" | "failed";
+
+export interface OutboxRow {
+  id: string;
+  type: "BOOKING_CREATE" | "REPORT_CREATE";
+  userId: string;
+  bookingId: string | null;
+  payload: string;
+  status: OutboxStatus;
+  attempts: number;
+  error: string | null;
+  createdAt: number;
+}
+
+/** Writes to the outbox first (ARCHITECTURE 4.2); the sync engine sends it when online. */
+export function enqueueBooking(userId: string, payload: BookingCreate) {
+  db.runSync(
+    "INSERT INTO outbox (id, type, userId, payload, createdAt) VALUES (?, 'BOOKING_CREATE', ?, ?, ?)",
+    payload.clientRef,
+    userId,
+    JSON.stringify(payload),
+    Date.now(),
+  );
+  notify();
+}
+
+export function enqueueReport(userId: string, bookingId: string, payload: ReportCreate) {
+  db.runSync(
+    "INSERT INTO outbox (id, type, userId, bookingId, payload, createdAt) VALUES (?, 'REPORT_CREATE', ?, ?, ?, ?)",
+    payload.clientRef,
+    userId,
+    bookingId,
+    JSON.stringify(payload),
+    Date.now(),
+  );
+  notify();
+}
+
+export function outboxRows(): OutboxRow[] {
+  return db.getAllSync<OutboxRow>("SELECT * FROM outbox ORDER BY createdAt DESC");
+}
+
+export function useOutbox(): OutboxRow[] {
+  return useDbQuery(outboxRows);
+}
+
+export function setOutboxStatus(id: string, status: OutboxStatus, error: string | null = null) {
+  db.runSync(
+    "UPDATE outbox SET status = ?, error = ?, attempts = attempts + ? WHERE id = ?",
+    status,
+    error,
+    status === "sent" ? 0 : 1,
+    id,
+  );
+  notify();
+}
+
+// ---------- UI status (FLOWS 4) ----------
+
+export type UiStatus = "PENDING" | "FAILED" | BookingStatus;
+
+/** Server truth wins once it exists; before that the local outbox state is shown. */
+export function uiStatus(server?: ServerBooking | null, outbox?: OutboxRow | null): UiStatus {
+  if (server) return server.status;
+  return outbox?.status === "failed" ? "FAILED" : "PENDING";
+}
+
+/** A not-yet-synced report for this booking, if any. */
+export function pendingReportFor(rows: OutboxRow[], bookingId: string): OutboxRow | undefined {
+  return rows.find((r) => r.type === "REPORT_CREATE" && r.bookingId === bookingId && r.status !== "sent");
+}
