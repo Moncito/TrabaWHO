@@ -161,6 +161,14 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - **Database decision: local PostgreSQL on the laptop** (no Supabase). Disclosures in README, SPEC 10, TASKS 6 and ARCHITECTURE now say: APIs / cloud services = none; no cloud AI API.
 - **Team 404:** Marc Ace Flores, Adrian Imbang, Clarence Emlano (README Team section).
 
+### 2.17 First on-phone run + prompt warm-up fix
+- Model imported with the in-app picker (`file:///data/user/0/ph.trabawho.app/files/model.gguf`) on the Infinix X6873.
+- **AI stats (online, 3 intakes):** model load 4.47 s · answers 34.69 s, 7.95 s, 8.18 s (avg 16.94 s) · ~9 tokens/s · 3/3 answered by the model (no fallback).
+- Diagnosis: the 35 s first answer is prompt processing of the full intake prompt (system rules + 20-task catalog + 6 few-shot pairs); llama.cpp then keeps that prefix in its KV cache, so later answers only process the client's text (~8 s, mostly generating ~70 tokens at 9 tok/s).
+- Fix: `LlamaService.init()` now warms up with the real intake messages (`intakeMessages(...)`, `maxTokens: 1`) instead of "hi", and resets token counters after. AI stats shows "Prompt warm-up" time separately from model load.
+- Still to do on the phone: re-measure after the fix, **in airplane mode** (the first run was online).
+- Further speed ideas if needed (not done): shorter summary / fewer output tokens, tune `n_threads`, try Qwen3 0.6B (would need a new eval). Note: the report prompt has a different prefix, so the first report after an intake will re-process its prompt.
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

@@ -1,4 +1,6 @@
 import {
+  intakeJsonSchema,
+  intakeMessages,
   runIntake,
   runReportExtraction,
   type AIService,
@@ -41,9 +43,15 @@ export class LlamaService implements AIService {
         if (!path) throw new Error("Model file not found. Push it with adb, or use AI stats → Pumili ng model file.");
         aiStats.setModelPath(path);
         this.ctx = await initLlama({ model: path, n_ctx: 2048, n_gpu_layers: 99, use_mlock: true });
-        // warm-up so the first real answer isn't slow
-        await this.llm({ messages: [{ role: "user", content: "hi" }], jsonSchema: { type: "object" }, maxTokens: 1 });
         aiStats.loadFinished(Date.now() - started);
+
+        // Warm-up with the REAL intake prompt: llama.cpp keeps the processed prefix (system prompt +
+        // catalog + few-shot) in its KV cache, so later intakes only process the client's text.
+        // On the demo phone the first answer was ~35 s without this and ~8 s once the prefix was cached.
+        const warmStarted = Date.now();
+        await this.llm({ messages: intakeMessages("tumutulo ang gripo"), jsonSchema: intakeJsonSchema, maxTokens: 1 });
+        this.usage = { promptTokens: 0, generatedTokens: 0, genMs: 0 }; // don't count warm-up in call stats
+        aiStats.warmupFinished(Date.now() - warmStarted);
       } catch (e) {
         aiStats.loadFailed(e);
         this.loading = null; // allow a retry

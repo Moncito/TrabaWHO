@@ -73,11 +73,15 @@ What the held-out set shows:
 
 **On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 
-| Metric | Value |
+| Metric | Value (Oct 9, in-app AI stats, 3 intakes) |
 | --- | --- |
-| Model load + warm-up | _pending_ |
-| Avg intake answer | _pending_ |
-| Tokens / second | _pending_ |
+| Model load (1.27 GB GGUF) | 4.47 s |
+| First intake answer | 34.7 s (processing the full prompt for the first time) |
+| Next intake answers | 7.95 s and 8.18 s |
+| Generation speed | ~9 tokens/s |
+| Answers from the model (not the fallback) | 3/3 |
+
+The first answer was slow because the phone had to process the whole instruction prompt (task list + examples) once; after that llama.cpp reuses it from its cache. The app now pre-processes the real intake prompt at launch ("prompt warm-up" on the AI stats screen), so the first answer should also take ~8 s. _To re-measure after this change._
 
 Honesty notes:
 - Prompts were tuned while looking at `intake.json`, so those numbers are optimistic. The held-out numbers are the fair ones.

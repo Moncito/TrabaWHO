@@ -20,6 +20,8 @@ export interface AiStats {
   modelId: string;
   loadState: "idle" | "loading" | "ready" | "failed";
   loadMs?: number;
+  /** Time to pre-process the intake prompt into the KV cache after loading. */
+  warmupMs?: number;
   loadError?: string;
   modelPath?: string;
   calls: AiCallStat[];
@@ -45,6 +47,9 @@ export const aiStats = {
   },
   loadFinished(loadMs: number) {
     set({ loadState: "ready", loadMs });
+  },
+  warmupFinished(warmupMs: number) {
+    set({ warmupMs });
   },
   loadFailed(error: unknown) {
     set({ loadState: "failed", loadError: error instanceof Error ? error.message : String(error) });
