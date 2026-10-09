@@ -1,5 +1,6 @@
 import type { AIService } from "@trabawho/shared";
 
+import { aiStats } from "./stats";
 import { StubService } from "./StubService";
 
 /**
@@ -24,3 +25,6 @@ function createAI(): AIService {
 }
 
 export const ai: AIService = createAI();
+aiStats.setBackend(process.env.EXPO_PUBLIC_AI_BACKEND ?? "stub", ai.modelId);
+
+export { aiStats, useAiStats } from "./stats";

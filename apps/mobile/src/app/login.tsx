@@ -7,6 +7,7 @@ export default function Login() {
       <Note>Demo account switcher. Pick a seeded client or worker.</Note>
       <NavButton href="/new-problem" label="Client: Juan dela Cruz" />
       <NavButton href="/jobs" label="Worker: Mang Ramon (Electrician)" />
+      <NavButton href="/ai-stats" label="AI stats" />
     </Screen>
   );
 }
