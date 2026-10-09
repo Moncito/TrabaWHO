@@ -29,7 +29,7 @@ import {
 } from "phosphor-react-native";
 import type { ReactNode } from "react";
 import { ActivityIndicator, Linking, Pressable, Text, TextInput, View, type TextInputProps } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, ZoomIn } from "react-native-reanimated";
 
 import type { UiStatus } from "@/data/bookings";
 
@@ -267,6 +267,24 @@ export function PersonCard({ name, role, phone, verified }: { name: string; role
         <Button label={`Tawagan`} icon={Phone} size="sm" variant="dark" onPress={() => call(phone)} />
       </View>
     </Card>
+  );
+}
+
+/** Big result moment (artboard v3 "Request sent" / "Booking saved"): navy when sent, dashed amber when pending, red when failed. */
+export function StatusHero({ kind, icon: I, title, message }: { kind: "sent" | "pending" | "failed"; icon: Icon; title: string; message: string }) {
+  const t = {
+    sent: { box: "bg-navy", orb: "bg-lime", icon: C.navy, title: "text-white", msg: "text-haze" },
+    pending: { box: "border-[1.5px] border-dashed border-amber bg-amber-bg", orb: "bg-surface", icon: C.amberInk, title: "text-navy", msg: "text-amber-ink" },
+    failed: { box: "border border-danger bg-danger-bg", orb: "bg-surface", icon: C.danger, title: "text-danger-ink", msg: "text-danger-ink" },
+  }[kind];
+  return (
+    <View className={`items-center gap-3 rounded-3xl px-6 py-8 ${t.box}`}>
+      <Animated.View key={kind} entering={ZoomIn.springify()} className={`h-24 w-24 items-center justify-center rounded-full ${t.orb}`}>
+        <I size={48} color={t.icon} weight={kind === "sent" ? "fill" : "bold"} />
+      </Animated.View>
+      <Text className={`text-center font-headline text-[28px] leading-[32px] ${t.title}`}>{title}</Text>
+      <Text className={`text-center font-body text-[15px] leading-[22px] ${t.msg}`}>{message}</Text>
+    </View>
   );
 }
 

@@ -35,7 +35,7 @@ export default function Login() {
   return (
     <Screen
       title="TrabaWHO"
-      subtitle="Demo: pumili ng account"
+      subtitle="Choose your account · Pumili ng account"
       right={
         <HeaderLink href="/ai-stats" label="AI stats">
           <Cpu size={24} color={C.lime} weight="bold" />

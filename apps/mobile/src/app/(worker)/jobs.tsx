@@ -46,11 +46,11 @@ export default function Jobs() {
   }
 
   return (
-    <Screen title="Mga trabaho" subtitle={user ? `${user.name} · ${user.services.map(serviceName).join(", ")}` : undefined} right={<AccountButtons />}>
+    <Screen title="Open jobs" subtitle={user ? `${user.name} · ${user.services.map(serviceName).join(", ")}` : undefined} right={<AccountButtons />}>
       <View className="flex-row rounded-full border border-border bg-surface p-1">
         {(["open", "mine"] as const).map((t) => (
           <Pressable key={t} onPress={() => setTab(t)} className={`h-11 flex-1 items-center justify-center rounded-full ${tab === t ? "bg-navy" : ""}`}>
-            <Text className={`font-body-bold text-sm ${tab === t ? "text-white" : "text-muted"}`}>{t === "open" ? "Bukas" : `Akin (${mine.length})`}</Text>
+            <Text className={`font-body-bold text-sm ${tab === t ? "text-white" : "text-muted"}`}>{t === "open" ? "Open" : `Mine (${mine.length})`}</Text>
           </Pressable>
         ))}
       </View>
@@ -66,7 +66,7 @@ export default function Jobs() {
               <JobSummary b={b} />
               <HazardAlert notes={safetyFor(b.hazards).safetyNotes} compact />
               <Text className="font-body text-[13px] text-muted">{b.aiSummary}</Text>
-              <Button label="Tanggapin" icon={Handshake} loading={accepting === b.id} onPress={() => accept(b)} />
+              <Button label="Accept job" icon={Handshake} loading={accepting === b.id} onPress={() => accept(b)} />
             </Card>
           ))
         )

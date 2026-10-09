@@ -46,7 +46,7 @@ export default function JobDetail() {
   const report = () => router.push({ pathname: "/report", params: { bookingId: b.id } });
   let footer = null;
   if (b.status === "REQUESTED") {
-    footer = <Button label="Tanggapin" icon={Handshake} loading={busy} onPress={() => act("accept")} disabled={!online} disabledReason={needNet} />;
+    footer = <Button label="Accept job" icon={Handshake} loading={busy} onPress={() => act("accept")} disabled={!online} disabledReason={needNet} />;
   } else if (pending) {
     footer = (
       <View className="flex-row items-center justify-center gap-2 py-2">
@@ -57,12 +57,12 @@ export default function JobDetail() {
   } else if (b.status === "ACCEPTED") {
     footer = (
       <>
-        <Button label="Simulan ang trabaho" icon={Play} variant="dark" loading={busy} onPress={() => act("start")} disabled={!online} disabledReason={needNet} />
-        <Button label="I-report ang trabaho" icon={NotePencil} onPress={report} />
+        <Button label="Start the job" icon={Play} variant="dark" loading={busy} onPress={() => act("start")} disabled={!online} disabledReason={needNet} />
+        <Button label="Report the job" icon={NotePencil} onPress={report} />
       </>
     );
   } else if (b.status === "IN_PROGRESS") {
-    footer = <Button label="I-report ang trabaho" icon={NotePencil} onPress={report} />;
+    footer = <Button label="Report the job" icon={NotePencil} onPress={report} />;
   }
 
   return (

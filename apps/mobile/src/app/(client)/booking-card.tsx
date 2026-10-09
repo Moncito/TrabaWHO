@@ -127,7 +127,7 @@ export default function BookingCardScreen() {
       </View>
       <View className="flex-row items-center justify-between">
         <UrgencyBadge urgency={card.urgency} />
-        <Button label="Baguhin" icon={PencilSimple} size="sm" variant="ghost" onPress={() => setEditing(true)} />
+        <Button label="Edit" icon={PencilSimple} size="sm" variant="ghost" onPress={() => setEditing(true)} />
       </View>
       <View className="gap-1 rounded-xl bg-soft p-3">
         <View className="flex-row items-center gap-1">
@@ -166,7 +166,7 @@ export default function BookingCardScreen() {
     <Card key="a">
       <View className="flex-row items-center gap-1">
         <MapPin size={16} color={C.ink} weight="bold" />
-        <Text className="font-body-bold text-[17px] text-ink">Saan ang trabaho?</Text>
+        <Text className="font-body-bold text-[17px] text-ink">Where's the job? · Saan ang trabaho?</Text>
       </View>
       <Field label="Address" placeholder="Hal. 12 Sampaguita St." value={address} onChangeText={setAddress} />
       <Field label="Barangay" value={barangay} onChangeText={setBarangay} />
@@ -176,12 +176,12 @@ export default function BookingCardScreen() {
 
   return (
     <Screen
-      title="Booking Card"
-      subtitle={online ? undefined : "Offline: ise-save muna sa phone"}
+      title="Your Booking Card"
+      subtitle={online ? "Check it, then book" : "Offline: saved on your phone first"}
       back
       footer={
         <Button
-          label="I-book"
+          label="Book now"
           icon={CalendarCheck}
           loading={booking}
           onPress={book}
@@ -290,7 +290,7 @@ function EditSheet({
               </Text>
             </View>
           ) : null}
-          <Button label="I-save" onPress={() => onSave({ service, task, urgency })} />
+          <Button label="Save changes" variant="dark" onPress={() => onSave({ service, task, urgency })} />
         </ScrollView>
       </View>
     </Modal>
