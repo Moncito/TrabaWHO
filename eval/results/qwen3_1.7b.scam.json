@@ -1,0 +1,156 @@
+{
+  "backend": "ollama",
+  "model": "qwen3:1.7b",
+  "ranAt": "2026-10-09T15:15:05.940Z",
+  "machine": "laptop",
+  "intake": null,
+  "report": null,
+  "scam": {
+    "summary": {
+      "cases": 12,
+      "risk": "11/12 (92%)",
+      "rulesOnlyRisk": "9/12 (75%)",
+      "falseAlarmsOnLow": 0,
+      "avgLatencyMs": 276
+    },
+    "rows": [
+      {
+        "id": "s01",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "OFF_APP_PAYMENT",
+          "CANCEL_BOOKING"
+        ],
+        "source": "model",
+        "latencyMs": 910,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s02",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "DEPOSIT_FIRST"
+        ],
+        "source": "model",
+        "latencyMs": 737,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s03",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "OFF_APP_PAYMENT"
+        ],
+        "source": "model",
+        "latencyMs": 158,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s04",
+        "expected": "HIGH",
+        "risk": "LOW",
+        "flags": [],
+        "source": "model",
+        "latencyMs": 138,
+        "ok": false,
+        "rulesOk": false
+      },
+      {
+        "id": "s05",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "SUSPICIOUS_LINK"
+        ],
+        "source": "model",
+        "latencyMs": 184,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s06",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "CANCEL_BOOKING"
+        ],
+        "source": "model",
+        "latencyMs": 149,
+        "ok": true,
+        "rulesOk": false
+      },
+      {
+        "id": "s07",
+        "expected": "HIGH",
+        "risk": "HIGH",
+        "flags": [
+          "DEPOSIT_FIRST",
+          "URGENT_PRESSURE"
+        ],
+        "source": "model",
+        "latencyMs": 194,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s08",
+        "expected": "MEDIUM",
+        "risk": "MEDIUM",
+        "flags": [
+          "URGENT_PRESSURE",
+          "PRICE_CHANGE"
+        ],
+        "source": "model",
+        "latencyMs": 227,
+        "ok": true,
+        "rulesOk": false
+      },
+      {
+        "id": "s09",
+        "expected": "LOW",
+        "risk": "LOW",
+        "flags": [],
+        "source": "model",
+        "latencyMs": 209,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s10",
+        "expected": "LOW",
+        "risk": "LOW",
+        "flags": [],
+        "source": "model",
+        "latencyMs": 122,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s11",
+        "expected": "LOW",
+        "risk": "LOW",
+        "flags": [],
+        "source": "model",
+        "latencyMs": 134,
+        "ok": true,
+        "rulesOk": true
+      },
+      {
+        "id": "s12",
+        "expected": "LOW",
+        "risk": "LOW",
+        "flags": [],
+        "source": "model",
+        "latencyMs": 146,
+        "ok": true,
+        "rulesOk": true
+      }
+    ]
+  }
+}

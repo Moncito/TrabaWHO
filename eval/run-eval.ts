@@ -14,7 +14,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { runIntake, runReportExtraction, type LlmCall, type TaskCode } from "@trabawho/shared";
+import { detectScamFlags, runIntake, runReportExtraction, runScamCheck, scamRisk, type LlmCall, type TaskCode } from "@trabawho/shared";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -25,7 +25,7 @@ function arg(name: string, fallback?: string): string | undefined {
 
 const backend = arg("backend", "ollama")!;
 const model = arg("model", backend === "keywords" ? "keywords-only" : "qwen3:1.7b")!;
-const only = arg("only"); // "intake" | "report"
+const only = arg("only"); // "intake" | "report" | "scam"
 
 function ollamaBackend(url: string): LlmCall {
   return async ({ messages, jsonSchema, maxTokens }) => {
@@ -238,12 +238,35 @@ async function evalReport() {
   return { summary, rows };
 }
 
+/** Anti-scam: risk level per message, model+rules vs rules only. */
+async function evalScam() {
+  const cases = load<{ id: string; text: string; expectedRisk: string }[]>(arg("scam-file", "scam.json")!);
+  const rows = [];
+  for (const c of cases) {
+    const out = await runScamCheck(c.text, llm);
+    const rulesRisk = scamRisk(detectScamFlags(c.text));
+    const row = { id: c.id, expected: c.expectedRisk, risk: out.risk, flags: out.flags, source: out.source, latencyMs: out.latencyMs, ok: out.risk === c.expectedRisk, rulesOk: rulesRisk === c.expectedRisk };
+    rows.push(row);
+    console.log(`${c.id} ${row.ok ? "ok" : "XX"} rules:${row.rulesOk ? "ok" : "XX"} ${String(row.latencyMs).padStart(6)}ms ${out.risk.padEnd(6)} (want ${c.expectedRisk}) ${out.flags.join(",")}`);
+  }
+  const n = rows.length;
+  const summary = {
+    cases: n,
+    risk: pct(count(rows, (r) => r.ok), n),
+    rulesOnlyRisk: pct(count(rows, (r) => r.rulesOk), n),
+    falseAlarmsOnLow: count(rows, (r) => r.expected === "LOW" && r.risk !== "LOW"),
+    avgLatencyMs: avg(rows.map((r) => r.latencyMs)),
+  };
+  console.log("\nSCAM", summary, "\n");
+  return { summary, rows };
+}
+
 /** Markdown table to paste into README / pitch. */
 function printComparison(
   intake: Awaited<ReturnType<typeof evalIntake>> | null,
   report: Awaited<ReturnType<typeof evalReport>> | null,
 ) {
-  if (!compare) return;
+  if (!compare || (!intake && !report)) return;
   const lines = [
     `| Metric (${intakeFile}${report ? ` / ${reportFile}` : ""}) | ${model} (local) | Keyword rules only |`,
     "| --- | --- | --- |",
@@ -265,8 +288,9 @@ function printComparison(
 
 console.log(`backend=${backend} model=${model}\n`);
 await preflight();
-const intake = only === "report" ? null : await evalIntake();
-const report = only === "intake" ? null : await evalReport();
+const intake = only === "report" || only === "scam" ? null : await evalIntake();
+const report = only === "intake" || only === "scam" ? null : await evalReport();
+const scam = only === "scam" ? await evalScam() : null;
 
 if (backendErrors.length) {
   console.error(`\n${backendErrors.length} model call(s) failed. First error: ${backendErrors[0]}`);
@@ -285,6 +309,6 @@ const tag = arg("tag");
 const file = join(outDir, `${model.replace(/[^a-z0-9.-]/gi, "_")}${tag ? `.${tag}` : ""}.json`);
 writeFileSync(
   file,
-  JSON.stringify({ backend, model, ranAt: new Date().toISOString(), machine: arg("machine", "laptop"), intake, report }, null, 2),
+  JSON.stringify({ backend, model, ranAt: new Date().toISOString(), machine: arg("machine", "laptop"), intake, report, scam }, null, 2),
 );
 console.log(`saved ${file}`);
