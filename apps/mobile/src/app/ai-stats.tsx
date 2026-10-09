@@ -1,3 +1,4 @@
+import { router } from "expo-router";
 import { useNetInfo } from "@react-native-community/netinfo";
 import { AirplaneTilt, ArrowCounterClockwise, ChartLine, Cpu, FileArrowDown, WifiHigh } from "phosphor-react-native";
 import { useState } from "react";
@@ -90,6 +91,7 @@ export default function AiStatsScreen() {
 
       {canImportModel ? (
         <View className="gap-2">
+          <Button label="Download AI model (≈1.3 GB)" icon={FileArrowDown} onPress={() => router.push("/model-setup")} />
           <Button label="Pick model file (.gguf)" icon={FileArrowDown} variant="dark" loading={importing} onPress={importModel} />
           {importMsg ? <Text className="text-center font-body text-[13px] text-muted">{importMsg}</Text> : null}
         </View>

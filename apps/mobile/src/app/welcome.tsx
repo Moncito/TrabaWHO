@@ -1,7 +1,7 @@
 import { router } from "expo-router";
 import { AirplaneTilt, CheckCircle, CloudArrowUp, Cpu, HandCoins, SealCheck, ShieldCheck, Sparkle } from "phosphor-react-native";
 import { useEffect, type ReactNode } from "react";
-import { Text, useWindowDimensions, View } from "react-native";
+import { Pressable, Text, useWindowDimensions, View } from "react-native";
 import Animated, {
   Extrapolation,
   FadeIn,
@@ -20,6 +20,7 @@ import Animated, {
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { Button, C, SERVICE_ICON } from "@/components/ui";
+import { startGuest } from "@/data/session";
 
 type Slide = { key: string; title: string; tl: string; body: string; art: ReactNode };
 
@@ -92,6 +93,17 @@ export default function Welcome() {
       <Animated.View entering={FadeInDown.delay(250).duration(400)} className="gap-3 px-6 pb-4">
         <Button label="Sign up · Mag-sign up" onPress={() => router.push("/signup")} />
         <Button label="Log in · Mag-log in" variant="onDark" onPress={() => router.push("/login")} />
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => {
+            startGuest();
+            router.replace("/");
+          }}
+          className="items-center py-2 active:opacity-70"
+        >
+          <Text className="font-body-bold text-[15px] text-lime">Try the AI without an account</Text>
+          <Text className="font-body text-xs text-haze">Subukan nang walang account · works offline</Text>
+        </Pressable>
       </Animated.View>
     </SafeAreaView>
   );

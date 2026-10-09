@@ -6,6 +6,24 @@ TrabaWho is a Grab-style booking app for plumbers, electricians, carpenters, air
 
 > AppBuildersPH Hackathon 2026 · Theme: **Local AI** · "Build an AI product that remains genuinely useful when the cloud disappears."
 
+## For judges: try it in 5 minutes
+
+**A. On an Android phone (no server, no account needed)**
+1. Install the APK from the [GitHub Releases](https://github.com/Moncito/TrabaWHO/releases) page (Android 10+, ~6 GB RAM or more recommended).
+2. Open the app → **"Try the AI without an account"**.
+3. On first run, tap **Download AI** (one-time, ~1.3 GB over Wi-Fi). The model is saved on the phone.
+4. **Turn on airplane mode.** Everything AI still works:
+   - **Ano ang problema?** Type e.g. *"Nag-spark yung saksakan nung sinaksak ko yung charger"* → Booking Card (Electrician, EMERGENCY, safety note, price range).
+   - **Check a message:** paste *"GCash mo na lang ako directly, cancel mo na yung booking"* → flagged as a likely scam.
+   - **While you wait:** *"Amoy gas dito sa kusina, ano gagawin ko?"* → gas warning, 911, safe first steps.
+   - **AI on this phone** (chip icon): model load time, seconds per answer, tokens/s, measured on your device.
+   
+   Sending a booking to workers needs an account and our API (section C).
+
+**B. Reproduce the AI accuracy numbers on a laptop (no phone)**: [Run it yourself → 1](#1-reproduce-the-ai-numbers-laptop-no-phone-needed). Ollama + `npm run eval`.
+
+**C. Full stack with accounts, booking and sync**: [Run it yourself → 3 and 4](#3-run-the-api). Local PostgreSQL + API on a laptop, phone on USB.
+
 ---
 
 ## Why local AI?
@@ -161,13 +179,9 @@ npm run eval -- --backend ollama --model qwen3:1.7b
 npm run eval -- --backend keywords        # baseline without the model
 ```
 
-### 2. Try the app without a phone build (keyword AI only)
+### 2. Try the app on a phone without building it
 
-```bash
-cd apps/mobile
-cp .env.example .env     # EXPO_PUBLIC_AI_BACKEND=stub
-npx expo start --web
-```
+Install the release APK and use **"Try the AI without an account"** (see *For judges* above). A web preview is not supported: the offline database (expo-sqlite) does not bundle for web in this build.
 
 ### 3. Run the API
 
