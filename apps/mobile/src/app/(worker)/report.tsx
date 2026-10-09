@@ -1,4 +1,4 @@
-import { computeReportTotals, ReportCreate, type ReportDraft } from "@trabawho/shared";
+import { checkReportText, computeReportTotals, MAX_INPUT_CHARS, ReportCreate, type ReportDraft } from "@trabawho/shared";
 import { randomUUID } from "expo-crypto";
 import { router, useLocalSearchParams } from "expo-router";
 import { CheckCircle, CloudArrowUp, FloppyDisk, Plus, Sparkle, Trash, WarningCircle } from "phosphor-react-native";
@@ -31,6 +31,7 @@ export default function Report() {
   const [draft, setDraft] = useState<ReportDraft | null>(null);
   const [rows, setRows] = useState<Row[]>([]);
   const [busy, setBusy] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
   const [savedRef, setSavedRef] = useState<string | null>(null);
   const saved = useOutbox().find((r) => r.id === savedRef);
   // Pre-process the report prompt while the worker types (the cache usually holds the intake prompt).
@@ -47,6 +48,8 @@ export default function Report() {
   }
 
   async function extract() {
+    const check = checkReportText(text);
+    if (!check.ok) return setProblem(check.message);
     setBusy(true);
     try {
       const d = await ai.extractReport(text.trim(), b!.taskCode);
@@ -114,9 +117,20 @@ export default function Report() {
           multiline
           placeholder="Hal. Pinalitan ko yung outlet, gumamit ng isang outlet tsaka dalawang metro ng wire, 45 minutes."
           value={text}
-          onChangeText={setText}
+          onChangeText={(t) => {
+            setText(t);
+            setProblem(null);
+          }}
+          maxLength={MAX_INPUT_CHARS}
         />
-        <Text className="font-body text-xs text-subtle">AI sa phone ang gagawa ng listahan. Ikaw ang maglalagay ng presyo.</Text>
+        {problem ? (
+          <View accessibilityLiveRegion="polite" className="flex-row items-start gap-2 rounded-2xl bg-amber-bg px-3 py-[10px]">
+            <WarningCircle size={18} color={C.amberInk} weight="fill" />
+            <Text className="flex-1 font-body-bold text-[13px] leading-[18px] text-amber-ink">{problem}</Text>
+          </View>
+        ) : (
+          <Text className="font-body text-xs text-subtle">AI sa phone ang gagawa ng listahan. Ikaw ang maglalagay ng presyo.</Text>
+        )}
       </Screen>
     );
   }

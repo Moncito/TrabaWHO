@@ -46,7 +46,7 @@ export default function ScamCheck() {
       back
       footer={<Button label={result ? "Check again" : "Check message"} icon={ShieldCheck} variant="dark" loading={busy} onPress={check} disabled={!text.trim()} />}
     >
-      <Field label="Message from a worker or client" multiline placeholder="Paste the chat or SMS here · I-paste dito ang mensahe" value={text} onChangeText={edit} />
+      <Field label="Message from a worker or client" multiline placeholder="Paste the chat or SMS here · I-paste dito ang mensahe" value={text} onChangeText={edit} maxLength={1000} />
 
       {result ? (
         <ResultCard result={result} />

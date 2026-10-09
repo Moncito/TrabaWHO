@@ -1,6 +1,6 @@
 import { router } from "expo-router";
-import type { ServiceCode } from "@trabawho/shared";
-import { Check, Cpu, MapPin, Sparkle, WifiSlash } from "phosphor-react-native";
+import { checkProblemText, MAX_INPUT_CHARS, type ServiceCode } from "@trabawho/shared";
+import { Check, Cpu, MapPin, Sparkle, WarningCircle, WifiSlash } from "phosphor-react-native";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, KeyboardAvoidingView, Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import Animated, { Easing, FadeInDown, useAnimatedStyle, useReducedMotion, useSharedValue, withDelay, withRepeat, withSequence, withTiming } from "react-native-reanimated";
@@ -18,6 +18,8 @@ import { setDraftCard, setDraftText, useDraft } from "@/state/draft";
 export default function NewProblem() {
   const { text } = useDraft();
   const [busy, setBusy] = useState(false);
+  // Plain-code check before the AI: keyboard mashing or a word or two never reaches the model.
+  const [problem, setProblem] = useState<string | null>(null);
   const stats = useAiStats();
   const user = useSession();
   const input = useRef<TextInput>(null);
@@ -25,6 +27,8 @@ export default function NewProblem() {
   useEffect(() => void ai.prewarm?.("intake"), []);
 
   async function analyze() {
+    const check = checkProblemText(text);
+    if (!check.ok) return setProblem(check.message);
     setBusy(true);
     try {
       setDraftCard(await ai.intake(text.trim()));
@@ -76,21 +80,37 @@ export default function NewProblem() {
             <TextInput
               ref={input}
               value={text}
-              onChangeText={setDraftText}
+              onChangeText={(t) => {
+                setDraftText(t);
+                setProblem(null);
+              }}
+              maxLength={MAX_INPUT_CHARS}
               multiline
               placeholder="e.g. Ayaw lumamig ng aircon, may tumutulo sa ilalim…"
               placeholderTextColor={C.subtle}
               textAlignVertical="top"
               className="h-[104px] rounded-[18px] border border-border bg-soft px-4 py-3 font-body text-base text-ink focus:border-navy"
             />
-            <Text className="font-body text-xs text-subtle">English or Tagalog, in your own words.</Text>
+            {problem ? (
+              <View accessibilityLiveRegion="polite" className="flex-row items-start gap-2 rounded-2xl bg-amber-bg px-3 py-[10px]">
+                <WarningCircle size={18} color={C.amberInk} weight="fill" />
+                <Text className="flex-1 font-body-bold text-[13px] leading-[18px] text-amber-ink">{problem}</Text>
+              </View>
+            ) : (
+              <Text className="font-body text-xs text-subtle">
+                English or Tagalog, in your own words.{text.length > MAX_INPUT_CHARS - 100 ? ` ${text.length}/${MAX_INPUT_CHARS}` : ""}
+              </Text>
+            )}
             <View className="flex-row justify-between pt-1">
               {QUICK.map((q, i) => {
                 const I = SERVICE_ICON[q.service];
                 const on = text === q.text;
                 return (
                   <Animated.View key={q.service} entering={FadeInDown.delay(i * 40).duration(250)} className="w-[19%]">
-                    <Pressable accessibilityLabel={`Example: ${q.label}`} onPress={() => setDraftText(q.text)} className="items-center gap-1 active:opacity-70">
+                    <Pressable accessibilityLabel={`Example: ${q.label}`} onPress={() => {
+                        setDraftText(q.text);
+                        setProblem(null);
+                      }} className="items-center gap-1 active:opacity-70">
                       <View className={`h-12 w-12 items-center justify-center rounded-2xl ${on ? "bg-lime" : "bg-info-bg"}`}>
                         <I size={22} color={C.navy} weight="fill" />
                       </View>

@@ -43,8 +43,30 @@ describe("runIntake", () => {
     expect(out.source).toBe("fallback");
   });
   it("returns null card when nothing works", async () => {
-    const out = await runIntake("hello po", replies("x"));
+    const out = await runIntake("hello po, kumusta kayo", replies("x"));
     expect(out).toMatchObject({ card: null, source: "none" });
+  });
+  it("never sends keyboard mashing to the model", async () => {
+    let called = false;
+    const out = await runIntake("asdsadasdasd", async () => {
+      called = true;
+      return good;
+    });
+    expect(out).toMatchObject({ card: null, source: "unclear" });
+    expect(called).toBe(false);
+  });
+  it("drops a copied prompt example when the text has no repair words", async () => {
+    const copied = JSON.stringify({ service: "PLUMBING", task: "PLUMBING_INSPECT", urgency: "EMERGENCY", hazards: ["GAS_SMELL"], summary: "Amoy gas sa kusina.", confidence: "medium" });
+    const out = await runIntake("hello how are you", replies(copied));
+    expect(out).toMatchObject({ card: null, source: "unclear" });
+  });
+  it("drops a low-confidence guess at off-topic text", async () => {
+    const guess = JSON.stringify({ service: "CARPENTRY", task: "CARPENTRY_INSPECT", urgency: "SCHEDULED", hazards: [], summary: "Ano ang ulam.", confidence: "low" });
+    expect((await runIntake("ano ulam mamaya", replies(guess))).source).toBe("unclear");
+  });
+  it("keeps a low-confidence answer when the text names a repair", async () => {
+    const low = JSON.stringify({ ...JSON.parse(good), confidence: "low" });
+    expect((await runIntake("tumutulo gripo", replies(low))).source).toBe("model");
   });
 });
 
