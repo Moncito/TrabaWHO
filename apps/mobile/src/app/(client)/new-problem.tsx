@@ -8,7 +8,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 
 import { ai, useAiStats } from "@/ai";
 import { ToolCards } from "@/components/AccountButtons";
-import { HeaderLink, OfflineBanner } from "@/components/Screen";
+import { HeaderLink, OfflineBanner, useStatusBarStyle } from "@/components/Screen";
 import { Avatar, C, Label, SERVICE_ICON } from "@/components/ui";
 import { useSession } from "@/data/session";
 import { useNetwork } from "@/data/sync";
@@ -25,13 +25,17 @@ export default function NewProblem() {
   const input = useRef<TextInput>(null);
   // Re-cache the intake prompt while the client types (a worker report may have replaced it).
   useEffect(() => void ai.prewarm?.("intake"), []);
+  // Light home screen; the AI "thinking" view below is navy.
+  useStatusBarStyle(busy ? "light" : "dark");
 
   async function analyze() {
     const check = checkProblemText(text);
-    if (!check.ok) return setProblem(check.message);
-    setBusy(true);
+    // Too long: fix it here. Gibberish / too short: never reaches the model, same as the AI giving no card.
+    if (!check.ok && check.problem === "too_long") return setProblem(check.message);
+    setBusy(check.ok);
     try {
-      setDraftCard(await ai.intake(text.trim()));
+      // No card -> "Pick a service" with the "AI couldn't understand" banner.
+      setDraftCard(check.ok ? await ai.intake(text.trim()) : null);
       router.push("/booking-card");
     } finally {
       setBusy(false);
@@ -215,6 +219,10 @@ function AIThinking() {
   const { online } = useNetwork();
   const scale = useSharedValue(1);
   const [step, setStep] = useState(0);
+  const { backend } = useAiStats();
+  // Only claim on-phone AI when the llama backend is the one answering.
+  const where =
+    backend === "llama" ? "Runs on your phone. Usually 5 to 15 seconds." : backend === "ollama" ? "Runs on the laptop over local Wi-Fi (Edge mode)." : "Keyword rules only: no AI model in this build.";
   useEffect(() => {
     if (!reduced) scale.value = withRepeat(withSequence(withTiming(1.06, { duration: 700 }), withTiming(1, { duration: 700 })), -1);
     const t1 = setTimeout(() => setStep(1), 1500);
@@ -246,7 +254,7 @@ function AIThinking() {
       </View>
       <View className="gap-2 px-6 pt-8">
         <Text className="font-headline text-[28px] leading-[32px] text-white">Reading your problem…</Text>
-        <Text className="font-body text-[15px] leading-[22px] text-haze">Sinusuri ang problema. The AI runs on this phone, so no data is used.</Text>
+        <Text className="font-body text-[15px] leading-[22px] text-haze">Sinusuri ang problema.{backend === "llama" ? " The AI runs on this phone, so no data is used." : ""}</Text>
       </View>
       <View className="gap-[14px] px-6 pt-6">
         {STEPS.map((s, i) => (
@@ -268,7 +276,7 @@ function AIThinking() {
       </View>
       <View className="mx-5 mb-4 mt-auto flex-row items-center gap-3 rounded-[20px] border border-white/15 bg-white/5 px-4 py-[14px]">
         <Cpu size={22} color={C.lime} weight="bold" />
-        <Text className="flex-1 font-body text-sm text-blue-100">Runs on your phone. Usually 5 to 15 seconds.</Text>
+        <Text className="flex-1 font-body text-sm text-blue-100">{where}</Text>
       </View>
     </SafeAreaView>
   );

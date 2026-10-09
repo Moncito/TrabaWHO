@@ -5,12 +5,13 @@ import { CheckCircle, CloudArrowUp, FloppyDisk, Plus, Sparkle, Trash, WarningCir
 import { useEffect, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
 
-import { ai } from "@/ai";
+import { ai, useAiStats } from "@/ai";
 import { Note, Screen } from "@/components/Screen";
 import { Button, C, Card, Field, Label, peso, StatusHero, taskName, TotalsCard } from "@/components/ui";
 import { enqueueReport, useCachedBookings, useOutbox } from "@/data/bookings";
 import { useSession } from "@/data/session";
 import { flush, useNetwork } from "@/data/sync";
+import { showToast } from "@/state/toast";
 
 interface Row {
   name: string;
@@ -34,6 +35,7 @@ export default function Report() {
   const [problem, setProblem] = useState<string | null>(null);
   const [savedRef, setSavedRef] = useState<string | null>(null);
   const saved = useOutbox().find((r) => r.id === savedRef);
+  const { backend } = useAiStats();
   // Pre-process the report prompt while the worker types (the cache usually holds the intake prompt).
   useEffect(() => {
     if (b) void ai.prewarm?.("report", b.taskCode);
@@ -67,9 +69,8 @@ export default function Report() {
 
   async function save() {
     if (!draft) return;
-    setBusy(true);
     const clientRef = randomUUID();
-    const payload = ReportCreate.parse({
+    const parsed = ReportCreate.safeParse({
       clientRef,
       bookingId: b!.id,
       tasksDone: draft.tasksDone,
@@ -78,7 +79,9 @@ export default function Report() {
       notes: draft.notes.slice(0, 300),
       createdOffline: !online,
     } satisfies ReportCreate);
-    enqueueReport(user!.id, b!.id, payload);
+    if (!parsed.success) return showToast("error", "May mali sa report (hal. pangalan ng materyales lampas 80 letra).");
+    setBusy(true);
+    enqueueReport(user!.id, b!.id, parsed.data);
     setSavedRef(clientRef);
     await Promise.race([flush(), new Promise((r) => setTimeout(r, 3000))]);
     setBusy(false);
@@ -129,7 +132,9 @@ export default function Report() {
             <Text className="flex-1 font-body-bold text-[13px] leading-[18px] text-amber-ink">{problem}</Text>
           </View>
         ) : (
-          <Text className="font-body text-xs text-subtle">AI sa phone ang gagawa ng listahan. Ikaw ang maglalagay ng presyo.</Text>
+          <Text className="font-body text-xs text-subtle">
+            {backend === "llama" ? "AI sa phone" : backend === "ollama" ? "AI sa laptop (Edge mode)" : "Keyword rules"} ang gagawa ng listahan. Ikaw ang maglalagay ng presyo.
+          </Text>
         )}
       </Screen>
     );

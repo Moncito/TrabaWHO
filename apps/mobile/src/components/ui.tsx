@@ -1,4 +1,4 @@
-import { catalog, getHazard, type HazardCode, type SafetyNote, type ServiceCode, type Urgency } from "@trabawho/shared";
+import { catalog, FIRST_AID_DISCLAIMER_TL, firstAidFor, getHazard, type HazardCode, type SafetyNote, type ServiceCode, type Urgency } from "@trabawho/shared";
 import {
   ArrowRight,
   ArrowsClockwise,
@@ -9,6 +9,7 @@ import {
   CloudArrowUp,
   Drop,
   Fire,
+  FirstAidKit,
   FireSimple,
   Hammer,
   Handshake,
@@ -265,6 +266,27 @@ export function VerifiedBadge() {
 // ---------- domain ----------
 
 /** Pre-written safety text from the catalog (never AI-written). GAS_SMELL shows 911. */
+/** Team-written "while you wait" steps for the service (never AI text), e.g. close the valve for a leak. */
+export function FirstAidSteps({ service }: { service: ServiceCode }) {
+  return (
+    <Card>
+      <View className="flex-row items-center gap-2">
+        <FirstAidKit size={20} color={C.amberInk} weight="fill" />
+        <Text className="font-body-bold text-[11px] uppercase tracking-widest text-navy">While you wait · Habang hinihintay</Text>
+      </View>
+      {firstAidFor(service).map((s, i) => (
+        <View key={s} className="flex-row items-start gap-3">
+          <View className="h-6 w-6 items-center justify-center rounded-full bg-navy">
+            <Text className="font-body-bold text-xs text-white">{i + 1}</Text>
+          </View>
+          <Text className="flex-1 font-body text-[14px] leading-[21px] text-ink">{s}</Text>
+        </View>
+      ))}
+      <Text className="font-body text-xs leading-[17px] text-subtle">{FIRST_AID_DISCLAIMER_TL}</Text>
+    </Card>
+  );
+}
+
 export function HazardAlert({ notes, showHotline, hotline = catalog.emergencyHotline, compact }: { notes: SafetyNote[]; showHotline?: boolean; hotline?: string; compact?: boolean }) {
   if (!notes.length) return null;
   if (compact) {

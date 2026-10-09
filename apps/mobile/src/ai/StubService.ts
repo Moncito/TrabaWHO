@@ -26,7 +26,6 @@ export class StubService implements AIService {
   }
 
   async intake(text: string): Promise<BookingCardData | null> {
-    await new Promise((r) => setTimeout(r, 600)); // fake "thinking" so loading UI is visible
     const out = await runIntake(text, this.noModel);
     aiStats.record({ kind: "intake", at: Date.now(), latencyMs: out.latencyMs, source: out.source, attempts: 0 });
     return out.card;

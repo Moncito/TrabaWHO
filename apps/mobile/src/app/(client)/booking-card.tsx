@@ -24,7 +24,7 @@ import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { ai } from "@/ai";
 import { Screen } from "@/components/Screen";
-import { Button, C, Card, Field, HazardAlert, Label, peso, ServiceTile, serviceName, UrgencyBadge } from "@/components/ui";
+import { Button, C, Card, Field, FirstAidSteps, HazardAlert, Label, peso, ServiceTile, serviceName, UrgencyBadge } from "@/components/ui";
 import { enqueueBooking } from "@/data/bookings";
 import { useSession } from "@/data/session";
 import { flush, useNetwork } from "@/data/sync";
@@ -71,6 +71,7 @@ export default function BookingCardScreen() {
     };
     return (
       <Screen title="Pick a service" subtitle="The AI isn't sure. Pumili ng serbisyo." back>
+        <Banner kind="unclear" />
         {SERVICE_CODES.map((s) => (
           <Pressable key={s} onPress={() => pick(s)} className="active:opacity-80">
             <Card>
@@ -90,9 +91,8 @@ export default function BookingCardScreen() {
 
   async function book() {
     if (!card || !user) return;
-    setBooking(true);
     const clientRef = randomUUID();
-    const payload = BookingCreate.parse({
+    const parsed = BookingCreate.safeParse({
       clientRef,
       serviceCode: card.service,
       taskCode: card.task,
@@ -107,7 +107,9 @@ export default function BookingCardScreen() {
       barangay: barangay.trim(),
       createdOffline: !online,
     } satisfies BookingCreate);
-    enqueueBooking(user.id, payload);
+    if (!parsed.success) return showToast("error", "Paki-check ang address (max 200 letra) at barangay (max 64).");
+    setBooking(true);
+    enqueueBooking(user.id, parsed.data);
     // C09 if it sends within ~3 s, otherwise C10 Pending (FLOWS 2). Same path online and offline.
     await Promise.race([flush(), new Promise((r) => setTimeout(r, 3000))]);
     resetDraft();
@@ -153,6 +155,7 @@ export default function BookingCardScreen() {
       </View>
       {catalog.pricesAreIllustrative ? <Text className="font-body text-xs text-subtle">Sample prices for the demo.</Text> : null}
     </Card>,
+    <FirstAidSteps key="f" service={card.service} />,
     card.questions.length ? (
       <Card key="q">
         <Label>The worker may ask</Label>
@@ -225,12 +228,16 @@ export default function BookingCardScreen() {
   );
 }
 
-function Banner({ kind }: { kind: "low" | "fallback" }) {
+function Banner({ kind }: { kind: "low" | "fallback" | "unclear" }) {
   return (
-    <View className="flex-row gap-2 rounded-xl border border-amber bg-amber-bg p-3">
+    <View accessibilityLiveRegion="polite" className="flex-row gap-2 rounded-xl border border-amber bg-amber-bg p-3">
       <Question size={18} color={C.amberInk} weight="bold" />
       <Text className="flex-1 font-body-semibold text-[13px] text-amber-ink">
-        {kind === "low" ? "Hindi sigurado — paki-check ang service" : "Keyword rules ang ginamit (hindi sumagot ang AI). Paki-check ang service."}
+        {kind === "low"
+          ? "Hindi sigurado — paki-check ang service"
+          : kind === "unclear"
+            ? "The AI couldn't understand your problem. Pick a service below, or go back and describe what is broken and where. Hindi maintindihan ng AI."
+            : "Keyword rules ang ginamit (hindi sumagot ang AI). Paki-check ang service."}
       </Text>
     </View>
   );

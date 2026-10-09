@@ -5,7 +5,7 @@ import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown, ZoomIn } from "react-native-reanimated";
 
 import { Note, Screen } from "@/components/Screen";
-import { Avatar, Button, C, call, HazardAlert, InfoRows, Label, peso, serviceNameEn, StatusBadge, taskNameEn, TotalsCard, VerifiedBadge } from "@/components/ui";
+import { Avatar, Button, C, call, FirstAidSteps, HazardAlert, InfoRows, Label, peso, serviceNameEn, StatusBadge, taskNameEn, TotalsCard, VerifiedBadge } from "@/components/ui";
 import { cancelInfo, refreshMine, uiStatus, useCachedBookings, useOutbox, type UiStatus } from "@/data/bookings";
 import { useDbVersion } from "@/data/db";
 import { useSession } from "@/data/session";
@@ -114,6 +114,7 @@ export default function BookingDetail() {
       ) : null}
 
       <HazardAlert notes={safetyFor(b.hazards).safetyNotes} compact />
+      {status === "COMPLETED" ? null : <FirstAidSteps service={b.serviceCode} />}
 
       <InfoRows
         rows={[
