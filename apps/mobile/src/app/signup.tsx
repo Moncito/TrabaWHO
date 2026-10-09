@@ -72,7 +72,7 @@ export default function Signup() {
     setError(null);
     try {
       const user = await signup(body);
-      router.replace(user.role === "CLIENT" ? "/new-problem" : "/jobs");
+      router.replace("/"); // index decides: model setup (first run) or role home
     } catch (e) {
       setError(authErrorText(e));
     } finally {
