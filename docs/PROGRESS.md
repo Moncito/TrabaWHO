@@ -122,6 +122,17 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - AI stats screen: "Pumili ng model file (.gguf)" button (llama backend only), progress text "Kinokopya ang model (~1 minuto)...", and the file path in use.
 - Verified: mobile typecheck and Android bundle. Not testable in the browser (button only shows with the on-device backend); needs the phone.
 
+### 2.15 SWE status report (Oct 9, evening)
+- **Dev build works**: `npx expo run:android` builds, installs and opens on the demo phone.
+- **Demo phone:** Infinix X6873, Android 16, ~8 GB physical RAM (MemTotal 7.6 GB). The earlier "16 GB" counted Infinix's extended virtual RAM. Plenty for Qwen3 1.7B Q4 (1.27 GB).
+- **Build issues + fixes** (now in SETUP troubleshooting): OneDrive folder breaks the reanimated CMake build ("build.ninja still dirty") → build from a git worktree outside OneDrive (`C:\dev\trabawho-native`); llama.rn postinstall `tar` fails under Git Bash → install from PowerShell; Gradle needs `android/local.properties` with `sdk.dir`.
+- **`adb push` into `Android/data/ph.trabawho.app/files` works** (tested with a small file). Model not pushed yet: the SWE's laptop has no `.gguf` and no Ollama; the AI engineer sends the file.
+- **API verified against local Postgres** (no Supabase project yet): migrate + seed (12 users) OK, migration committed. Smoke test: create 201 → duplicate create returns the same id → accept 200 → second accept 409 → start 200 → report → COMPLETED, total ₱800.
+- **Phone → API:** over USB via `adb reverse tcp:3000 tcp:3000` (`http://localhost:3000`); on Demo Day `http://<laptop-hotspot-IP>:3000`.
+- **Real screens + offline outbox/sync** built on branch `swe/core-flow` (typecheck, tests, bundle pass; phone testing in progress). Not on GitHub yet at the time of this note. It must merge `main` first: `main` changed `login.tsx`, `new-problem.tsx` and the `src/ai/` files (AI stats, model picker).
+- **Held-out cases:** the SWE declined to write them and asked the AI engineer to. Plan: the AI engineer writes them without opening `eval/intake.json` or `prompts.ts` (he hasn't read either; the cases and prompts were written by Claude).
+- **Branch cleanup:** merged branches deleted; from now on one working branch per stream (`ai/updates`).
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.
@@ -139,7 +150,7 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 | API (Express + Prisma) | ✅ code done; ⏳ not run against Supabase |
 | CI | ✅ |
 | Design artboard + DESIGN/FLOWS docs | ✅ |
-| Dev build on phone (16 GB RAM device) | 🔄 SWE in progress |
+| Dev build on phone (Infinix X6873, Android 16, ~8 GB RAM) | ✅ installs and opens |
 | Model on phone + measured latency | ⏳ waiting on dev build |
 | Real screens, outbox/sync | ⏳ SWE |
 | Held-out eval set | ⏳ SWE writes, AI runs once |
@@ -150,7 +161,7 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 2. Booking detail: filter `GET /bookings/mine` or add `GET /bookings/:id`.
 3. Copy: "Cash on completion" vs "Cash pagkatapos ng trabaho".
 4. API hosting for Demo Day: laptop on personal hotspot (recommended) or Render.
-5. Optional: Qwen3 4B on the 16 GB phone if latency allows (eval first).
+5. Optional: Qwen3 4B only if 1.7B is fast on the phone (~8 GB physical RAM; the "16 GB" figure counted Infinix virtual RAM).
 
 ## 5. Useful commands
 

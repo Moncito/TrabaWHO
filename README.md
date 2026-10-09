@@ -64,7 +64,7 @@ Model: **Qwen3 1.7B, Q4_K_M GGUF**. Laptop numbers via Ollama 0.40.1; phone numb
 | Intake: correct service | _pending_ | _pending_ |
 | Intake: correct task | _pending_ | _pending_ |
 
-**On the phone** (demo device, 16 GB RAM):
+**On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 
 | Metric | Value |
 | --- | --- |
