@@ -110,6 +110,11 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
 - Verified: mobile typecheck, Android bundle, and in the browser (web, stub mode): login → type "may naaamoy akong gas sa kusina" → Booking Card shows Tubero / Inspeksyon ng tubero / EMERGENCY / ₱300–₱600 / gas safety note with 911 → AI stats shows the call. On-phone numbers pending the dev build.
 - Purpose: demo step 6 ("Proof") and the measured phone latency for the README/pitch.
 
+### 2.13 README for judges (branch `docs/readme`)
+- Rewrote `README.md`: one-liner, why local, local-vs-internet table, AI pipeline and design rules, results tables (tuned set, held-out set and on-phone rows marked _pending_), stack, layout, recreate steps (eval on laptop, web stub, API, on-device), demo accounts + demo-auth warning, disclosures, team.
+- Re-verified the keyword baseline before publishing: with the code duration parser, keywords-only also scores report duration 5/5 (not 3/5 as in the earlier baseline), so the README says so.
+- Clarified: no custom model training is needed. The briefing allows existing open-source models; our work is the system around Qwen3 (prompts, constrained output, rules, fallback, offline pipeline, eval).
+
 ### 2.14 In-app model file picker (branch `ai/model-picker`)
 - Backup for phones that block `adb push` into `Android/data`.
 - `apps/mobile/src/ai/modelFile.ts`: `pickAndImportModel()` opens the system file picker (`File.pickFileAsync` from expo-file-system 57; no extra dependency), checks the name ends in `.gguf`, copies it to the app's documents folder as `model.gguf`, and rejects copies under 100 MB. `resolveModelPath()` prefers the imported copy, then the adb-pushed path.
