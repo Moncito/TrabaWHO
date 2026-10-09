@@ -173,11 +173,13 @@ npx expo start --web
 
 ```bash
 cd apps/api
-cp .env.example .env     # DATABASE_URL and DIRECT_URL = your local Postgres, e.g. postgresql://postgres:<pw>@localhost:5432/trabawho
-npx prisma migrate dev --name init
-npm run db:seed
+cp .env.example .env     # DATABASE_URL / DIRECT_URL = your local Postgres; set JWT_SECRET to a long random string
+npx prisma migrate deploy  # applies all migrations (init + auth_profiles)
 npm run dev              # http://0.0.0.0:3000
+npm test                 # API tests: start a throwaway Postgres (embedded-postgres, no Docker) and run the migrations
 ```
+
+There is no seeded data: people sign up in the app (email + password, Client or Worker). `npm run db:seed` only prints this note.
 
 ### 4. On-device AI on an Android phone
 
@@ -200,11 +202,21 @@ Set `EXPO_PUBLIC_AI_BACKEND=llama` in `apps/mobile/.env`, restart with `npx expo
 
 Full setup details: [`docs/SETUP.md`](docs/SETUP.md).
 
-### Demo accounts
+### Accounts and auth
 
-Seeded users (Quezon City): clients Juan dela Cruz and Maria Santos; 10 workers across all five services. The app has an account switcher instead of sign-up.
+- **Sign up / log in** with email + password (needs internet once). Clients pick a barangay and city; workers also pick their services, years of experience and a short bio. Matching uses the worker's city and services.
+- Passwords are hashed with bcrypt (cost 10). The API returns a signed JWT (HS256, 30-day expiry, secret from `JWT_SECRET`); the app keeps it in `expo-secure-store` when the build has it, otherwise in the app's local SQLite. Every `/bookings` and `/me` call sends `Authorization: Bearer <token>`. There is no user listing.
+- After login the app works offline as before (intake, Pending bookings, reports). Queued items are tagged with the account that made them and are only sent while that account is signed in.
+- **Worker profiles** (`GET /workers/:id`): name, services, area, years of experience, bio, jobs completed (count of COMPLETED bookings) and a **Verified** badge only when `isVerified` is true. Nothing sets `isVerified` automatically; it is meant for a manual ID check. A worker's phone number is shown only to a client whose booking that worker accepted.
 
-> **Demo-only auth:** the app sends the selected user's id in an `x-user-id` header. Anyone can act as anyone. This is for the hackathon demo only.
+### Demo accounts (optional, for rehearsal)
+
+```bash
+cd apps/api
+DEMO_PASSWORD=<choose-one> npm run db:seed:demo   # PowerShell: $env:DEMO_PASSWORD="<choose-one>"; npm run db:seed:demo
+```
+
+Creates clearly-labelled demo accounts in Quezon City, none verified: `demo.client@trabawho.test`, `demo.plumber@trabawho.test`, `demo.electrician@trabawho.test`, `demo.carpenter@trabawho.test`. Without `DEMO_PASSWORD` the password is `trabawho-demo` (printed by the script). Remove them before any real use.
 
 ---
 
@@ -213,7 +225,8 @@ Seeded users (Quezon City): clients Juan dela Cruz and Maria Santos; 10 workers 
 | Item | Answer |
 | --- | --- |
 | Models | Qwen3 1.7B Q4_K_M GGUF (via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback). Gemma 3 1B evaluated, not used |
-| Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, NetInfo, Zod, Node.js, Express, Prisma, Vitest, Ollama, Phosphor Icons |
+| Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, expo-secure-store, NetInfo, Zod, Node.js, Express, Prisma, bcryptjs, jose (JWT), Vitest, Supertest, embedded-postgres (tests only), Ollama, Phosphor Icons |
+| Auth | Real email + password accounts (bcrypt hashes, signed JWTs). No demo account switcher and no fake seeded people; optional `@trabawho.test` rehearsal accounts are created only on request (`db:seed:demo`) |
 | APIs / cloud services | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API** |
 | Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon |
 | AI development tools | Claude Code |

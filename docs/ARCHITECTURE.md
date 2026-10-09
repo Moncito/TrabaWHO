@@ -142,7 +142,7 @@ The catalog is read directly from the bundled `catalog.json`; no SQLite tables f
 | My bookings                | Cached list + pending items                       |
 | Worker job list            | Cached accepted jobs; can't accept new ones       |
 | Job report                 | Fully works; saved to outbox                      |
-| Account switcher           | Works (seeded user list bundled or cached)        |
+| Login / sign-up            | Needs internet; once logged in the cached session works offline |
 
 ## 5. Data model (Prisma)
 
@@ -227,12 +227,16 @@ model JobReport {
 
 ## 6. API (Express, SWE)
 
-Demo auth: every route except `/health` and `/users` reads `x-user-id` and loads that `User`. Clearly labeled demo-only in the README.
+Auth: email + password. Passwords are bcrypt-hashed (cost 10); signup/login return a JWT (HS256, 30 days, `JWT_SECRET`). `/bookings/*` and `/me` require `Authorization: Bearer <token>` and load that `User`. The API never returns `passwordHash` and has no user listing. `isVerified` is never set by the API.
 
 | Method | Path                   | Who           | Purpose                                                       |
 | ------ | ---------------------- | ------------- | ------------------------------------------------------------- |
 | GET    | `/health`              | any           | Online check                                                  |
-| GET    | `/users`               | any           | Seeded users for the account switcher                         |
+| POST   | `/auth/signup`         | any           | Create CLIENT/WORKER account → `{ token, user }`; 409 on duplicate email |
+| POST   | `/auth/login`          | any           | `{ token, user }`; 401 "Mali ang email o password." for any bad credential |
+| GET    | `/me`                  | signed in     | My profile                                                    |
+| PATCH  | `/me`                  | signed in     | Update name, phone, barangay, bio, yearsExperience, services (workers) |
+| GET    | `/workers/:id`         | any           | Public worker profile + `jobsCompleted`; `phone` only for a client whose booking the worker accepted |
 | POST   | `/bookings`            | client        | Create (idempotent on `clientRef`); server recomputes price   |
 | GET    | `/bookings/mine`       | client/worker | My bookings                                                   |
 | GET    | `/bookings/open`       | worker        | `REQUESTED` bookings matching my services + city              |
@@ -257,7 +261,7 @@ trabawho/
 ├─ apps/
 │  ├─ mobile/                 # Expo app (SWE, except src/ai + src/rules)
 │  │  ├─ app/
-│  │  │  ├─ login.tsx                       # account switcher
+│  │  │  ├─ login.tsx                       # email + password login
 │  │  │  ├─ (client)/new-problem.tsx, booking-card.tsx, bookings.tsx
 │  │  │  └─ (worker)/jobs.tsx, job/[id].tsx, report.tsx
 │  │  ├─ src/ai/              # LlamaService / OllamaService / StubService (thin LlmCall wrappers)
