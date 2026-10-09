@@ -68,19 +68,22 @@ const HAZARD_ICON: Record<HazardCode, Icon> = {
 };
 
 export const serviceName = (s: ServiceCode) => catalog.services.find((x) => x.code === s)?.nameTl ?? s;
+export const serviceNameEn = (s: ServiceCode) => catalog.services.find((x) => x.code === s)?.nameEn ?? s;
 export const taskName = (t: string) => catalog.tasks.find((x) => x.code === t)?.nameTl ?? t;
 export const peso = (n: number) => `₱${n.toLocaleString("en-PH")}`;
 export const call = (phone: string) => Linking.openURL(`tel:${phone}`);
 
 // ---------- primitives ----------
 
-type ButtonVariant = "primary" | "dark" | "ghost" | "danger";
+type ButtonVariant = "primary" | "dark" | "ghost" | "danger" | "onDark";
 // `orb` is the arrow circle on the 56 px pill (artboard v3 buttons).
 const BTN: Record<ButtonVariant, { box: string; text: string; icon: string; orb?: { box: string; icon: string } }> = {
   primary: { box: "bg-lime", text: "text-navy", icon: C.navy, orb: { box: "bg-navy", icon: C.white } },
   dark: { box: "bg-navy", text: "text-white", icon: C.white, orb: { box: "bg-lime", icon: C.navy } },
   ghost: { box: "border-[1.5px] border-border-strong bg-surface", text: "text-navy", icon: C.navy },
   danger: { box: "bg-danger", text: "text-white", icon: C.white },
+  // Secondary action on navy screens (welcome, AI checking).
+  onDark: { box: "border-[1.5px] border-white/30 bg-white/5", text: "text-white", icon: C.white },
 };
 
 export function Button({
