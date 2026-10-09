@@ -60,8 +60,9 @@ export function startModelDownload(onProgress: (p: DownloadProgress) => void): M
         // Swap in only when complete, so a cut-off download is never loaded as a model.
         const dest = importedModelFile();
         if (dest.exists) dest.delete();
-        part.move(dest);
-        return dest.uri;
+        // move() is async in expo-file-system 57: wait for it, or the model reload races the rename.
+        await part.move(dest);
+        return importedModelFile().uri;
       } catch (e) {
         lastError = e;
       }
