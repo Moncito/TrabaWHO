@@ -28,6 +28,7 @@ import { Button, C, Card, Field, HazardAlert, Label, peso, ServiceTile, serviceN
 import { enqueueBooking } from "@/data/bookings";
 import { useSession } from "@/data/session";
 import { flush, useNetwork } from "@/data/sync";
+import { showToast } from "@/state/toast";
 import { resetDraft, setDraftCard, useDraft } from "@/state/draft";
 
 const toIntake = (c: BookingCardData): IntakeResult => ({
@@ -192,7 +193,15 @@ export default function BookingCardScreen() {
         ) : (
           // Guest mode: the AI part is done offline; sending to workers needs an account.
           // The draft (text + card) stays in memory, so after sign-up the client can book it.
-          <Button label="Sign up to book · Mag-sign up" icon={CalendarCheck} onPress={() => router.push("/signup")} />
+          <Button
+            label="Sign up to book · Mag-sign up"
+            icon={CalendarCheck}
+            onPress={() => {
+              // Sign-up needs internet: say so instead of opening a form that can't submit.
+              if (!online) showToast("error", "Connect to the internet first to sign up. Kumonekta muna sa internet.");
+              else router.push("/signup");
+            }}
+          />
         )
       }
     >
