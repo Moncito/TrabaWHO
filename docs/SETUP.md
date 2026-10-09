@@ -191,6 +191,17 @@ Disclose it in the pitch as "laptop-local, no cloud".
 
 ### 6.1 Database + API
 
+**Fastest (no install, no Docker):** `npm run db:local -w apps/api` starts PostgreSQL from the `embedded-postgres` npm package on `localhost:5432` (data in `apps/api/.pgdata`, git-ignored; keep that terminal open). `apps/api/.env`:
+
+```
+DATABASE_URL="postgresql://postgres:postgres@localhost:5432/trabawho"
+DIRECT_URL="postgresql://postgres:postgres@localhost:5432/trabawho"
+PORT=3000
+JWT_SECRET="<node -e \"console.log(require('crypto').randomBytes(32).toString('hex'))\">"
+```
+
+Then `cd apps/api && npx prisma migrate deploy && npx prisma generate && npm run db:seed:demo && npm run dev`. Verified Oct 10 on the AI engineer's laptop: both migrations applied, demo accounts created, login 200, wrong password 401, `/bookings/mine` without token 401.
+
 **Option A (verified, simplest for the demo): local Postgres on the laptop.** Install PostgreSQL, create a database, and set both `DATABASE_URL` and `DIRECT_URL` in `apps/api/.env` to it (e.g. `postgresql://postgres:<pw>@localhost:5432/trabawho`). Then run steps 3–4 below. The SWE verified migrate + seed (12 users) and a full smoke test: create 201 → duplicate create returns the same id → accept 200 → second accept 409 → start 200 → report → COMPLETED, total ₱800.
 
 **Option B: Supabase** (hosted Postgres):
