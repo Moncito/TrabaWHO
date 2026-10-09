@@ -5,7 +5,7 @@ import { useSyncExternalStore } from "react";
  * Kept in memory only (nothing is sent anywhere).
  */
 export interface AiCallStat {
-  kind: "intake" | "report";
+  kind: "intake" | "report" | "scam";
   at: number;
   latencyMs: number;
   source: "model" | "fallback" | "none";

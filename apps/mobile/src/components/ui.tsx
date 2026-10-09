@@ -1,5 +1,6 @@
 import { catalog, getHazard, type HazardCode, type SafetyNote, type ServiceCode, type Urgency } from "@trabawho/shared";
 import {
+  ArrowRight,
   ArrowsClockwise,
   Barricade,
   CalendarBlank,
@@ -28,22 +29,24 @@ import {
 } from "phosphor-react-native";
 import type { ReactNode } from "react";
 import { ActivityIndicator, Linking, Pressable, Text, TextInput, View, type TextInputProps } from "react-native";
-import Animated, { FadeIn, FadeOut } from "react-native-reanimated";
+import Animated, { FadeIn, FadeOut, ZoomIn } from "react-native-reanimated";
 
 import type { UiStatus } from "@/data/bookings";
 
-// Colors for icons (Phosphor needs raw values; classNames cover everything else). DESIGN §1.1.
+// Colors for icons (Phosphor needs raw values; classNames cover everything else). v3 artboard palette.
 export const C = {
-  ink: "#1F2937",
-  lime: "#A3E635",
-  limeInk: "#3F6212",
+  ink: "#2A2B2C",
+  navy: "#002366",
+  lime: "#F59E0B", // amber accent (name kept for existing call sites)
+  limeInk: "#002366",
   muted: "#4B5563",
   subtle: "#6B7280",
   danger: "#DC2626",
-  dangerInk: "#991B1B",
-  amberInk: "#92400E",
-  ok: "#15803D",
-  infoInk: "#3730A3",
+  dangerInk: "#B91C1C",
+  amberInk: "#B45309",
+  ok: "#047857",
+  infoInk: "#002366",
+  haze: "#C7D4EE",
   white: "#FFFFFF",
 };
 
@@ -72,10 +75,11 @@ export const call = (phone: string) => Linking.openURL(`tel:${phone}`);
 // ---------- primitives ----------
 
 type ButtonVariant = "primary" | "dark" | "ghost" | "danger";
-const BTN: Record<ButtonVariant, { box: string; text: string; icon: string }> = {
-  primary: { box: "bg-lime", text: "text-ink", icon: C.ink },
-  dark: { box: "bg-ink", text: "text-white", icon: C.white },
-  ghost: { box: "border border-border-strong bg-surface", text: "text-ink", icon: C.ink },
+// `orb` is the arrow circle on the 56 px pill (artboard v3 buttons).
+const BTN: Record<ButtonVariant, { box: string; text: string; icon: string; orb?: { box: string; icon: string } }> = {
+  primary: { box: "bg-lime", text: "text-navy", icon: C.navy, orb: { box: "bg-navy", icon: C.white } },
+  dark: { box: "bg-navy", text: "text-white", icon: C.white, orb: { box: "bg-lime", icon: C.navy } },
+  ghost: { box: "border-[1.5px] border-border-strong bg-surface", text: "text-navy", icon: C.navy },
   danger: { box: "bg-danger", text: "text-white", icon: C.white },
 };
 
@@ -100,6 +104,8 @@ export function Button({
 }) {
   const v = BTN[variant];
   const off = disabled || loading;
+  // Full-size primary/dark buttons: label left, icon in a circle on the right.
+  const orb = size === "md" ? v.orb : undefined;
   return (
     <View className="gap-1">
       <Pressable
@@ -107,10 +113,15 @@ export function Button({
         accessibilityState={{ disabled: !!off }}
         disabled={off}
         onPress={onPress}
-        className={`flex-row items-center justify-center gap-2 rounded-[14px] px-4 active:opacity-80 ${v.box} ${size === "md" ? "h-[52px]" : "h-10"} ${off ? "opacity-50" : ""}`}
+        className={`flex-row items-center gap-2 rounded-full active:opacity-80 ${v.box} ${orb ? "h-14 justify-between pl-6 pr-[6px]" : size === "md" ? "h-14 justify-center px-6" : "h-11 justify-center px-4"} ${off ? "opacity-50" : ""}`}
       >
-        {loading ? <ActivityIndicator color={v.icon} /> : I ? <I size={size === "md" ? 20 : 16} color={v.icon} weight="bold" /> : null}
-        <Text className={`font-body-xbold uppercase tracking-wide ${v.text} ${size === "md" ? "text-base" : "text-[13px]"}`}>{label}</Text>
+        {orb ? null : loading ? <ActivityIndicator color={v.icon} /> : I ? <I size={size === "md" ? 20 : 16} color={v.icon} weight="bold" /> : null}
+        <Text className={`font-body-bold ${v.text} ${size === "md" ? "text-base" : "text-sm"}`}>{label}</Text>
+        {orb ? (
+          <View className={`h-11 w-11 items-center justify-center rounded-full ${orb.box}`}>
+            {loading ? <ActivityIndicator color={orb.icon} /> : I ? <I size={20} color={orb.icon} weight="bold" /> : <ArrowRight size={20} color={orb.icon} weight="bold" />}
+          </View>
+        ) : null}
       </Pressable>
       {disabled && disabledReason ? <Text className="text-center font-body text-xs text-subtle">{disabledReason}</Text> : null}
     </View>
@@ -120,15 +131,15 @@ export function Button({
 export function Card({ children, tone = "default", className = "" }: { children: ReactNode; tone?: "default" | "dashed" | "danger" | "dark"; className?: string }) {
   const t = {
     default: "border border-border bg-surface",
-    dashed: "border border-dashed border-subtle bg-surface",
-    danger: "border-2 border-danger bg-danger-bg",
-    dark: "bg-ink",
+    dashed: "border-[1.5px] border-dashed border-amber bg-surface",
+    danger: "border border-danger bg-danger-bg",
+    dark: "bg-navy",
   }[tone];
-  return <View className={`gap-2 rounded-2xl p-[14px] ${t} ${className}`}>{children}</View>;
+  return <View className={`gap-2 rounded-3xl p-4 ${t} ${className}`}>{children}</View>;
 }
 
 export function Label({ children }: { children: ReactNode }) {
-  return <Text className="font-body-xbold text-xs uppercase tracking-wider text-subtle">{children}</Text>;
+  return <Text className="font-body-bold text-[11px] uppercase tracking-widest text-muted">{children}</Text>;
 }
 
 export function Field({ label, ...props }: { label: string } & TextInputProps) {
@@ -137,7 +148,7 @@ export function Field({ label, ...props }: { label: string } & TextInputProps) {
       <Label>{label}</Label>
       <TextInput
         placeholderTextColor={C.subtle}
-        className={`min-h-12 rounded-[14px] border border-border-strong bg-surface px-4 py-3 font-body text-[15px] text-ink focus:border-ink ${props.multiline ? "min-h-32" : ""}`}
+        className={`min-h-14 rounded-[18px] border-[1.5px] border-border-strong bg-surface px-4 py-3 font-body text-base text-ink focus:border-navy ${props.multiline ? "min-h-32" : ""}`}
         textAlignVertical={props.multiline ? "top" : "center"}
         {...props}
       />
@@ -145,11 +156,11 @@ export function Field({ label, ...props }: { label: string } & TextInputProps) {
   );
 }
 
-export function ServiceTile({ service, size = 44 }: { service: ServiceCode; size?: number }) {
+export function ServiceTile({ service, size = 48 }: { service: ServiceCode; size?: number }) {
   const I = SERVICE_ICON[service];
   return (
-    <View className="items-center justify-center rounded-xl bg-lime" style={{ width: size, height: size }}>
-      <I size={size * 0.5} color={C.ink} weight="bold" />
+    <View className="items-center justify-center rounded-2xl bg-navy" style={{ width: size, height: size }}>
+      <I size={size * 0.5} color={C.white} weight="fill" />
     </View>
   );
 }
@@ -158,12 +169,13 @@ export function ServiceTile({ service, size = 44 }: { service: ServiceCode; size
 
 type BadgeStyle = { label: string; box: string; text: string; color: string; icon: Icon };
 
+// Status = fill + ink pairs from the v3 system. Pending is a soft pill so it never reads as a button.
 const STATUS: Record<UiStatus, BadgeStyle> = {
-  PENDING: { label: "Pending", box: "border border-dashed border-subtle bg-surface", text: "text-ink", color: C.ink, icon: CloudArrowUp },
+  PENDING: { label: "Pending", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: CloudArrowUp },
   FAILED: { label: "Hindi naipadala", box: "bg-danger-bg", text: "text-danger-ink", color: C.dangerInk, icon: ArrowsClockwise },
   REQUESTED: { label: "Hinahanapan", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: MagnifyingGlass },
-  ACCEPTED: { label: "Tinanggap", box: "bg-lime-soft", text: "text-lime-ink", color: C.limeInk, icon: Handshake },
-  IN_PROGRESS: { label: "Ginagawa", box: "bg-lime", text: "text-ink", color: C.ink, icon: Wrench },
+  ACCEPTED: { label: "Tinanggap", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: Handshake },
+  IN_PROGRESS: { label: "Ginagawa", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Wrench },
   COMPLETED: { label: "Tapos na", box: "bg-ok-bg", text: "text-ok", color: C.ok, icon: CheckCircle },
   CANCELLED: { label: "Cancelled", box: "bg-soft", text: "text-subtle", color: C.subtle, icon: XCircle },
 };
@@ -171,7 +183,7 @@ const STATUS: Record<UiStatus, BadgeStyle> = {
 const URGENCY: Record<Urgency, BadgeStyle> = {
   EMERGENCY: { label: "Emergency", box: "bg-danger", text: "text-white", color: C.white, icon: Siren },
   TODAY: { label: "Ngayong araw", box: "bg-amber-bg", text: "text-amber-ink", color: C.amberInk, icon: Clock },
-  SCHEDULED: { label: "Naka-schedule", box: "bg-border", text: "text-ink", color: C.ink, icon: CalendarBlank },
+  SCHEDULED: { label: "Naka-schedule", box: "bg-info-bg", text: "text-info-ink", color: C.infoInk, icon: CalendarBlank },
 };
 
 function Badge({ s }: { s: BadgeStyle }) {
@@ -179,7 +191,7 @@ function Badge({ s }: { s: BadgeStyle }) {
   return (
     <View className={`flex-row items-center gap-1 self-start rounded-full px-[10px] py-1 ${s.box}`}>
       <I size={14} color={s.color} weight="bold" />
-      <Text className={`font-body-bold text-xs ${s.text}`}>{s.label}</Text>
+      <Text className={`font-body-bold text-[11px] uppercase tracking-wide ${s.text}`}>{s.label}</Text>
     </View>
   );
 }
@@ -199,9 +211,9 @@ export function UrgencyBadge({ urgency }: { urgency: Urgency }) {
 
 export function VerifiedBadge() {
   return (
-    <View className="flex-row items-center gap-1 self-start rounded-full bg-lime-soft px-2 py-[2px]">
-      <SealCheck size={14} color={C.limeInk} weight="fill" />
-      <Text className="font-body-bold text-xs text-lime-ink">Verified</Text>
+    <View className="flex-row items-center gap-1 self-start rounded-full bg-info-bg px-2 py-[2px]">
+      <SealCheck size={14} color={C.navy} weight="fill" />
+      <Text className="font-body-bold text-[11px] uppercase tracking-wide text-navy">Verified</Text>
     </View>
   );
 }
@@ -222,8 +234,8 @@ export function HazardAlert({ notes, showHotline, hotline = catalog.emergencyHot
   return (
     <Card tone="danger">
       <View className="flex-row items-center gap-2">
-        <Warning size={22} color={C.danger} weight="bold" />
-        <Text className="font-headline text-xl uppercase text-danger-ink">Mag-ingat</Text>
+        <Warning size={24} color={C.danger} weight="fill" />
+        <Text className="font-headline text-xl text-danger-ink">Mag-ingat</Text>
       </View>
       {notes.map((n) => {
         const I = HAZARD_ICON[n.hazard];
@@ -258,6 +270,24 @@ export function PersonCard({ name, role, phone, verified }: { name: string; role
   );
 }
 
+/** Big result moment (artboard v3 "Request sent" / "Booking saved"): navy when sent, dashed amber when pending, red when failed. */
+export function StatusHero({ kind, icon: I, title, message }: { kind: "sent" | "pending" | "failed"; icon: Icon; title: string; message: string }) {
+  const t = {
+    sent: { box: "bg-navy", orb: "bg-lime", icon: C.navy, title: "text-white", msg: "text-haze" },
+    pending: { box: "border-[1.5px] border-dashed border-amber bg-amber-bg", orb: "bg-surface", icon: C.amberInk, title: "text-navy", msg: "text-amber-ink" },
+    failed: { box: "border border-danger bg-danger-bg", orb: "bg-surface", icon: C.danger, title: "text-danger-ink", msg: "text-danger-ink" },
+  }[kind];
+  return (
+    <View className={`items-center gap-3 rounded-3xl px-6 py-8 ${t.box}`}>
+      <Animated.View key={kind} entering={ZoomIn.springify()} className={`h-24 w-24 items-center justify-center rounded-full ${t.orb}`}>
+        <I size={48} color={t.icon} weight={kind === "sent" ? "fill" : "bold"} />
+      </Animated.View>
+      <Text className={`text-center font-headline text-[28px] leading-[32px] ${t.title}`}>{title}</Text>
+      <Text className={`text-center font-body text-[15px] leading-[22px] ${t.msg}`}>{message}</Text>
+    </View>
+  );
+}
+
 export function EmptyState({ icon: I, title, hint }: { icon: Icon; title: string; hint?: string }) {
   return (
     <View className="items-center gap-2 py-10">
@@ -272,19 +302,19 @@ export function TotalsCard({ laborCost, materialsCost, total }: { laborCost: num
   return (
     <Card tone="dark">
       <View className="flex-row justify-between">
-        <Text className="font-body text-sm text-soft">Labor (mula sa catalog)</Text>
+        <Text className="font-body text-sm text-haze">Labor (mula sa catalog)</Text>
         <Text className="font-body-bold text-sm text-white">{peso(laborCost)}</Text>
       </View>
       <View className="flex-row justify-between">
-        <Text className="font-body text-sm text-soft">Materyales</Text>
+        <Text className="font-body text-sm text-haze">Materyales</Text>
         <Text className="font-body-bold text-sm text-white">{peso(materialsCost)}</Text>
       </View>
-      <View className="h-px bg-muted" />
+      <View className="h-px bg-white/20" />
       <View className="flex-row items-end justify-between">
-        <Text className="font-body-xbold text-xs uppercase tracking-wider text-soft">Kabuuan</Text>
-        <Text className="font-headline text-[34px] leading-[36px] text-lime">{peso(total)}</Text>
+        <Text className="font-body-bold text-[11px] uppercase tracking-widest text-haze">Kabuuan</Text>
+        <Text className="font-headline text-[32px] leading-[36px] text-lime">{peso(total)}</Text>
       </View>
-      <Text className="font-body text-xs text-soft">Cash pagkatapos ng trabaho</Text>
+      <Text className="font-body text-xs text-haze">Cash pagkatapos ng trabaho</Text>
     </Card>
   );
 }

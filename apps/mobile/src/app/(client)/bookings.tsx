@@ -42,7 +42,7 @@ export default function Bookings() {
   ].sort((a, b) => b.createdAt - a.createdAt);
 
   return (
-    <Screen title="Mga booking" subtitle={user?.name} right={<AccountButtons />}>
+    <Screen title="My bookings" subtitle={user?.name} right={<AccountButtons />}>
       {rows.length === 0 ? <EmptyState icon={ListBullets} title="Wala pang booking" hint="Pumunta sa Bago para mag-book." /> : null}
       {rows.map((r) => (
         <Pressable key={r.ref} onPress={() => router.push({ pathname: "/booking/[ref]", params: { ref: r.ref } })} className="active:opacity-80">

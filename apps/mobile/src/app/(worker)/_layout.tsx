@@ -1,16 +1,18 @@
 import { Tabs } from "expo-router";
 import { Briefcase } from "phosphor-react-native";
 
+import { PillTabBar } from "@/components/PillTabBar";
 import { C } from "@/components/ui";
 
 export default function WorkerTabs() {
   return (
     <Tabs
+      tabBar={(props) => <PillTabBar {...props} />}
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: C.ink,
+        tabBarActiveTintColor: C.navy,
         tabBarInactiveTintColor: C.subtle,
-        tabBarLabelStyle: { fontFamily: "Archivo_700Bold", fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: "Roboto_700Bold", fontSize: 12 },
       }}
     >
       <Tabs.Screen name="jobs" options={{ title: "Jobs", tabBarIcon: ({ color }) => <Briefcase color={String(color)} size={22} weight="bold" /> }} />

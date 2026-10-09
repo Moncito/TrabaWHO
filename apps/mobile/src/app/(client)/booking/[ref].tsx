@@ -84,9 +84,9 @@ function Timeline({ status }: { status?: BookingStatus }) {
         return (
           <View key={s.label} className="flex-row items-center gap-3">
             {isCurrent ? (
-              <Animated.View entering={ZoomIn.springify()} className="h-4 w-4 rounded-full border-2 border-ink bg-lime" />
+              <Animated.View entering={ZoomIn.springify()} className="h-5 w-5 rounded-full border-4 border-amber-bg bg-lime" />
             ) : (
-              <View className={`h-4 w-4 rounded-full ${done ? "bg-ink" : "border-2 border-border-strong bg-surface"}`} />
+              <View className={`h-5 w-5 rounded-full ${done ? "bg-navy" : "border-2 border-border-strong bg-surface"}`} />
             )}
             <Text className={`font-body-semibold text-sm ${done || isCurrent ? "text-ink" : "text-subtle"}`}>{s.label}</Text>
           </View>

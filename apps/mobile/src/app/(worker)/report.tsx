@@ -1,14 +1,13 @@
 import { computeReportTotals, ReportCreate, type ReportDraft } from "@trabawho/shared";
 import { randomUUID } from "expo-crypto";
 import { router, useLocalSearchParams } from "expo-router";
-import { CheckCircle, CloudArrowUp, FloppyDisk, Plus, Sparkle, Trash } from "phosphor-react-native";
+import { CheckCircle, CloudArrowUp, FloppyDisk, Plus, Sparkle, Trash, WarningCircle } from "phosphor-react-native";
 import { useEffect, useState } from "react";
 import { Pressable, Text, TextInput, View } from "react-native";
-import Animated, { ZoomIn } from "react-native-reanimated";
 
 import { ai } from "@/ai";
 import { Note, Screen } from "@/components/Screen";
-import { Button, C, Card, Field, Label, peso, taskName, TotalsCard } from "@/components/ui";
+import { Button, C, Card, Field, Label, peso, StatusHero, taskName, TotalsCard } from "@/components/ui";
 import { enqueueReport, useCachedBookings, useOutbox } from "@/data/bookings";
 import { useSession } from "@/data/session";
 import { flush, useNetwork } from "@/data/sync";
@@ -88,15 +87,14 @@ export default function Report() {
   if (savedRef && totals) {
     const sent = saved?.status === "sent";
     return (
-      <Screen title={sent ? "Naipadala!" : "Naka-save!"} footer={<Button label="Bumalik sa jobs" onPress={() => router.replace("/jobs")} />}>
-        <View className="items-center gap-3 py-6">
-          <Animated.View key={String(sent)} entering={ZoomIn.springify()} className={`h-28 w-28 items-center justify-center rounded-full ${sent ? "bg-lime" : "border-2 border-dashed border-subtle bg-surface"}`}>
-            {sent ? <CheckCircle size={56} color={C.ink} weight="fill" /> : <CloudArrowUp size={56} color={C.ink} weight="bold" />}
-          </Animated.View>
-          <Text className="text-center font-body-semibold text-[15px] text-ink">
-            {sent ? "Tapos na ang booking." : saved?.status === "failed" ? "Hindi pa naipapadala — susubukan ulit" : "Pending — ipapadala pag may internet"}
-          </Text>
-        </View>
+      <Screen title="Report" footer={<Button label="Back to jobs" variant="dark" onPress={() => router.replace("/jobs")} />}>
+        {sent ? (
+          <StatusHero kind="sent" icon={CheckCircle} title="Report sent!" message="The booking is now complete. Tapos na ang booking." />
+        ) : saved?.status === "failed" ? (
+          <StatusHero kind="failed" icon={WarningCircle} title="Not sent yet" message="We'll retry automatically. Susubukan ulit." />
+        ) : (
+          <StatusHero kind="pending" icon={CloudArrowUp} title="Report saved!" message="Sends itself when you're back online. Ipapadala pag may internet." />
+        )}
         <TotalsCard {...totals} />
       </Screen>
     );
@@ -106,13 +104,13 @@ export default function Report() {
   if (!draft) {
     return (
       <Screen
-        title="I-report ang trabaho"
-        subtitle={taskName(b.taskCode)}
+        title="Report the job"
+        subtitle={`${taskName(b.taskCode)} · I-report ang trabaho`}
         back
-        footer={<Button label="Gawing report" icon={Sparkle} loading={busy} onPress={extract} disabled={!text.trim()} />}
+        footer={<Button label="Make my report" icon={Sparkle} loading={busy} onPress={extract} disabled={!text.trim()} />}
       >
         <Field
-          label="Ano ang ginawa mo?"
+          label="What did you do? · Ano ang ginawa mo?"
           multiline
           placeholder="Hal. Pinalitan ko yung outlet, gumamit ng isang outlet tsaka dalawang metro ng wire, 45 minutes."
           value={text}
@@ -126,9 +124,10 @@ export default function Report() {
   // W04
   return (
     <Screen
-      title="I-check ang report"
+      title="Check your report"
+      subtitle="I-check ang report"
       back
-      footer={<Button label="I-save ang report" icon={FloppyDisk} loading={busy} onPress={save} disabled={!rowsValid} disabledReason="Lagyan ng presyo ang bawat materyales (0 kung wala)" />}
+      footer={<Button label="Save report" variant="dark" icon={FloppyDisk} loading={busy} onPress={save} disabled={!rowsValid} disabledReason="Lagyan ng presyo ang bawat materyales (0 kung wala)" />}
     >
       <Card>
         <Label>Ginawa</Label>
@@ -149,13 +148,13 @@ export default function Report() {
           return (
             <View key={i} className="gap-2 border-b border-border pb-2">
               <View className="flex-row items-center gap-2">
-                <TextInput value={r.name} onChangeText={(name) => set(i, { name })} placeholder="Item" className="h-10 flex-1 rounded-lg border border-border-strong px-2 py-0 font-body text-[15px] text-ink" />
+                <TextInput value={r.name} onChangeText={(name) => set(i, { name })} placeholder="Item" className="h-11 flex-1 rounded-xl border border-border-strong px-3 py-0 font-body text-[15px] text-ink" />
                 <Pressable accessibilityLabel="Tanggalin" onPress={() => setRows((rs) => rs.filter((_, j) => j !== i))} className="h-10 w-10 items-center justify-center">
                   <Trash size={20} color={C.danger} />
                 </Pressable>
               </View>
               <View className="flex-row items-center gap-2">
-                <TextInput value={r.qty} onChangeText={(qty) => set(i, { qty })} keyboardType="decimal-pad" className="h-10 w-16 rounded-lg border border-border-strong px-2 py-0 text-center font-body text-[15px] text-ink" />
+                <TextInput value={r.qty} onChangeText={(qty) => set(i, { qty })} keyboardType="decimal-pad" className="h-11 w-16 rounded-xl border border-border-strong px-2 py-0 text-center font-body text-[15px] text-ink" />
                 <Text className="w-8 font-body text-[13px] text-muted">{r.unit}</Text>
                 <Text className="font-body text-[13px] text-muted">× ₱</Text>
                 <TextInput
@@ -163,9 +162,9 @@ export default function Report() {
                   onChangeText={(price) => set(i, { price })}
                   keyboardType="number-pad"
                   placeholder="presyo"
-                  className={`h-10 flex-1 rounded-lg border px-2 py-0 font-body text-[15px] text-ink ${Number.isFinite(toInt(r.price)) ? "border-border-strong" : "border-amber bg-amber-bg"}`}
+                  className={`h-11 flex-1 rounded-xl border px-3 py-0 font-body text-[15px] text-ink ${Number.isFinite(toInt(r.price)) ? "border-border-strong" : "border-amber bg-amber-bg"}`}
                 />
-                <Text className="w-20 text-right font-body-bold text-sm text-ink">{Number.isFinite(amount) ? peso(amount) : "-"}</Text>
+                <Text className="w-20 text-right font-body-bold text-sm text-navy">{Number.isFinite(amount) ? peso(amount) : "-"}</Text>
               </View>
             </View>
           );

@@ -43,7 +43,7 @@ export function extractJson(raw: string): unknown {
   return JSON.parse(raw.slice(start, end + 1));
 }
 
-async function callWithRetry<T>(
+export async function callWithRetry<T>(
   llm: LlmCall,
   messages: ChatMessage[],
   jsonSchema: object,

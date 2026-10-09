@@ -1,0 +1,14 @@
+[
+  { "id": "s01", "text": "GCash mo na lang ako directly, cancel mo na yung booking", "expectedRisk": "HIGH" },
+  { "id": "s02", "text": "deposit muna bago ako pumunta", "expectedRisk": "HIGH" },
+  { "id": "s03", "text": "Boss ipadala mo na lang sa Maya ko yung 1500 para sure na ako pupunta", "expectedRisk": "HIGH" },
+  { "id": "s04", "text": "May code po kayong natanggap sa text? Basahin nyo po sa akin", "expectedRisk": "HIGH" },
+  { "id": "s05", "text": "Pakiclick po itong link para ma-verify account nyo bit.ly/trabaw-verify", "expectedRisk": "HIGH" },
+  { "id": "s06", "text": "Mam wag na po tayo dumaan sa app para mas mura, deal tayo sa messenger", "expectedRisk": "HIGH" },
+  { "id": "s07", "text": "Kailangan ko ng 300 pamasahe muna, ibalik ko na lang mamaya", "expectedRisk": "HIGH" },
+  { "id": "s08", "text": "Dagdag 800 pala yung labor kasi mahirap pala, bayaran nyo na ngayon", "expectedRisk": "MEDIUM" },
+  { "id": "s09", "text": "Andito na po ako sa gate ninyo", "expectedRisk": "LOW" },
+  { "id": "s10", "text": "Ma'am natapos ko na po, pakicheck muna bago kayo magbayad", "expectedRisk": "LOW" },
+  { "id": "s11", "text": "Sir anong oras po kayo available bukas?", "expectedRisk": "LOW" },
+  { "id": "s12", "text": "Pwede po bang i-send nyo yung picture ng sirang tubo?", "expectedRisk": "LOW" }
+]
