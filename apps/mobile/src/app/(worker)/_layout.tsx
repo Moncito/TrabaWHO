@@ -8,9 +8,10 @@ export default function WorkerTabs() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: C.ink,
+        tabBarActiveTintColor: C.navy,
         tabBarInactiveTintColor: C.subtle,
-        tabBarLabelStyle: { fontFamily: "Archivo_700Bold", fontSize: 12 },
+        tabBarLabelStyle: { fontFamily: "Roboto_700Bold", fontSize: 12 },
+        tabBarStyle: { height: 64, paddingTop: 6, borderTopColor: "#E5E7EB" },
       }}
     >
       <Tabs.Screen name="jobs" options={{ title: "Jobs", tabBarIcon: ({ color }) => <Briefcase color={String(color)} size={22} weight="bold" /> }} />

@@ -21,8 +21,8 @@ export default function Booked() {
   return (
     <Screen title={sent ? "Naipadala na!" : "Naka-save sa phone"} footer={<Button label="Tingnan ang bookings" onPress={() => router.replace("/bookings")} />}>
       <View className="items-center gap-3 py-6">
-        <Animated.View key={status} entering={ZoomIn.springify()} className={`h-28 w-28 items-center justify-center rounded-full ${sent ? "bg-lime" : "border-2 border-dashed border-subtle bg-surface"}`}>
-          <Icon size={56} color={C.ink} weight={sent ? "fill" : "bold"} />
+        <Animated.View key={status} entering={ZoomIn.springify()} className={`h-28 w-28 items-center justify-center rounded-full ${sent ? "bg-navy" : status === "FAILED" ? "bg-danger-bg" : "border-2 border-dashed border-amber bg-amber-bg"}`}>
+          <Icon size={56} color={sent ? C.white : status === "FAILED" ? C.danger : C.amberInk} weight={sent ? "fill" : "bold"} />
         </Animated.View>
         <Text className="text-center font-body-semibold text-[15px] text-ink">
           {sent ? "Hinahanapan ka na ng worker." : status === "FAILED" ? "Hindi pa naipapadala — susubukan ulit" : "Pending — ipapadala pag may internet"}

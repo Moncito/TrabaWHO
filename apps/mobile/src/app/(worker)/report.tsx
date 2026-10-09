@@ -90,8 +90,8 @@ export default function Report() {
     return (
       <Screen title={sent ? "Naipadala!" : "Naka-save!"} footer={<Button label="Bumalik sa jobs" onPress={() => router.replace("/jobs")} />}>
         <View className="items-center gap-3 py-6">
-          <Animated.View key={String(sent)} entering={ZoomIn.springify()} className={`h-28 w-28 items-center justify-center rounded-full ${sent ? "bg-lime" : "border-2 border-dashed border-subtle bg-surface"}`}>
-            {sent ? <CheckCircle size={56} color={C.ink} weight="fill" /> : <CloudArrowUp size={56} color={C.ink} weight="bold" />}
+          <Animated.View key={String(sent)} entering={ZoomIn.springify()} className={`h-28 w-28 items-center justify-center rounded-full ${sent ? "bg-navy" : "border-2 border-dashed border-amber bg-amber-bg"}`}>
+            {sent ? <CheckCircle size={56} color={C.white} weight="fill" /> : <CloudArrowUp size={56} color={C.amberInk} weight="bold" />}
           </Animated.View>
           <Text className="text-center font-body-semibold text-[15px] text-ink">
             {sent ? "Tapos na ang booking." : saved?.status === "failed" ? "Hindi pa naipapadala — susubukan ulit" : "Pending — ipapadala pag may internet"}
@@ -149,13 +149,13 @@ export default function Report() {
           return (
             <View key={i} className="gap-2 border-b border-border pb-2">
               <View className="flex-row items-center gap-2">
-                <TextInput value={r.name} onChangeText={(name) => set(i, { name })} placeholder="Item" className="h-10 flex-1 rounded-lg border border-border-strong px-2 py-0 font-body text-[15px] text-ink" />
+                <TextInput value={r.name} onChangeText={(name) => set(i, { name })} placeholder="Item" className="h-11 flex-1 rounded-xl border border-border-strong px-3 py-0 font-body text-[15px] text-ink" />
                 <Pressable accessibilityLabel="Tanggalin" onPress={() => setRows((rs) => rs.filter((_, j) => j !== i))} className="h-10 w-10 items-center justify-center">
                   <Trash size={20} color={C.danger} />
                 </Pressable>
               </View>
               <View className="flex-row items-center gap-2">
-                <TextInput value={r.qty} onChangeText={(qty) => set(i, { qty })} keyboardType="decimal-pad" className="h-10 w-16 rounded-lg border border-border-strong px-2 py-0 text-center font-body text-[15px] text-ink" />
+                <TextInput value={r.qty} onChangeText={(qty) => set(i, { qty })} keyboardType="decimal-pad" className="h-11 w-16 rounded-xl border border-border-strong px-2 py-0 text-center font-body text-[15px] text-ink" />
                 <Text className="w-8 font-body text-[13px] text-muted">{r.unit}</Text>
                 <Text className="font-body text-[13px] text-muted">× ₱</Text>
                 <TextInput
@@ -163,9 +163,9 @@ export default function Report() {
                   onChangeText={(price) => set(i, { price })}
                   keyboardType="number-pad"
                   placeholder="presyo"
-                  className={`h-10 flex-1 rounded-lg border px-2 py-0 font-body text-[15px] text-ink ${Number.isFinite(toInt(r.price)) ? "border-border-strong" : "border-amber bg-amber-bg"}`}
+                  className={`h-11 flex-1 rounded-xl border px-3 py-0 font-body text-[15px] text-ink ${Number.isFinite(toInt(r.price)) ? "border-border-strong" : "border-amber bg-amber-bg"}`}
                 />
-                <Text className="w-20 text-right font-body-bold text-sm text-ink">{Number.isFinite(amount) ? peso(amount) : "-"}</Text>
+                <Text className="w-20 text-right font-body-bold text-sm text-navy">{Number.isFinite(amount) ? peso(amount) : "-"}</Text>
               </View>
             </View>
           );

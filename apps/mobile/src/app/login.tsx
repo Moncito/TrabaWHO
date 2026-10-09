@@ -34,7 +34,7 @@ export default function Login() {
 
   return (
     <Screen
-      title="TrabaWho"
+      title="TrabaWHO"
       subtitle="Demo: pumili ng account"
       right={
         <HeaderLink href="/ai-stats" label="AI stats">
@@ -71,8 +71,8 @@ function Row({ title, subtitle, onPress, service, verified }: { title: string; s
           {service ? (
             <ServiceTile service={service} />
           ) : (
-            <View className="h-11 w-11 items-center justify-center rounded-xl bg-soft">
-              <UserCircle size={26} color={C.ink} />
+            <View className="h-12 w-12 items-center justify-center rounded-2xl bg-lime">
+              <UserCircle size={28} color={C.navy} weight="fill" />
             </View>
           )}
           <View className="flex-1 gap-1">

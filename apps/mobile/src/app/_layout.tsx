@@ -1,14 +1,9 @@
 import "../global.css";
 
-import { Anton_400Regular } from "@expo-google-fonts/anton";
-import {
-  Archivo_400Regular,
-  Archivo_500Medium,
-  Archivo_600SemiBold,
-  Archivo_700Bold,
-  Archivo_800ExtraBold,
-  useFonts,
-} from "@expo-google-fonts/archivo";
+// Per-weight imports: the package root would bundle all 18 Roboto files.
+import { Roboto_400Regular } from "@expo-google-fonts/roboto/400Regular";
+import { Roboto_700Bold } from "@expo-google-fonts/roboto/700Bold";
+import { useFonts } from "expo-font";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
@@ -24,14 +19,8 @@ SplashScreen.preventAutoHideAsync();
 ai.init().catch(() => undefined);
 
 export default function RootLayout() {
-  const [loaded] = useFonts({
-    Anton_400Regular,
-    Archivo_400Regular,
-    Archivo_500Medium,
-    Archivo_600SemiBold,
-    Archivo_700Bold,
-    Archivo_800ExtraBold,
-  });
+  // Roboto Bold for titles, Roboto Regular for body (artboard v3).
+  const [loaded] = useFonts({ Roboto_400Regular, Roboto_700Bold });
   useSyncTriggers();
 
   useEffect(() => {
@@ -40,7 +29,7 @@ export default function RootLayout() {
 
   if (!loaded) return null;
   return (
-    <View className="flex-1 bg-ink">
+    <View className="flex-1 bg-navy">
       <StatusBar style="light" />
       <Stack screenOptions={{ headerShown: false }} />
       <ToastHost />

@@ -131,7 +131,7 @@ export default function BookingCardScreen() {
       </View>
       <View className="gap-1 rounded-xl bg-soft p-3">
         <View className="flex-row items-center gap-1">
-          <Sparkle size={14} color={C.limeInk} weight="bold" />
+          <Sparkle size={14} color={C.lime} weight="fill" />
           <Label>Buod ng AI</Label>
         </View>
         <Text className="font-body text-[15px] leading-[21px] text-ink">{card.summary}</Text>
@@ -139,7 +139,7 @@ export default function BookingCardScreen() {
       <View className="flex-row items-end justify-between">
         <View>
           <Label>Tantiyang presyo</Label>
-          <Text className="font-headline text-[28px] leading-[30px] text-ink">
+          <Text className="font-headline text-[28px] leading-[32px] text-navy">
             {peso(card.priceMin)}–{peso(card.priceMax).slice(1)}
           </Text>
         </View>
@@ -245,9 +245,9 @@ function EditSheet({
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose} onShow={() => (setService(card.service), setTask(card.task), setUrgency(card.urgency))}>
       <Pressable className="flex-1 bg-black/50" onPress={onClose} />
-      <View className="max-h-[85%] rounded-t-3xl bg-surface p-4" style={{ elevation: 6 }}>
+      <View className="max-h-[85%] rounded-t-[28px] bg-surface px-5 pb-6 pt-4" style={{ elevation: 6 }}>
         <View className="flex-row items-center justify-between pb-2">
-          <Text className="font-headline text-[22px] uppercase text-ink">Baguhin</Text>
+          <Text className="font-headline text-[22px] text-navy">Baguhin</Text>
           <Pressable accessibilityLabel="Isara" onPress={onClose} className="h-11 w-11 items-center justify-center">
             <X size={22} color={C.ink} weight="bold" />
           </Pressable>
@@ -269,7 +269,7 @@ function EditSheet({
           </View>
           <Label>Trabaho</Label>
           {tasksForService(service).map((t) => (
-            <Pressable key={t.code} onPress={() => setTask(t.code)} className={`rounded-[14px] border p-3 ${t.code === task ? "border-ink bg-lime-soft" : "border-border bg-surface"}`}>
+            <Pressable key={t.code} onPress={() => setTask(t.code)} className={`rounded-[14px] border p-3 ${t.code === task ? "border-2 border-navy bg-info-bg" : "border-border bg-surface"}`}>
               <Text className="font-body-bold text-[15px] text-ink">{t.nameTl}</Text>
               <Text className="font-body text-[13px] text-muted">
                 {peso(t.priceMin)}–{peso(t.priceMax).slice(1)} · {t.minutesMin}–{t.minutesMax} min
@@ -302,7 +302,7 @@ function Chip({ label, selected, disabled, onPress }: { label: string; selected?
     <Pressable
       disabled={disabled}
       onPress={onPress}
-      className={`min-h-10 justify-center rounded-full border px-4 ${selected ? "border-ink bg-ink" : "border-border-strong bg-surface"} ${disabled ? "opacity-40" : ""}`}
+      className={`min-h-11 justify-center rounded-full border px-4 ${selected ? "border-navy bg-navy" : "border-border-strong bg-surface"} ${disabled ? "opacity-40" : ""}`}
     >
       <Text className={`font-body-semibold text-[13px] ${selected ? "text-white" : "text-ink"}`}>{label}</Text>
     </Pressable>

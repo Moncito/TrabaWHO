@@ -47,10 +47,10 @@ export default function Jobs() {
 
   return (
     <Screen title="Mga trabaho" subtitle={user ? `${user.name} · ${user.services.map(serviceName).join(", ")}` : undefined} right={<AccountButtons />}>
-      <View className="flex-row rounded-[14px] bg-border p-1">
+      <View className="flex-row rounded-full border border-border bg-surface p-1">
         {(["open", "mine"] as const).map((t) => (
-          <Pressable key={t} onPress={() => setTab(t)} className={`h-10 flex-1 items-center justify-center rounded-xl ${tab === t ? "bg-ink" : ""}`}>
-            <Text className={`font-body-bold text-sm ${tab === t ? "text-white" : "text-ink"}`}>{t === "open" ? "Bukas" : `Akin (${mine.length})`}</Text>
+          <Pressable key={t} onPress={() => setTab(t)} className={`h-11 flex-1 items-center justify-center rounded-full ${tab === t ? "bg-navy" : ""}`}>
+            <Text className={`font-body-bold text-sm ${tab === t ? "text-white" : "text-muted"}`}>{t === "open" ? "Bukas" : `Akin (${mine.length})`}</Text>
           </Pressable>
         ))}
       </View>
@@ -106,7 +106,7 @@ function JobSummary({ b }: { b: ServerBooking }) {
             <Text className="font-body text-[13px] text-muted">{b.barangay}</Text>
           </View>
         </View>
-        <Text className="font-body-bold text-sm text-ink">
+        <Text className="font-body-bold text-sm text-navy">
           {peso(b.priceMin)}–{peso(b.priceMax).slice(1)}
         </Text>
       </View>

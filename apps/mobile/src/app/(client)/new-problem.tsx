@@ -52,7 +52,7 @@ export default function NewProblem() {
       />
       <Card>
         <View className="flex-row items-center gap-2">
-          <Cpu size={18} color={C.limeInk} weight="bold" />
+          <Cpu size={18} color={C.navy} weight="bold" />
           <Text className="flex-1 font-body text-[13px] text-muted">
             AI sa phone na ito: {stats.modelId}
             {stats.loadState === "loading" ? " (naglo-load...)" : stats.loadState === "failed" ? " (hindi na-load: keyword rules muna)" : ""}
@@ -84,7 +84,7 @@ function AIThinking() {
   return (
     <View className="flex-1 items-center justify-center gap-6">
       <Animated.View style={pulse} className="h-28 w-28 items-center justify-center rounded-full bg-lime">
-        <Sparkle size={48} color={C.ink} weight="bold" />
+        <Sparkle size={52} color={C.navy} weight="fill" />
       </Animated.View>
       <View className="gap-2">
         {STEPS.map((s, i) => (
