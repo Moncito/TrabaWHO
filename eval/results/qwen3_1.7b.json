@@ -1,7 +1,7 @@
 {
   "backend": "ollama",
   "model": "qwen3:1.7b",
-  "ranAt": "2026-10-09T11:32:15.356Z",
+  "ranAt": "2026-10-09T15:33:58.361Z",
   "machine": "laptop",
   "intake": {
     "summary": {
@@ -11,8 +11,8 @@
       "task": "16/20 (80%)",
       "hazards": "19/20 (95%)",
       "fallbackUsed": 0,
-      "avgLatencyMs": 1011,
-      "maxLatencyMs": 7103,
+      "avgLatencyMs": 999,
+      "maxLatencyMs": 6920,
       "keywordsService": "19/20 (95%)",
       "keywordsTask": "16/20 (80%)",
       "modelRightKeywordsWrong": [
@@ -30,7 +30,7 @@
       {
         "id": "i01",
         "source": "model",
-        "latencyMs": 7103,
+        "latencyMs": 6920,
         "service": "PLUMBING",
         "task": "PLUMB_LEAK_SINK",
         "hazards": [],
@@ -44,7 +44,7 @@
       {
         "id": "i02",
         "source": "model",
-        "latencyMs": 644,
+        "latencyMs": 649,
         "service": "PLUMBING",
         "task": "PLUMB_CLOG",
         "hazards": [
@@ -60,7 +60,7 @@
       {
         "id": "i03",
         "source": "model",
-        "latencyMs": 706,
+        "latencyMs": 704,
         "service": "PLUMBING",
         "task": "PLUMB_CLOG",
         "hazards": [],
@@ -74,7 +74,7 @@
       {
         "id": "i04",
         "source": "model",
-        "latencyMs": 778,
+        "latencyMs": 774,
         "service": "PLUMBING",
         "task": "PLUMB_LEAK_SINK",
         "hazards": [
@@ -90,12 +90,10 @@
       {
         "id": "i05",
         "source": "model",
-        "latencyMs": 672,
+        "latencyMs": 682,
         "service": "PLUMBING",
         "task": "PLUMBING_INSPECT",
-        "hazards": [
-          "ACTIVE_FLOODING"
-        ],
+        "hazards": [],
         "serviceOk": true,
         "taskOk": true,
         "hazardsOk": true,
@@ -106,12 +104,11 @@
       {
         "id": "i06",
         "source": "model",
-        "latencyMs": 764,
+        "latencyMs": 779,
         "service": "ELECTRICAL",
         "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
-          "BURNING_SMELL",
-          "NO_POWER"
+          "BURNING_SMELL"
         ],
         "serviceOk": true,
         "taskOk": true,
@@ -123,7 +120,7 @@
       {
         "id": "i07",
         "source": "model",
-        "latencyMs": 684,
+        "latencyMs": 672,
         "service": "ELECTRICAL",
         "task": "ELEC_BREAKER_TRIP",
         "hazards": [],
@@ -137,7 +134,7 @@
       {
         "id": "i08",
         "source": "model",
-        "latencyMs": 584,
+        "latencyMs": 580,
         "service": "ELECTRICAL",
         "task": "ELEC_LIGHT_FIXTURE",
         "hazards": [],
@@ -151,7 +148,7 @@
       {
         "id": "i09",
         "source": "model",
-        "latencyMs": 772,
+        "latencyMs": 750,
         "service": "ELECTRICAL",
         "task": "ELEC_BREAKER_TRIP",
         "hazards": [
@@ -167,7 +164,7 @@
       {
         "id": "i10",
         "source": "model",
-        "latencyMs": 771,
+        "latencyMs": 767,
         "service": "ELECTRICAL",
         "task": "ELEC_OUTLET_REPAIR",
         "hazards": [
@@ -184,7 +181,7 @@
       {
         "id": "i11",
         "source": "model",
-        "latencyMs": 697,
+        "latencyMs": 687,
         "service": "CARPENTRY",
         "task": "CARP_DOOR_REPAIR",
         "hazards": [],
@@ -198,7 +195,7 @@
       {
         "id": "i12",
         "source": "model",
-        "latencyMs": 710,
+        "latencyMs": 706,
         "service": "CARPENTRY",
         "task": "CARP_CABINET_REPAIR",
         "hazards": [],
@@ -212,11 +209,10 @@
       {
         "id": "i13",
         "source": "model",
-        "latencyMs": 712,
+        "latencyMs": 670,
         "service": "CARPENTRY",
         "task": "CARP_CEILING_REPAIR",
         "hazards": [
-          "ACTIVE_FLOODING",
           "STRUCTURAL_DAMAGE"
         ],
         "serviceOk": true,
@@ -229,7 +225,7 @@
       {
         "id": "i14",
         "source": "model",
-        "latencyMs": 649,
+        "latencyMs": 660,
         "service": "AIRCON",
         "task": "AC_CLEANING",
         "hazards": [],
@@ -243,7 +239,7 @@
       {
         "id": "i15",
         "source": "model",
-        "latencyMs": 558,
+        "latencyMs": 570,
         "service": "AIRCON",
         "task": "AIRCON_INSPECT",
         "hazards": [],
@@ -257,12 +253,10 @@
       {
         "id": "i16",
         "source": "model",
-        "latencyMs": 667,
+        "latencyMs": 673,
         "service": "AIRCON",
         "task": "AC_WATER_LEAK",
-        "hazards": [
-          "ACTIVE_FLOODING"
-        ],
+        "hazards": [],
         "serviceOk": true,
         "taskOk": true,
         "hazardsOk": true,
@@ -273,7 +267,7 @@
       {
         "id": "i17",
         "source": "model",
-        "latencyMs": 666,
+        "latencyMs": 641,
         "service": "WELDING",
         "task": "WELD_GATE_REPAIR",
         "hazards": [],
@@ -287,7 +281,7 @@
       {
         "id": "i18",
         "source": "model",
-        "latencyMs": 644,
+        "latencyMs": 643,
         "service": "WELDING",
         "task": "WELD_GRILL_INSTALL",
         "hazards": [],
@@ -301,7 +295,7 @@
       {
         "id": "i19",
         "source": "model",
-        "latencyMs": 698,
+        "latencyMs": 714,
         "service": "PLUMBING",
         "task": "PLUMB_LEAK_SINK",
         "hazards": [],
@@ -315,12 +309,11 @@
       {
         "id": "i20",
         "source": "model",
-        "latencyMs": 742,
+        "latencyMs": 732,
         "service": "PLUMBING",
         "task": "PLUMBING_INSPECT",
         "hazards": [
-          "GAS_SMELL",
-          "ACTIVE_FLOODING"
+          "GAS_SMELL"
         ],
         "serviceOk": true,
         "taskOk": true,
@@ -337,14 +330,14 @@
       "tasks": "5/5 (100%)",
       "materials": "4/7 (57%)",
       "duration": "5/5 (100%)",
-      "avgLatencyMs": 1093,
+      "avgLatencyMs": 1112,
       "keywordsMaterials": "0/7 (0%)"
     },
     "rows": [
       {
         "id": "r01",
         "source": "model",
-        "latencyMs": 1413,
+        "latencyMs": 1429,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 2,
@@ -373,7 +366,7 @@
       {
         "id": "r02",
         "source": "model",
-        "latencyMs": 980,
+        "latencyMs": 1001,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 2,
@@ -397,7 +390,7 @@
       {
         "id": "r03",
         "source": "model",
-        "latencyMs": 961,
+        "latencyMs": 991,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 1,
@@ -422,7 +415,7 @@
       {
         "id": "r04",
         "source": "model",
-        "latencyMs": 903,
+        "latencyMs": 892,
         "tasksOk": true,
         "materialsMatched": 0,
         "materialsExpected": 1,
@@ -441,7 +434,7 @@
       {
         "id": "r05",
         "source": "model",
-        "latencyMs": 1206,
+        "latencyMs": 1247,
         "tasksOk": true,
         "materialsMatched": 1,
         "materialsExpected": 1,
@@ -468,5 +461,6 @@
         }
       }
     ]
-  }
+  },
+  "scam": null
 }

@@ -23,7 +23,7 @@ Fields:
 - task: one task code listed under the chosen service below. Match the broken thing the client names (saksakan = outlet, ilaw = light, pinto = door, kisame = ceiling, kabinet = cabinet). Use <SERVICE>_INSPECT only when the client does not say what is broken.
 - urgency: EMERGENCY (danger now: gas, sparks, fire, flooding), TODAY (broken and needed today), SCHEDULED (can wait)
 - hazards: zero or more of ${c.hazards.map((h) => h.code).join(", ")}. Only include a hazard the client clearly describes.
-- summary: one short sentence describing the problem, in the client's language. Do not give advice.
+- summary: one short sentence describing the problem, in the client's language. Use ONLY details the client wrote: never add times, places, causes or amounts. Do not give advice.
 - confidence: high, medium or low
 
 Tasks:
@@ -53,8 +53,8 @@ export const intakeExamples: { text: string; answer: object }[] = [
     answer: { service: "CARPENTRY", task: "CARPENTRY_INSPECT", urgency: "SCHEDULED", hazards: [], summary: "May ingay sa kisame tuwing gabi, hindi alam ang sanhi.", confidence: "low" },
   },
   {
-    text: "Amoy gas sa kusina namin simula kaninang umaga",
-    answer: { service: "PLUMBING", task: "PLUMBING_INSPECT", urgency: "EMERGENCY", hazards: ["GAS_SMELL"], summary: "Amoy gas sa kusina simula kaninang umaga.", confidence: "low" },
+    text: "Amoy gas sa kusina namin",
+    answer: { service: "PLUMBING", task: "PLUMBING_INSPECT", urgency: "EMERGENCY", hazards: ["GAS_SMELL"], summary: "Amoy gas sa kusina.", confidence: "low" },
   },
 ];
 
