@@ -10,7 +10,7 @@ const isUniqueViolation = (e: unknown) => e instanceof Prisma.PrismaClientKnownR
 
 const withPeople = {
   client: { select: { id: true, name: true, phone: true } },
-  worker: { select: { id: true, name: true, phone: true } },
+  worker: { select: { id: true, name: true, phone: true, isVerified: true } },
   report: true,
 } as const;
 
