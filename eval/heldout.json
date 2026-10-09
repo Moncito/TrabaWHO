@@ -1,0 +1,14 @@
+[
+  { "id": "h01", "text": "di lumulubog yung flush sa toilet ko", "expectedService": "PLUMBING", "expectedTask": "PLUMB_CLOG", "expectedHazards": [] },
+  { "id": "h02", "text": "wla aq 2big sa gripo", "expectedService": "PLUMBING", "expectedTask": "PLUMBING_INSPECT", "expectedHazards": [] },
+  { "id": "h03", "text": "di gumaagana yung saksakan", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": [] },
+  { "id": "h04", "text": "nagground ako pag binubuksan ko ref ko", "expectedService": "ELECTRICAL", "expectedTask": "ELECTRICAL_INSPECT", "expectedHazards": [] },
+  { "id": "h05", "text": "need ko ng help sa paggawa ng kubo", "expectedService": "CARPENTRY", "expectedTask": "CARPENTRY_INSPECT", "expectedHazards": [] },
+  { "id": "h06", "text": "gusto ko magpagawa ng baokd", "expectedService": "CARPENTRY", "expectedTask": "CARPENTRY_INSPECT", "expectedHazards": [] },
+  { "id": "h07", "text": "tumutulo aircon namin", "expectedService": "AIRCON", "expectedTask": "AC_WATER_LEAK", "expectedHazards": [] },
+  { "id": "h08", "text": "mainit yung aircon", "expectedService": "AIRCON", "expectedTask": "AC_NOT_COLD", "expectedHazards": [] },
+  { "id": "h09", "text": "kailangan ko ng tagaayos ng gate namin", "expectedService": "WELDING", "expectedTask": "WELD_GATE_REPAIR", "expectedHazards": [] },
+  { "id": "h10", "text": "paayos ng sidecar ng tricycle", "expectedService": "WELDING", "expectedTask": "WELD_METAL_REPAIR", "expectedHazards": [] },
+  { "id": "h11", "text": "dumidiklap yung saksakan namin", "expectedService": "ELECTRICAL", "expectedTask": "ELEC_OUTLET_REPAIR", "expectedHazards": ["SPARKING"] },
+  { "id": "h12", "text": "amoy gas sa kusina tapos nagl-leak yung lababo namin", "expectedService": "PLUMBING", "expectedTask": "PLUMB_LEAK_SINK", "expectedHazards": ["GAS_SMELL"] }
+]
