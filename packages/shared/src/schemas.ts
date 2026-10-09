@@ -140,3 +140,100 @@ export const ReportCreate = z.object({
   createdOffline: z.boolean(),
 });
 export type ReportCreate = z.infer<typeof ReportCreate>;
+
+// ---------- Auth & profiles ----------
+
+export const ROLES = ["CLIENT", "WORKER"] as const;
+export const Role = z.enum(ROLES);
+export type Role = z.infer<typeof Role>;
+
+const email = z.string().trim().toLowerCase().email().max(254);
+const name = z.string().trim().min(2).max(80);
+// Digits with optional leading +, e.g. 09171234567 or +639171234567; spaces and dashes are stripped.
+const phone = z
+  .string()
+  .trim()
+  .transform((s) => s.replace(/[\s-]/g, ""))
+  .pipe(z.string().regex(/^\+?\d{7,15}$/, "Enter a valid phone number, e.g. 09171234567"));
+const place = z.string().trim().min(1).max(64);
+const bio = z.string().trim().max(300);
+const yearsExperience = z.number().int().min(0).max(60);
+const services = z.array(ServiceCode).min(1).max(SERVICE_CODES.length);
+
+export const SignupRequest = z
+  .object({
+    email,
+    password: z.string().min(8).max(128),
+    name,
+    phone,
+    role: Role,
+    city: place,
+    barangay: place,
+    services: z.array(ServiceCode).max(SERVICE_CODES.length).default([]),
+    bio: bio.default(""),
+    yearsExperience: yearsExperience.default(0),
+  })
+  .superRefine((v, ctx) => {
+    if (v.role === "WORKER" && v.services.length === 0) {
+      ctx.addIssue({ code: z.ZodIssueCode.custom, path: ["services"], message: "Workers need at least one service" });
+    }
+  })
+  // Clients do not offer services.
+  .transform((v) => (v.role === "CLIENT" ? { ...v, services: [] as ServiceCode[] } : v));
+export type SignupRequest = z.input<typeof SignupRequest>;
+
+export const LoginRequest = z.object({
+  email,
+  password: z.string().min(1).max(128),
+});
+export type LoginRequest = z.infer<typeof LoginRequest>;
+
+/** PATCH /me: every field optional; `services` only applies to workers. */
+export const ProfileUpdate = z
+  .object({
+    name,
+    phone,
+    barangay: place,
+    bio,
+    yearsExperience,
+    services,
+  })
+  .partial()
+  .strict();
+export type ProfileUpdate = z.input<typeof ProfileUpdate>;
+
+/** The signed-in user as the API returns it (never includes the password hash). */
+export const PublicUser = z.object({
+  id: z.string(),
+  email: z.string(),
+  role: Role,
+  name: z.string(),
+  phone: z.string(),
+  services: z.array(ServiceCode),
+  city: z.string(),
+  barangay: z.string(),
+  bio: z.string(),
+  yearsExperience: z.number().int(),
+  isVerified: z.boolean(),
+  createdAt: z.string(),
+});
+export type PublicUser = z.infer<typeof PublicUser>;
+
+/** GET /workers/:id. `phone` is present only after a booking with this worker was accepted. */
+export const WorkerProfile = z.object({
+  id: z.string(),
+  name: z.string(),
+  services: z.array(ServiceCode),
+  city: z.string(),
+  barangay: z.string(),
+  bio: z.string(),
+  yearsExperience: z.number().int(),
+  isVerified: z.boolean(),
+  jobsCompleted: z.number().int(),
+  memberSince: z.string(),
+  phone: z.string().optional(),
+});
+export type WorkerProfile = z.infer<typeof WorkerProfile>;
+
+export const AuthResponse = z.object({ token: z.string(), user: PublicUser });
+export type AuthResponse = z.infer<typeof AuthResponse>;

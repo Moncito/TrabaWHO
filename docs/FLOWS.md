@@ -11,7 +11,7 @@ Everything here is the **minimum** to ship the demo in SPEC §9. Anything marked
 apps/mobile/app/
 ├─ _layout.tsx                 # fonts, IconContext, ToastProvider, SessionProvider, SyncProvider (NetInfo → flush)
 ├─ index.tsx                   # (add) redirect: no session → /login; CLIENT → /(client)/new-problem; WORKER → /(worker)/jobs
-├─ login.tsx                   # C01 account switcher
+├─ login.tsx                   # C01 email + password login (signup.tsx: sign-up; profile.tsx; worker/[id].tsx)
 ├─ (client)/
 │  ├─ _layout.tsx              # (add) <Tabs>: new-problem "Bago", bookings "Bookings"; others href:null (hidden)
 │  ├─ new-problem.tsx          # C02 input · C03 thinking · S03 model-not-loaded
@@ -177,7 +177,7 @@ sequenceDiagram
   N-->>E: isConnected = true (listener)
   E-->>S: OfflineBanner → "Online ulit", toast "Ipinapadala ang 1 item..."
   loop each outbox row (status pending|failed), oldest first
-    E->>A: POST /bookings (x-user-id, body = BookingCreate)
+    E->>A: POST /bookings (Bearer token, body = BookingCreate)
     A->>D: insert ... on clientRef unique (return existing if dup)
     D-->>A: Booking{id, status: REQUESTED}
     A-->>E: 201 / 200 Booking
@@ -205,7 +205,7 @@ Engine rules (from ARCH 4.2, made concrete)
 
 | ID | Screen | Reads | Writes / calls | Offline |
 | --- | --- | --- | --- | --- |
-| C01 | Login | `GET /users` → cache in SQLite (or bundled seed JSON) | `session.setUser(id)` (AsyncStorage/SQLite), sets `x-user-id` | Cached list |
+| C01 | Login / Sign-up | `POST /auth/login` or `/auth/signup` → `{ token, user }` | Token in expo-secure-store (kv fallback), user cached in SQLite kv; `Authorization: Bearer` on every call | Needs internet; clear offline message. After login, cached session works offline |
 | C02/C03 | New problem / thinking | `aiService` status (`init()` promise) | `aiService.intake(text)` → `BookingCardData \| null`; `setCard()` in draft | Full |
 | S03 | Model not loaded | `init()` rejected | Picker → `buildBookingCard({service, task:'<SERVICE>_INSPECT', urgency:'SCHEDULED', hazards: detectHazards(text), summary: text.slice(0,200), confidence:'low'}, 'fallback')` | Full |
 | C04–C06, S02 | Booking Card | `useIntakeDraft().card` | none | Full |

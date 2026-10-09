@@ -28,7 +28,11 @@ export function flush(): Promise<void> {
 
 async function runFlush() {
   if ((await NetInfo.fetch()).isConnected !== true) return;
-  const rows = db.getAllSync<OutboxRow>("SELECT * FROM outbox WHERE status != 'sent' ORDER BY createdAt ASC");
+  // Rows are sent with the current session's token, so only the signed-in user's rows go out.
+  // Another account's rows wait until that account logs back in on this phone.
+  const user = getUser();
+  if (!user) return;
+  const rows = db.getAllSync<OutboxRow>("SELECT * FROM outbox WHERE status != 'sent' AND userId = ? ORDER BY createdAt ASC", user.id);
   if (!rows.length) return;
   showToast("syncing", `Ipinapadala ang ${rows.length} item...`);
 
@@ -36,10 +40,10 @@ async function runFlush() {
   for (const row of rows) {
     try {
       if (row.type === "BOOKING_CREATE") {
-        const b = await api<ServerBooking>("/bookings", { method: "POST", body: JSON.parse(row.payload), userId: row.userId });
+        const b = await api<ServerBooking>("/bookings", { method: "POST", body: JSON.parse(row.payload) });
         cacheBookings([b]);
       } else {
-        await api(`/bookings/${row.bookingId}/report`, { method: "POST", body: JSON.parse(row.payload), userId: row.userId });
+        await api(`/bookings/${row.bookingId}/report`, { method: "POST", body: JSON.parse(row.payload) });
       }
       setOutboxStatus(row.id, "sent");
       sent++;
@@ -47,6 +51,11 @@ async function runFlush() {
       if (!(e instanceof ApiError)) {
         // Network error: keep the row pending and stop; the next trigger retries.
         setOutboxStatus(row.id, "pending", "network");
+        break;
+      }
+      // Session expired: api() already logged out. Keep the row pending for the next login.
+      if (e.status === 401) {
+        setOutboxStatus(row.id, "pending", "login");
         break;
       }
       // 409 on a report = booking already completed: treat as sent.
@@ -60,8 +69,7 @@ async function runFlush() {
     }
   }
 
-  const user = getUser();
-  if (sent && user) await refreshMine(user.id).catch(() => undefined);
+  if (sent && getUser()) await refreshMine().catch(() => undefined);
   if (sent === rows.length) showToast("synced", `Naipadala na ang ${sent} item`);
   else if (sent) showToast("error", `${sent}/${rows.length} naipadala. Susubukan ulit ang iba.`);
   else showToast("error", "Hindi pa naipapadala — susubukan ulit");

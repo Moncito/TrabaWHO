@@ -1,10 +1,11 @@
 import { BOOKING_STATUSES, safetyFor, type BookingCreate, type BookingStatus } from "@trabawho/shared";
-import { useLocalSearchParams } from "expo-router";
-import { Text, View } from "react-native";
+import { router, useLocalSearchParams } from "expo-router";
+import { IdentificationCard } from "phosphor-react-native";
+import { Pressable, Text, View } from "react-native";
 import Animated, { ZoomIn } from "react-native-reanimated";
 
 import { Note, Screen } from "@/components/Screen";
-import { Card, HazardAlert, Label, peso, PersonCard, ServiceTile, serviceName, StatusBadge, taskName, TotalsCard, UrgencyBadge } from "@/components/ui";
+import { Button, Card, HazardAlert, Label, peso, PersonCard, ServiceTile, serviceName, StatusBadge, taskName, TotalsCard, UrgencyBadge } from "@/components/ui";
 import { refreshMine, uiStatus, useCachedBookings, useOutbox } from "@/data/bookings";
 import { useSession } from "@/data/session";
 import { useNetwork, usePolling } from "@/data/sync";
@@ -16,7 +17,7 @@ export default function BookingDetail() {
   const { online } = useNetwork();
   const server = useCachedBookings().find((b) => b.clientRef === ref);
   const row = useOutbox().find((r) => r.id === ref);
-  usePolling(() => (user ? refreshMine(user.id) : Promise.resolve()), online && !!user);
+  usePolling(() => (user ? refreshMine() : Promise.resolve()), online && !!user);
 
   const p = row ? (JSON.parse(row.payload) as BookingCreate) : null;
   const b = server ?? (p && { serviceCode: p.serviceCode, taskCode: p.taskCode, urgency: p.urgency, hazards: p.hazards, aiSummary: p.aiSummary, address: p.address, barangay: p.barangay, priceMin: 0, priceMax: 0 });
@@ -42,7 +43,14 @@ export default function BookingDetail() {
         </View>
         <Timeline status={server?.status} />
       </Card>
-      {server?.worker ? <PersonCard name={server.worker.name} role="worker" phone={server.worker.phone} verified /> : null}
+      {server?.worker ? (
+        <>
+          <Pressable accessibilityRole="link" accessibilityLabel={`Profile ni ${server.worker.name}`} onPress={() => router.push({ pathname: "/worker/[id]", params: { id: server.worker!.id } })} className="active:opacity-80">
+            <PersonCard name={server.worker.name} role="worker" phone={server.worker.phone} verified={server.worker.isVerified === true} />
+          </Pressable>
+          <Button label="Tingnan ang profile ng worker" variant="ghost" size="sm" icon={IdentificationCard} onPress={() => router.push({ pathname: "/worker/[id]", params: { id: server.worker!.id } })} />
+        </>
+      ) : null}
       <HazardAlert notes={safety.safetyNotes} compact />
       <Card>
         <Label>Buod ng AI</Label>

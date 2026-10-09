@@ -28,17 +28,21 @@ enum BookingStatus {
 }
 
 model User {
-  id             String    @id @default(uuid())
-  role           Role
-  name           String
-  phone          String
-  services       String[] // workers only: service codes
-  city           String
-  barangay       String
-  isVerified     Boolean   @default(false)
-  createdAt      DateTime  @default(now())
-  clientBookings Booking[] @relation("ClientBookings")
-  workerBookings Booking[] @relation("WorkerBookings")
+  id              String    @id @default(uuid())
+  email           String    @unique // stored lowercased
+  passwordHash    String // bcrypt; never returned by the API
+  role            Role
+  name            String
+  phone           String
+  services        String[] // workers only: service codes
+  city            String
+  barangay        String
+  bio             String    @default("")
+  yearsExperience Int       @default(0)
+  isVerified      Boolean   @default(false) // set by an admin after an ID check; never automatic
+  createdAt       DateTime  @default(now())
+  clientBookings  Booking[] @relation("ClientBookings")
+  workerBookings  Booking[] @relation("WorkerBookings")
 }
 
 model Booking {

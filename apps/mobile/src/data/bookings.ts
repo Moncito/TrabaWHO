@@ -31,8 +31,9 @@ export function useCachedBookings(): ServerBooking[] {
   return useDbQuery(cachedBookings);
 }
 
-export async function refreshMine(userId: string): Promise<ServerBooking[]> {
-  const list = await api<ServerBooking[]>("/bookings/mine", { userId });
+/** The signed-in user's bookings (the API scopes /bookings/mine by the bearer token). */
+export async function refreshMine(): Promise<ServerBooking[]> {
+  const list = await api<ServerBooking[]>("/bookings/mine");
   cacheBookings(list);
   return list;
 }
