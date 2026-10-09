@@ -141,6 +141,24 @@ The eval now scores the keyword-only pipeline on the same cases and prints a sid
   - Worker (Ben, Tubero): accept online → airplane ON → Start disabled with reason, I-report works → add material ₱250 → save → Pending. Airplane OFF → COMPLETED; server total ₱1,100 (labor ₱850 + ₱250) matches the phone.
 - Without the model, the report extracts no materials (keyword rules can't). That is the model-vs-keywords point for the pitch.
 
+### 2.16 Held-out eval, database decision, team (branch `ai/heldout-eval`)
+- `swe/core-flow` merged into `main` (real client/worker screens, SQLite outbox + sync engine, device test log).
+- `eval/heldout.json`: 12 cases written by the SWE without seeing `intake.json` or the prompts. Realistic texting: typos and slang ("wla aq 2big sa gripo", "gusto ko magpagawa ng baokd", "paayos ng sidecar ng tricycle").
+- **Run once, no prompt changes before or after** (`eval/results/qwen3_1.7b.heldout.json`):
+
+| Held-out (12) | Qwen3 1.7B (local) | Keyword rules only |
+| --- | --- | --- |
+| Service | **11/12** | 8/12 |
+| Task | 4/12 | 5/12 |
+| Hazards | 11/12 | — |
+| Avg latency (laptop) | ~1.2 s (first call 7.1 s) | ~0 ms |
+
+- Per case: model right / keywords wrong on task: h12. Keywords right / model wrong: h07, h08 (model chose `AIRCON_INSPECT` for short vague aircon messages). Model chose a specific task where the label was `_INSPECT` on h02, h04, h05, h06 (e.g. "paggawa ng kubo" → cabinet). h10 (tricycle sidecar) went to carpentry. h11 "dumidiklap yung saksakan": SPARKING missed by model and rules.
+- Reading: the model generalizes far better on **service** (which worker to send); **task** on unseen phrasing is weak and the client confirms it on the Booking Card. Reported as is in README and SPEC 8.
+- **Do not tune prompts on `heldout.json`.** Any future prompt/keyword change needs a fresh held-out set to be reported fairly.
+- **Database decision: local PostgreSQL on the laptop** (no Supabase). Disclosures in README, SPEC 10, TASKS 6 and ARCHITECTURE now say: APIs / cloud services = none; no cloud AI API.
+- **Team 404:** Marc Ace Flores, Adrian Imbang, Clarence Emlano (README Team section).
+
 ### 2.11 Official briefing alignment (Participant Briefing PDF)
 - Fits the theme ("useful when the cloud disappears"; meaningful inference on device).
 - Added to plans: X/LinkedIn post (tag Devin/Cognition, #AppBuildersPH) is required; ~1-minute demo video; submit once only; repo public by 10:00 AM with code freeze; GitHub Release APK before deadline; names must match the official list; in-person pitch; phone mirroring with scrcpy; own hotspot; Q&A prep. Scoring weights captured in TASKS 6.3 and SPEC header.

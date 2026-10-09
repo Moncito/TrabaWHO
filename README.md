@@ -57,12 +57,19 @@ Model: **Qwen3 1.7B, Q4_K_M GGUF**. Laptop numbers via Ollama 0.40.1; phone numb
 | Report: correct duration (parsed by code in both) | 5/5 | 5/5 |
 | Avg intake latency (laptop) | ~0.7–1.0 s | ~0 ms |
 
-**Held-out set** (`eval/heldout.json`, written by a teammate who had not seen the eval set or prompts; run once, no tuning afterwards):
+**Held-out set** (`eval/heldout.json`, 12 real-world-style messages with typos and slang, written by a teammate who had not seen the eval set or prompts; run once on Oct 9, no tuning before or after):
 
 | Metric | Qwen3 1.7B (local) | Keyword rules only |
 | --- | --- | --- |
-| Intake: correct service | _pending_ | _pending_ |
-| Intake: correct task | _pending_ | _pending_ |
+| Intake: correct **service** (which worker to send) | **11/12 (92%)** | 8/12 (67%) |
+| Intake: correct **task** (exact job) | 4/12 (33%) | 5/12 (42%) |
+| Intake: hazards detected | 11/12 | — |
+| Avg intake latency (laptop) | ~1.2 s | ~0 ms |
+
+What the held-out set shows:
+- **The model generalizes much better at the decision that matters most: which kind of worker to send** (92% vs 67%). Messages like "wla aq 2big sa gripo" or "nagground ako pag binubuksan ko ref ko" have no keyword the rules know.
+- **Fine-grained task choice is weak on unseen phrasing** (33%). The Booking Card lets the client change the task before booking, and the worker confirms on site, so a wrong task costs one tap, not a wrong worker.
+- One hazard was missed by both the model and the rules ("dumidiklap yung saksakan", a sparking outlet). We report it as is.
 
 **On the phone** (demo device: Infinix X6873, Android 16, ~8 GB physical RAM):
 
@@ -74,7 +81,7 @@ Model: **Qwen3 1.7B, Q4_K_M GGUF**. Laptop numbers via Ollama 0.40.1; phone numb
 
 Honesty notes:
 - Prompts were tuned while looking at `intake.json`, so those numbers are optimistic. The held-out numbers are the fair ones.
-- On the tuned set the model and the keyword rules tie on task accuracy but miss **different** cases. Only the model extracts materials and writes summaries, and it is meant to handle phrasing nobody wrote a keyword for.
+- On the tuned set the model and the keyword rules tie on task accuracy but miss **different** cases. On the held-out set the model is clearly better at the service, and the rules are slightly better at the exact task. Only the model extracts materials and writes summaries.
 - Gemma 3 1B was also evaluated (service 17/20, task 9/20) and rejected.
 - Reproduce any number with the commands below; raw outputs are in `eval/results/`.
 
@@ -90,7 +97,7 @@ Honesty notes:
 | Local data | expo-sqlite, NetInfo (offline queue + sync on reconnect) |
 | Validation | Zod (shared between app, API and eval) |
 | API | Node.js, Express 5, Prisma 6 |
-| Database | Supabase Postgres |
+| Database | PostgreSQL (local, on the demo laptop) |
 | Eval / laptop model | Ollama (same GGUF), Vitest |
 
 ## Repository layout
@@ -134,7 +141,7 @@ npx expo start --web
 
 ```bash
 cd apps/api
-cp .env.example .env     # fill in Supabase DATABASE_URL and DIRECT_URL
+cp .env.example .env     # DATABASE_URL and DIRECT_URL = your local Postgres, e.g. postgresql://postgres:<pw>@localhost:5432/trabawho
 npx prisma migrate dev --name init
 npm run db:seed
 npm run dev              # http://0.0.0.0:3000
@@ -175,14 +182,15 @@ Seeded users (Quezon City): clients Juan dela Cruz and Maria Santos; 10 workers 
 | --- | --- |
 | Models | Qwen3 1.7B Q4_K_M GGUF (via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback). Gemma 3 1B evaluated, not used |
 | Frameworks / tools | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, NetInfo, Zod, Node.js, Express, Prisma, Vitest, Ollama, Phosphor Icons |
-| APIs / cloud services | Supabase Postgres (booking/report sync only). **No cloud AI API** |
+| APIs / cloud services | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API** |
 | Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon |
 | AI development tools | Claude Code |
 | Prices | Price ranges in the catalog are **illustrative**, not sourced market rates |
 
-## Team
+## Team 404
 
-- Moncito: AI Engineer (model, prompts, AI pipeline, eval)
-- _Teammate name_: Software Engineer (mobile app, API, offline sync)
+- Marc Ace Flores
+- Adrian Imbang
+- Clarence Emlano
 
 Built for the AppBuildersPH Hackathon 2026.

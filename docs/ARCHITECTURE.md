@@ -30,7 +30,7 @@ Items marked **(verify)** must be tested in the first hours. Library APIs change
                                     └──────────────┬─────────────┘
                                                    │
                                     ┌──────────────▼─────────────┐
-                                    │ Supabase Postgres           │
+                                    │ PostgreSQL (local, laptop)  │
                                     └────────────────────────────┘
 ```
 
@@ -49,7 +49,7 @@ Items marked **(verify)** must be tested in the first hours. Library APIs change
 | Network status | @react-native-community/netinfo                 | SWE   |
 | Icons          | phosphor-react-native (+ react-native-svg)      | SWE   |
 | API            | Node.js + Express + Prisma                      | SWE   |
-| Database       | Supabase Postgres                               | SWE   |
+| Database       | PostgreSQL, local on the laptop (Supabase optional) | SWE   |
 | Hosting (API)  | Team laptop on venue network, or Render/Railway | SWE   |
 
 **Dropped vs v0.1:** whisper.rn (voice), MiniSearch (Ask-the-Guide), Supabase Auth, catalog sync endpoint.
