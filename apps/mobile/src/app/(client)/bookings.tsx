@@ -14,10 +14,11 @@ import { Pressable, Text, View } from "react-native";
 import Animated, { FadeInDown } from "react-native-reanimated";
 
 import { AccountButtons } from "@/components/AccountButtons";
+import { GuestAccountPrompt } from "@/components/GuestAccountPrompt";
 import { Screen } from "@/components/Screen";
 import { Button, C, EmptyState, ServiceTile, serviceNameEn, StatusBadge, taskNameEn } from "@/components/ui";
 import { refreshMine, uiStatus, useCachedBookings, useOutbox, type UiStatus } from "@/data/bookings";
-import { useSession } from "@/data/session";
+import { useGuest, useSession } from "@/data/session";
 import { retry, useNetwork, usePolling } from "@/data/sync";
 
 interface Row {
@@ -34,6 +35,7 @@ interface Row {
 /** C11: bookings_cache ∪ unsynced outbox rows, polled every 5 s while online. */
 export default function Bookings() {
   const user = useSession();
+  const guest = useGuest();
   const { online } = useNetwork();
   const outbox = useOutbox();
   const cache = useCachedBookings();
@@ -56,6 +58,19 @@ export default function Bookings() {
   const done = rows.filter(isDone);
   const active = rows.filter((r) => !isDone(r));
   const shown = tab === "active" ? active : done;
+
+  // Guests (no account) can't book, so "Book a worker" would only loop back to the AI screen.
+  if (guest) {
+    return (
+      <Screen title="My bookings" subtitle="Guest mode" right={<AccountButtons />}>
+        <GuestAccountPrompt
+          icon={ListBullets}
+          title="Bookings need an account"
+          body="You're trying TrabaWHO as a guest: the AI works offline on this phone. To send a booking to a worker and track it here, sign up or log in. Kailangan ng account para mag-book."
+        />
+      </Screen>
+    );
+  }
 
   return (
     <Screen title="My bookings" subtitle={user?.name} right={<AccountButtons />}>
