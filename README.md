@@ -6,13 +6,20 @@ TrabaWHO is a Grab-style booking app for plumbers, electricians, carpenters, air
 
 > Built in **21 hours** at the AppBuildersPH Hackathon 2026 · Theme: **Local AI** · "Build an AI product that remains genuinely useful when the cloud disappears."
 
+| | |
+| --- | --- |
+| Demo video | _coming soon_ |
+| X / LinkedIn post | _coming soon_ |
+| Android APK | [GitHub Releases](https://github.com/Moncito/TrabaWHO/releases) |
+| Team | Team 404 · Marc Ace Flores, Adrian Imbang, Clarence Emlano, Moncito Glenn Hernandez |
+
 ## For judges: try it in 5 minutes
 
 **A. On an Android phone (no server, no account needed)**
 
 1. Install the APK from the [GitHub Releases](https://github.com/Moncito/TrabaWHO/releases) page (Android 10+, ~6 GB RAM or more recommended).
 2. Open the app → **"Try the AI without an account"**.
-3. On first run, tap **Download AI** (one-time, ~1.3 GB over Wi-Fi). The model is saved on the phone.
+3. On first run, tap **Download AI** (one-time, ~1.1 GB over Wi-Fi). The model is saved on the phone.
 4. **Turn on airplane mode.** Everything AI still works:
    - **Ano ang problema?** Type e.g. _"Nag-spark yung saksakan nung sinaksak ko yung charger"_ → Booking Card (Electrician, EMERGENCY, safety note, price range).
    - **Check a message:** paste _"GCash mo na lang ako directly, cancel mo na yung booking"_ → flagged as a likely scam.
@@ -38,7 +45,7 @@ Home-repair problems happen where signal fails: a sparking outlet during a brown
 | Job intake: Taglish text → service, task, urgency, hazards, summary (LLM)                            | Sending / syncing bookings and reports  |
 | Job report: worker's text → tasks, materials, quantities, duration (LLM)                             | Worker matching and accepting jobs      |
 | Price and duration estimates (bundled catalog)                                                       | Booking status updates                  |
-| Safety notes for hazards (pre-written, never AI-generated)                                           | First-time install of the app and model |
+| Safety notes for hazards (pre-written, never AI-generated)                                           | First-time install of the app and the one-time model download (~1.1 GB, Hugging Face) |
 | **Anti-scam check** of pasted chat/SMS messages (LLM + rules); the message never leaves the phone    |                                         |
 | **First-aid chatbot** "habang hinihintay": AI understands the problem, shows team-written safe steps |                                         |
 | Keyword fallback if the model fails                                                                  |                                         |
@@ -306,9 +313,9 @@ Creates clearly-labelled demo accounts in Quezon City, none verified: `demo.clie
 | Models                 | Qwen3 1.7B Q4_K_M GGUF, Apache 2.0 license (Alibaba Qwen; GGUF by unsloth / Ollama library). Via llama.rn on the phone; via Ollama on a laptop for evaluation and an optional laptop fallback. Gemma 3 1B evaluated, not used                                              |
 | Frameworks / tools     | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, expo-secure-store, NetInfo, Zod, Node.js, Express, Prisma, bcryptjs, jose (JWT), Vitest, Supertest, embedded-postgres (local dev DB + tests), Ollama, Phosphor Icons |
 | Auth                   | Real email + password accounts (bcrypt hashes, signed JWTs). No demo account switcher and no fake seeded people; optional `@trabawho.test` rehearsal accounts are created only on request (`db:seed:demo`)                                                                 |
-| APIs / cloud services  | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API**                                                                                                                                        |
-| Existing code / assets | Expo `create-expo-app` template; Google Fonts (Roboto); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon                                   |
-| AI development tools   | Claude Code                                                                                                                                                                                                                                                                |
+| APIs / cloud services  | **No cloud AI API, and no cloud service at runtime.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot or USB). One-time downloads only: the model file from Hugging Face (unsloth's GGUF) on first launch, and the app/code from GitHub |
+| Existing code / assets | Expo `create-expo-app` template; Google Fonts (Roboto); Phosphor icons; a capstone topic proposal (planning document only, no code). The carabao logo was made by our team's designer during the hackathon. Catalog, prompts, safety text, eval sets and all app code were written during the hackathon |
+| AI development tools   | Claude Code (coding, testing on the phone, documentation)                                                                                                                                                                                                                  |
 | Prices                 | Price ranges in the catalog are **illustrative**, not sourced market rates                                                                                                                                                                                                 |
 
 ## Team 404
