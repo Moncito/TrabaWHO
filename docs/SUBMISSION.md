@@ -30,6 +30,21 @@ Copy-paste answers for the AppBuildersPH Hackathon 2026 form. Details and eviden
 
 **Public GitHub repository:** https://github.com/Moncito/TrabaWHO
 
+**Android APK:** https://github.com/Moncito/TrabaWHO/releases/tag/v1.0.0
+
+**Hardware tested on:**
+- Phone (all on-device AI and app testing): Infinix X6873, Android 16, MediaTek MT6897, ~8 GB RAM. The model runs on the phone's CPU (4 threads) through llama.rn.
+- Laptop (API, PostgreSQL and Android builds): Lenovo 82K1, Intel Core i5-11320H, 16 GB RAM, Windows 11. The phone reaches the API over USB (`adb reverse`) or the laptop's hotspot.
+
+**Screenshots** (from the phone, in `docs/images/`):
+- [home.png](images/home.png): client home, "What needs fixing today?"
+- [booking-card-ai.png](images/booking-card-ai.png): AI booking card for a sparking outlet (Electrician, EMERGENCY, safety note, price, first-aid steps)
+- [booking-progress.png](images/booking-progress.png): booking progress with "While you wait" steps
+- [worker-accepted.png](images/worker-accepted.png): the worker's view after accepting the job
+- [worker-report-ai.png](images/worker-report-ai.png): AI-drafted worker report (outlet ×1, wire ×3 m, 60 min) with prices and total
+- [ai-not-understood.png](images/ai-not-understood.png): gibberish input goes to "Pick a service" with the "AI couldn't understand" banner
+- [ai-stats-phone-offline.png](images/ai-stats-phone-offline.png): AI stats measured on the phone in airplane mode
+
 ## The disclosures
 
 **Models used:** Qwen3 1.7B, Q4_K_M GGUF (Apache 2.0; Alibaba Qwen, GGUF by unsloth / Ollama library). On the phone via llama.rn (llama.cpp); on a laptop via Ollama for evaluation. Gemma 3 1B was evaluated and not used.
