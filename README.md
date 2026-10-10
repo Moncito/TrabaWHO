@@ -1,10 +1,10 @@
-# TrabaWho
+# TrabaWHO
 
 **On-device AI for booking blue-collar home services in the Philippines, built to keep working when the signal doesn't.**
 
-TrabaWho is a Grab-style booking app for plumbers, electricians, carpenters, aircon technicians and welders. A client describes the problem in their own Taglish ("Ayaw gumana ng saksakan sa kusina, nag-spark kanina"), and a **language model running on the phone** turns it into a bookable job: the right service, task, urgency, hazards and a short summary. Workers dictate what they did after a job, and the same on-device model turns it into an itemized report. **All AI runs on the phone, in airplane mode.** Bookings and reports queue offline and sync when the connection comes back.
+TrabaWHO is a Grab-style booking app for plumbers, electricians, carpenters, aircon technicians and welders. A client describes the problem in their own Taglish ("Ayaw gumana ng saksakan sa kusina, nag-spark kanina"), and a **language model running on the phone** turns it into a bookable job: the right service, task, urgency, hazards and a short summary. Workers dictate what they did after a job, and the same on-device model turns it into an itemized report. **All AI runs on the phone, in airplane mode.** Bookings and reports queue offline and sync when the connection comes back.
 
-> AppBuildersPH Hackathon 2026 · Theme: **Local AI** · "Build an AI product that remains genuinely useful when the cloud disappears."
+> Built in **21 hours** at the AppBuildersPH Hackathon 2026 · Theme: **Local AI** · "Build an AI product that remains genuinely useful when the cloud disappears."
 
 ## For judges: try it in 5 minutes
 
@@ -29,7 +29,7 @@ TrabaWho is a Grab-style booking app for plumbers, electricians, carpenters, air
 
 ## Why local AI?
 
-Home-repair problems happen where signal fails: a sparking outlet during a brownout, a leak at night with no load, a worker inside a basement or ceiling. TrabaWho's AI runs entirely on the user's phone. It turns a messy Taglish description into a bookable job and writes the worker's job report **without data, at no load cost, and without sending descriptions or photos of the inside of someone's home to a server**. Only the booking the client approved and the finished report are synced when the connection returns.
+Home-repair problems happen where signal fails: a sparking outlet during a brownout, a leak at night with no load, a worker inside a basement or ceiling. TrabaWHO's AI runs entirely on the user's phone. It turns a messy Taglish description into a bookable job and writes the worker's job report **without data, at no load cost, and without sending descriptions or photos of the inside of someone's home to a server**. Only the booking the client approved and the finished report are synced when the connection returns.
 
 ## What runs locally vs what needs internet
 
@@ -132,7 +132,9 @@ Measured with the in-app AI stats screen, **airplane mode on**, Qwen3 1.7B Q4_K_
 | **Worker report** right after an intake (prompt pre-processed when the screen opens) | 7.16 s, 12.6 tokens/s; tasks, both materials and 90 min all correct           |
 | **Sustained: 14 intakes in a row**, airplane mode                                    | avg 7.99 s (6.9–9.1 s), 7.8–8.9 tokens/s, no slowdown; battery 33.4 → 36.2 °C |
 
-<img src="docs/images/ai-stats-phone-offline.png" alt="AI stats screen on the phone in airplane mode" width="280">
+<img src="docs/images/ai-stats-phone-offline.png" alt="AI stats screen on the phone in airplane mode" width="280"> <img src="docs/images/ai-stats-phone-online.png" alt="AI stats screen on the phone with Wi-Fi on, one answer" width="280">
+
+_Left: the airplane-mode run above. Right: a single answer on the demo phone with Wi-Fi on (Oct 10): model load 2.9 s, answer 12.4 s, 7.3 tokens/s, prompt warm-up 29.0 s. The model runs on the phone either way; one answer is not an average, so the table above stays the reference._
 
 What the model answered on the phone:
 
@@ -168,7 +170,7 @@ Accuracy is the same within one case either way. The in-app download was tested 
 | ------------------- | ------------------------------------------------------------------------------ |
 | Mobile              | React Native 0.86 + Expo SDK 57 (dev build), Expo Router, TypeScript           |
 | On-device LLM       | llama.rn 0.12.9 (llama.cpp) + Qwen3 1.7B Q4_K_M GGUF                           |
-| Styling / UI        | NativeWind 4 + Tailwind 3, Reanimated 4, Phosphor icons, Anton + Archivo fonts |
+| Styling / UI        | NativeWind 4 + Tailwind 3, Reanimated 4, Phosphor icons, Roboto font           |
 | Local data          | expo-sqlite, NetInfo (offline queue + sync on reconnect)                       |
 | Validation          | Zod (shared between app, API and eval)                                         |
 | API                 | Node.js, Express 5, Prisma 6                                                   |
@@ -305,7 +307,7 @@ Creates clearly-labelled demo accounts in Quezon City, none verified: `demo.clie
 | Frameworks / tools     | React Native, Expo, Expo Router, NativeWind, Tailwind, Reanimated, llama.rn / llama.cpp, expo-sqlite, expo-secure-store, NetInfo, Zod, Node.js, Express, Prisma, bcryptjs, jose (JWT), Vitest, Supertest, embedded-postgres (local dev DB + tests), Ollama, Phosphor Icons |
 | Auth                   | Real email + password accounts (bcrypt hashes, signed JWTs). No demo account switcher and no fake seeded people; optional `@trabawho.test` rehearsal accounts are created only on request (`db:seed:demo`)                                                                 |
 | APIs / cloud services  | **None.** The API and PostgreSQL run locally on the team laptop (booking/report sync over the phone's hotspot). **No cloud AI API**                                                                                                                                        |
-| Existing code / assets | Expo `create-expo-app` template; Google Fonts (Anton, Archivo); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon                                   |
+| Existing code / assets | Expo `create-expo-app` template; Google Fonts (Roboto); Phosphor icons; a capstone topic proposal (planning document only, no code). Catalog, prompts, safety text, eval sets and all app code were written during the hackathon                                   |
 | AI development tools   | Claude Code                                                                                                                                                                                                                                                                |
 | Prices                 | Price ranges in the catalog are **illustrative**, not sourced market rates                                                                                                                                                                                                 |
 
@@ -316,4 +318,4 @@ Creates clearly-labelled demo accounts in Quezon City, none verified: `demo.clie
 - Clarence Emlano
 - Moncito Glenn Hernandez
 
-Built for the AppBuildersPH Hackathon 2026.
+Built in 21 hours for the AppBuildersPH Hackathon 2026.
